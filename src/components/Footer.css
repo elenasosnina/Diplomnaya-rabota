@@ -1,0 +1,6 @@
+.footer{
+    background-color: rgb(166, 220, 49);
+    height: 300px;
+    grid-row-start:3;
+    grid-row-end:4;
+}
