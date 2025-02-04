@@ -49,6 +49,7 @@
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow:ellipsis;
+    margin-right: 30px;
 }
 #log-in { 
     background-color: rgba(255, 255, 255, 1); 
@@ -63,6 +64,7 @@
     padding:8px 25px 8px ;
     max-height:50px;
     align-items: center;
+    margin-right: 30px;
 }
 .menu{
     background-color: rgb(255, 255, 255);
