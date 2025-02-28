@@ -1,82 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-.header{
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
+
+.header {
     background-color: rgb(79, 15, 255);
+    position: sticky;
     top: 10px;
     left: 10px;
-    position: sticky;
     width: 99%;
     border-radius: 25px;
-    display: grid;
-    grid-template-columns: 1fr 3fr 3fr;
-    align-items: center; /* Центрирование по вертикали */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
 }
-.logo-name{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center; 
-    margin-right: 20px;
-    justify-self: start;
+
+.logo-name {
+    display: flex;
+    flex-direction: row;
 }
-.buttons{
+
+.buttons {
     display: grid;
     grid-template-columns: 4fr 2fr 1fr;
-    align-items: center; 
+    align-items: center;
     margin-right: 10px;
-    justify-self: end;
 }
-.logo-img{
-    margin: 10px;
-    margin-left: 20px;
+
+.logo-img {
+    margin: 10px 20px 10px 10px;
     height: 50px;
     width: 60px;
 }
-.name{
-    padding-top: 10px;
+
+.name {
+    align-self: center;
     color: white;
-    font-family: "Nunito";
-    justify-self: start;
+    font-family: "Nunito", sans-serif;
 }
-#sign-up { 
-    background-color: transparent; 
-    color: white;
-    justify-self: right;
-    border: none;
+
+.header-sign-up, .header-log-in {
+    font-family: "Nunito", sans-serif;
     font-size: 20px;
-    font-family: "Nunito";
-    align-items: center;
-    text-align: center;
+    margin-right: 30px;
+}
+
+.header-sign-up {
+    background-color: transparent;
+    color: white;
+    border: none;
     display: inline-block;
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow:ellipsis;
-    margin-right: 30px;
+    text-align: center;
+    white-space: nowrap;
 }
-#log-in { 
-    background-color: rgba(255, 255, 255, 1); 
-    justify-self: right;
+
+.header-log-in {
+    background-color: rgba(255, 255, 255, 1);
     border: none;
-    width: 80%; 
-    max-width: max-content;
-    margin-right: 20px;
-    border-radius: 12px; 
-    font-family: "Nunito";
-    font-size: 20px;
-    padding:8px 25px 8px ;
-    max-height:50px;
-    align-items: center;
-    margin-right: 30px;
+    border-radius: 12px;
+    padding: 8px 25px;
+    max-height: 50px;
+    width: 80%;
 }
-.menu{
+
+.menu {
     background-color: rgb(255, 255, 255);
     height: 30px;
-    width:30px;
+    width: 30px;
     border-radius: 10px;
-    justify-self: center;
 }
-.search{
+
+.search {
     border-radius: 13px;
-    color:black;
-    border: none; 
+    color: black;
+    border: none;
     padding: 9px;
-    width: 100%;
+    width: 600px;
 }

@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
+*{
+    font-family: Nunito;
+}
+.page-sign-up{
+    background-color: rgb(50, 0, 249); 
+    display: flex; 
+    flex-direction: column; 
+    height: 720px;   
+}
+.card-sign-up, .registration {
+    height: 450px; 
+    width: 400px; 
+    background-color: rgb(255, 255, 255); 
+    display: flex; 
+    flex-direction: column; 
+    border-radius: 10%; 
+    text-align: center; 
+    justify-content: flex-start;
+}
+.card-sign-up {
+    align-self: center; 
+    justify-items: center;
+    margin-top: 100px;
+    margin-bottom: 100px;
+}
+input::placeholder{
+    color: #ffffff;
+}
+.step{
+    color:black;
+    font-size: 12px;
+    display: flex;
+    justify-self: left;
+    margin-left: 30px;
+    text-decoration: solid #4f0fff;
+}
+.sign-up-with img{
+    height: 70px;
+    width: 70px;
+    margin:10px;
+}
+.progressbar{
+    background-color:#4f0fff;
+    border-radius: 20px;
+    border: none;
+    margin-left:20px;
+    margin-right:20px;
+    height: 5px;
+}
+.verification, .bd{
+    display: flex;
+    font-size: 12px;
+    text-align: justify;
+    margin: 16px 32px;
+    gap:20px;
+}
+.bd{
+    gap:24px;
+    margin: 8px 0px;
+}
+.photo-profile {
+    border-radius: 50%;
+    font-size: 24px;
+    margin: 10px;
+    width: 100px;
+    height: 100px;
+}
+.add-photo{
+    position: absolute;
+    bottom: 5px;
+    right: 150px;
+    background-color:white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
