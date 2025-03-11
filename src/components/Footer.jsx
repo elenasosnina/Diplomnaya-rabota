@@ -7,7 +7,7 @@ import companyLogo from "C:/Users/user/diplomnaya-rabota/src/assets/sound-wave.p
 const icons = [icon1, icon2, icon3];
 const Footer = () => {
   return (
-    <div className="footer">
+    <footer className="footer">
       <div className="icons">
         {icons.map((icon, index) => (
           <img key={index} src={icon} width={index === 2 ? 70 : 60} />
@@ -30,7 +30,7 @@ const Footer = () => {
         <p>Правила пользования платформой</p>
         <p>Политика конфиденциальности</p>
       </div>
-    </div>
+    </footer>
   );
 };
 export default Footer;

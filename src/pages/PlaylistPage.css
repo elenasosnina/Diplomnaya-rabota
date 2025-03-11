@@ -1,0 +1,44 @@
+.card-tracklist{
+    
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-evenly;
+    background-color: rgb(233, 233, 233);
+    border-radius: 50px;
+    margin: 50px;
+    grid-column: 2;
+}
+.tracklist-page{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+.card-info{ 
+    margin: 50px 0px 0 80px;
+}
+.listen-counter{
+    background-color: aliceblue;
+    width: 55px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid black;
+    padding: 5px 10px;
+    position:relative; /* Изменено на absolute */
+    bottom: 50px; /* Расстояние от нижнего края */
+    left: 280px;
+}
+.playlist-cover img{
+    height: 350px;
+    width: 350px;
+    border-radius: 30px;
+    position: relative;
+}
+.playlist-info p{
+   font-size: 35px;
+   height: 15px;
+   text-align: center;
+   margin-top:-15px;
+}
+.tracklist{
+    margin-top: 42px;
+    width: 820px;
+}

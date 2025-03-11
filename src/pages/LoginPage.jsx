@@ -30,7 +30,12 @@ const LoginPage = () => {
             type="text"
             placeholder="Введите пароль"
           />
-          <button className="card-btn">Войти</button>
+          <button
+            className="card-btn"
+            onClick={() => handleNavigation("/main")}
+          >
+            Войти
+          </button>
           <label className="hyperlink">
             Забыли пароль? Восстановите пароль
           </label>

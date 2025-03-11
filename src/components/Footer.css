@@ -6,9 +6,11 @@
     align-items: flex-start; 
     padding-top: 50px;
     gap: 60px;
+   
 }
 
 .icons {
+    margin-left: 30px;
     display: inline;
     white-space: nowrap; 
 }

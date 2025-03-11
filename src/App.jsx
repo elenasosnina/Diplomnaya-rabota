@@ -3,6 +3,8 @@ import Footer from "./components/Footer";
 import Main from "./pages/IntroductionPage";
 import Login from "./pages/LoginPage";
 import Registration from "./pages/RegistrationPage";
+import MainPage from "./pages/MainPage";
+import PlaylistPage from "./pages/PlaylistPage";
 import "./App.css";
 import React from "react";
 import {
@@ -14,12 +16,8 @@ import {
 
 const App = () => {
   const location = useLocation();
-
   const appStyle = {
-    height:
-      location.pathname === "/login" || location.pathname === "/registration"
-        ? "100vh"
-        : "auto",
+    minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
     backgroundColor:
@@ -34,6 +32,8 @@ const App = () => {
         location.pathname !== "/registration" && <Header />}
       <Routes>
         <Route path="/" element={<Main />} />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/playlist" element={<PlaylistPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
       </Routes>

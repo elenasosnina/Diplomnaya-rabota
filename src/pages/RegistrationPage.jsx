@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import "./RegistrationPage.css";
+import { useNavigate } from "react-router-dom";
 import emailPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/email.png";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 import styled from "styled-components";
+import Main from "./MainPage";
 
 const Button = styled.button`
   margin: 0 16px 24px 16px;
@@ -97,6 +99,11 @@ const RegistrationProfile = () => {
       reader.readAsDataURL(file);
     }
   };
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
   return (
     <div className="registration">
       <NumberStep>Шаг 3</NumberStep>
@@ -134,7 +141,7 @@ const RegistrationProfile = () => {
           Вы подтверждаете, что согласны со всеми правилами данного сайта
         </label>
       </div>
-      <Button>Продолжить</Button>
+      <Button onClick={() => handleNavigation("/main")}>Продолжить</Button>
     </div>
   );
 };

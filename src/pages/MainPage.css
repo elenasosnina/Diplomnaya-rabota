@@ -1,0 +1,109 @@
+.main-page{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+.playlist-of-the-day{
+background-color: rgb(226, 226, 226);
+display: flex;
+justify-content: space-around;
+align-items:flex-start;
+padding: 30px;
+margin-top: 10px;
+}
+.main-albums{
+margin: 10px 0 0 50px;
+border-radius: 40px;
+width:300px;
+}
+.image-albums {
+    background-color: rgb(226, 226, 226);
+    border-radius: 14px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+.image-albums img{
+    width: 80px;
+    height:80px;
+    border-radius: 14px;
+    
+}
+.image-singers {
+    display: flex;
+    justify-self: center;
+    align-self: center;
+    flex-wrap: wrap;
+}
+.image-singers img{
+    width: 120px;
+    height:120px;
+    border-radius: 80px;
+    position: relative;
+}
+.image1{
+    top:20px;
+    left:40px;
+    z-index: 6;
+}
+.image2{
+    top:20px;
+    left:-5px;
+    z-index: 5;
+}
+.image3{
+    top:20px;
+    left:-50px;
+    z-index: 4;
+}
+.image4{
+    top:20px;
+    left:-100px;
+    z-index: 3;
+}
+.image5{
+    top:20px;
+    left:-150px;
+    z-index: 2;
+}
+.image6{
+    top:20px;
+    left:-200px;
+    z-index: 1;
+}
+.best-singers{
+background-color: rgb(226, 226, 226);
+margin: 10px 10px 0 50px;
+border-radius: 100px;
+width: 720px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap:15px;
+padding-top: 25px;
+
+}
+.top{
+    display: flex;
+    margin-top: 30px;
+    justify-content:center;
+}
+
+.image-playlists img{
+    width: 150px;
+    height:150px;
+    border-radius: 14px;
+    margin: 0px 50px;
+}
+.collection{
+    display: flex;
+    flex-direction:row;
+    flex-wrap: wrap;
+    gap:30px;
+}
+.genres{
+    margin: 30px ;
+}

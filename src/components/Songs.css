@@ -1,0 +1,89 @@
+.card-song, .cover-title-song, .timing-menu {
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    justify-content: space-between;
+}
+
+.card-song {
+    border-radius: 20px;
+    margin: 0 30px;
+    padding: 10px 30px;
+}
+.card-song:hover {
+    background-color: rgb(210, 211, 212);
+
+}
+.menu-dropdown{
+    position: absolute; /* Меняем на absolute */
+    z-index: 1000; /* Добавляем z-index для видимости */
+    transform: translateY(12px);
+}
+.hidden-svg {
+    display: none; /* Скрываем SVG элементы по умолчанию */
+  }
+  
+  /* Показываем SVG элементы при наведении на card-song */
+.card-song:hover .hidden-svg {
+    display: block; /* Показываем SVG элементы при наведении */
+  }
+.cover {
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+}
+.cover-title-song {
+    gap: 20px;
+}
+.timing-menu {
+    align-items: center; 
+    justify-content: center;
+    gap: 20px;
+}
+.title-singer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    font-size: 17px;
+}
+.title-singer p, .timing-menu p {
+    margin: 0; 
+    padding: 0; 
+    height: 22px;
+}
+.pause-icon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.bar {
+    width: 7px; /* Ширина полоски */
+    height: 20px; /* Высота полоски */
+    background-color: white; /* Цвет полоски */
+    margin: 0 3px; /* Отступ между полосками */
+}
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+    opacity: 1; /* Сделаем видимым по умолчанию */
+}
+.play-icon.play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 15px solid white; 
+    opacity: 0; 
+    transition: opacity 0.3s ease; }
+
+.cover:hover .play-icon.play {
+    opacity: 1; 
+  }
+  
