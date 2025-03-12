@@ -1,12 +1,15 @@
 import React from "react";
 import "./MenuSong.css";
-const MenuSong = () => {
+
+const MenuSong = ({ options }) => {
   return (
     <div className="menu-dropdown">
       <ul>
-        <li>Поделиться</li>
-        <li>Посмотреть сведения</li>
-        <li>Добавить в плейлист</li>
+        {options.map((option, index) => (
+          <li key={index} onClick={option.action}>
+            {option.label}
+          </li>
+        ))}
       </ul>
     </div>
   );

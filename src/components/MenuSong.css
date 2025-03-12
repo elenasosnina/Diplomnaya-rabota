@@ -3,6 +3,7 @@
     border-radius: 10px;
     width: 250px;
     text-align: left;
+    z-index: 0;
 }
 
 .menu-dropdown ul {

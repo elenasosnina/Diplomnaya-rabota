@@ -7,13 +7,15 @@
     border-radius: 50px;
     margin: 50px;
     grid-column: 2;
+    padding-bottom: 50px;
 }
+
 .tracklist-page{
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
 .card-info{ 
-    margin: 50px 0px 0 80px;
+    margin: 30px 0px 0 80px;
 }
 .listen-counter{
     background-color: aliceblue;
@@ -23,8 +25,25 @@
     border: 1px solid black;
     padding: 5px 10px;
     position:relative; /* Изменено на absolute */
-    bottom: 50px; /* Расстояние от нижнего края */
+    bottom: 60px; /* Расстояние от нижнего края */
     left: 280px;
+}
+.dropdown-container {
+    position: relative; /* или relative в зависимости от вашего дизайна */
+    z-index: 1000; 
+  }  
+.block-menu-playlist{
+    position: relative; /* Измените на absolute */
+    top: 55px; /* Расстояние от верхнего края */
+    right: 45px; /* Расстояние от левого края */
+}
+.menu-playlist{
+    background-color: rgb(183, 184, 184);
+    height: 10px;
+    width: 50px;
+    border-radius: 25px;
+    transform: rotate(90deg);
+    border: none;
 }
 .playlist-cover img{
     height: 350px;

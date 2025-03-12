@@ -3,14 +3,55 @@ import "./Songs.css";
 import coverSong from "../assets/party.webp";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import Dropdown from "./MenuSong";
-import Player from "./Player";
+// import Player from "./Player";
+import {
+  ShareModalWindow,
+  CreditsModalWindow,
+  AddToPlaylistModalWindow,
+} from "./ModalWindows";
 
 const Songs = () => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentModal, setCurrentModal] = useState(null);
 
+  const handleOpenModal = (modalType) => {
+    console.log(`Открытие модального окна: ${modalType}`);
+    setIsModalOpen(true);
+    setCurrentModal(modalType);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCurrentModal(null);
+  };
+
+  const options = [
+    {
+      label: "Поделиться",
+      action: () => {
+        console.log("Поделиться нажато");
+        handleOpenModal("share");
+      },
+    },
+    {
+      label: "Посмотреть сведения",
+      action: () => {
+        console.log("Посмотреть сведения нажато");
+        handleOpenModal("credits");
+      },
+    },
+    {
+      label: "Добавить в плейлист",
+      action: () => {
+        console.log("Добавить в плейлист нажато");
+        handleOpenModal("addToPlaylist");
+      },
+    },
+  ];
   const handleClick = () => {
     if (isPlaying) {
       audioRef.current.pause();
@@ -93,7 +134,20 @@ const Songs = () => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <Dropdown />
+            <Dropdown options={options} />
+          </div>
+        )}
+        {isModalOpen && (
+          <div className="modal-overlay">
+            {currentModal === "share" && (
+              <ShareModalWindow onClose={handleCloseModal} />
+            )}
+            {currentModal === "credits" && (
+              <CreditsModalWindow onClose={handleCloseModal} />
+            )}
+            {currentModal === "addToPlaylist" && (
+              <AddToPlaylistModalWindow onClose={handleCloseModal} />
+            )}
           </div>
         )}
       </div>
