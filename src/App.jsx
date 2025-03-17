@@ -5,8 +5,9 @@ import Login from "./pages/LoginPage";
 import Registration from "./pages/RegistrationPage";
 import MainPage from "./pages/MainPage";
 import PlaylistPage from "./pages/PlaylistPage";
+import Player from "./components/Player";
 import "./App.css";
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -25,7 +26,10 @@ const App = () => {
         ? "rgb(50, 0, 249)"
         : "rgb(255, 255, 255)",
   };
-
+  const [currentSong, setCurrentSong] = useState(null); // Состояние для текущей песни
+  const handleSongSelect = (song) => {
+    setCurrentSong(song); // Обновляем текущее состояние песни
+  };
   return (
     <div style={appStyle}>
       {location.pathname !== "/login" &&
@@ -33,12 +37,18 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/playlist" element={<PlaylistPage />} />
+        <Route
+          path="/playlist"
+          element={<PlaylistPage onSongSelect={handleSongSelect} />}
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
       </Routes>
       {location.pathname !== "/login" &&
         location.pathname !== "/registration" && <Footer />}
+      {location.pathname !== "/login" &&
+        location.pathname !== "/registration" &&
+        location.pathname !== "/" && <Player currentSong={currentSong} />}
     </div>
   );
 };

@@ -1,7 +1,6 @@
 Header {
     height: 60px; /* Устанавливаем высоту для Header */
     background-color: #f8f9fa; /* Цвет фона для Header */
-    margin:  0 20px;
 }
 
 Footer {

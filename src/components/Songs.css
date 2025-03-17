@@ -27,11 +27,7 @@
 .card-song:hover .hidden-svg {
     display: block; /* Показываем SVG элементы при наведении */
   }
-.cover {
-    border-radius: 10px;
-    cursor: pointer;
-    position: relative;
-}
+
 .cover-title-song {
     gap: 20px;
 }
@@ -51,39 +47,29 @@
     padding: 0; 
     height: 22px;
 }
-.pause-icon {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+.cover {
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
 }
-.bar {
-    width: 7px; /* Ширина полоски */
-    height: 20px; /* Высота полоски */
-    background-color: white; /* Цвет полоски */
-    margin: 0 3px; /* Отступ между полосками */
+
+.cover-container {
+    position: relative; 
+    display: inline-block;
 }
-.play-icon {
+
+.play-pause-icon {
+    cursor: pointer; 
+    width: 25px; 
+    height: 25px; 
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    opacity: 0;
     transition: opacity 0.3s ease;
-    opacity: 1; /* Сделаем видимым по умолчанию */
 }
-.play-icon.play {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 15px solid white; 
-    opacity: 0; 
-    transition: opacity 0.3s ease; }
 
-.cover:hover .play-icon.play {
-    opacity: 1; 
-  }
-  
+.cover-container:hover .play-pause-icon {
+    opacity: 1; /* Показываем иконку при наведении на контейнер */
+}

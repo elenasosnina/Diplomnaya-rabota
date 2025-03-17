@@ -1,11 +1,50 @@
 import React, { useState } from "react";
 import "./PlaylistPage.css";
-import Song from "../components/Songs";
+import Songs from "../components/Songs"; // Исправлено название компонента
 import coverPlaylist from "../assets/login.jpg";
 import Dropdown from "../components/MenuSong";
+import coverSong from "../assets/party.webp"; // Импорт обложек
+import coverSong2 from "../assets/login.jpg";
+import audioCover from "../assets/Justin Bieber - All Around The World.mp3"; // Импорт аудио
+import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 
-const PlaylistPage = () => {
+const PlaylistPage = ({ onSongSelect }) => {
   const [isHovered, setIsHovered] = useState(false);
+  // const [currentSong, setCurrentSong] = useState(null); // Состояние для текущей песни
+
+  // const handleSongSelect = (song) => {
+  //   setCurrentSong(song); // Обновляем текущее состояние песни
+  // };
+  const [songs, setSongs] = useState([
+    {
+      id: 1,
+      title: "All Around The World",
+      artist: "Justin Bieber",
+      audio: audioCover,
+      cover: coverSong,
+    },
+    {
+      id: 2,
+      title: "change",
+      artist: "XXXTENTACION",
+      audio: audioCover2,
+      cover: coverSong2,
+    },
+    {
+      id: 3,
+      title: "Another Song",
+      artist: "Some Artist",
+      audio: audioCover,
+      cover: coverSong,
+    },
+    {
+      id: 4,
+      title: "Yet Another Song",
+      artist: "Different Artist",
+      audio: audioCover2,
+      cover: coverSong2,
+    },
+  ]);
   const options = [
     {
       label: "Поделиться",
@@ -68,18 +107,14 @@ const PlaylistPage = () => {
           </div>
         </div>
         <div className="tracklist">
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
-          <Song />
+          {songs.map((song, index) => (
+            <Songs
+              key={song.id}
+              song={song}
+              onSongSelect={onSongSelect}
+              index={index}
+            />
+          ))}
         </div>
       </div>
     </main>
