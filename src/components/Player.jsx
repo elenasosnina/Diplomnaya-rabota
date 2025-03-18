@@ -1,6 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./Player.css";
-import coverSong from "../assets/party.webp";
 import shuffle from "../assets/shuffle.png";
 import repeat from "../assets/repeat.png";
 import next from "../assets/next.png";
@@ -9,51 +8,33 @@ import lyrics from "../assets/lyrics.png";
 import liked from "../assets/liked.png";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
-// import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
-const Player = ({ currentSong }) => {
-  const audioRef = useRef(null);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [seekValue, setSeekValue] = useState(0); // Add seekValue state
 
-  useEffect(() => {
-    if (currentSong) {
-      audioRef.current.src = currentSong.audio;
-      audioRef.current.load(); // Important: Load the new source
-      audioRef.current.play().catch((error) => {
-        // Handle autoplay issues (browsers may block it)
-        console.warn("Autoplay prevented:", error);
-      });
-      setIsPlaying(true);
-    }
-  }, [currentSong]);
-
-  const handleLoadedMetadata = () => {
-    setDuration(audioRef.current.duration);
-  };
-
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleTimeUpdate = () => {
-    setCurrentTime(audioRef.current.currentTime);
-    setSeekValue((audioRef.current.currentTime / duration) * 100);
-  };
+const Player = ({
+  currentSong,
+  isPlaying,
+  onTogglePlay,
+  audioRef,
+  onSeek,
+  currentTime,
+  duration,
+}) => {
+  const [seekValue, setSeekValue] = useState(0);
 
   const handleSeekChange = (e) => {
     const newValue = e.target.value;
     setSeekValue(newValue);
     const newTime = (parseFloat(newValue) / 100) * duration;
-    audioRef.current.currentTime = newTime;
-    setCurrentTime(newTime);
+    if (!isNaN(newTime) && duration > 0) {
+      audioRef.current.currentTime = newTime;
+      onSeek(newTime);
+    }
   };
+
+  useEffect(() => {
+    if (currentSong) {
+      setSeekValue((currentTime / duration) * 100 || 0); // Correctly calculate initial seek value
+    }
+  }, [currentTime, duration, currentSong]);
 
   const formatTime = (time) => {
     if (isNaN(time)) {
@@ -80,38 +61,37 @@ const Player = ({ currentSong }) => {
                 alt="Cover"
               />
               <div>
-                <p>Artist Name</p>
-                <p>Song Title</p>
+                <p>{currentSong.artist}</p>
+                <p>{currentSong.title}</p>
               </div>
-              <img className="icon-liked" src={liked} />
+              <img className="icon-liked" src={liked} alt="Liked" />
             </div>
-            <audio
-              ref={audioRef}
-              onLoadedMetadata={handleLoadedMetadata}
-              onTimeUpdate={handleTimeUpdate}
-            />
           </>
         )}
         <div className="player-icons">
-          <img src={isPlaying ? pause : play} onClick={handlePlayPause} />
-          <img src={next} />
-          <img src={next} />
-          <img src={shuffle} />
-          <img src={repeat} />
+          <img
+            src={isPlaying ? pause : play}
+            onClick={onTogglePlay}
+            alt={isPlaying ? "Pause" : "Play"}
+          />
+          <img src={next} alt="Next" />
+          <img src={next} alt="Previous" />
+          <img src={shuffle} alt="Shuffle" />
+          <img src={repeat} alt="Repeat" />
         </div>
         <div className="other-icons">
-          <img src={dinamic} />
-          <img src={lyrics} />
+          <img src={dinamic} alt="Dinamic" />
+          <img src={lyrics} alt="Lyrics" />
         </div>
       </div>
       <div className="duration-music-line">
-        <p>{formatTime(currentTime)}</p> {/* Current time display */}
+        <p>{formatTime(currentTime)}</p>
         <div className="audio-line">
           <input
             type="range"
             min="0"
             max="100"
-            value={seekValue} // Use seekValue as the value
+            value={seekValue || 0}
             onChange={handleSeekChange}
           />
         </div>
@@ -120,4 +100,5 @@ const Player = ({ currentSong }) => {
     </div>
   );
 };
+
 export default Player;

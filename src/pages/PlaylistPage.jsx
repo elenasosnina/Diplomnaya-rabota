@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./PlaylistPage.css";
-import Songs from "../components/Songs"; // Исправлено название компонента
+import Songs from "../components/Songs";
 import coverPlaylist from "../assets/login.jpg";
 import Dropdown from "../components/MenuSong";
-import coverSong from "../assets/party.webp"; // Импорт обложек
+import coverSong from "../assets/party.webp";
 import coverSong2 from "../assets/login.jpg";
-import audioCover from "../assets/Justin Bieber - All Around The World.mp3"; // Импорт аудио
+import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 
-const PlaylistPage = ({ onSongSelect }) => {
+const PlaylistPage = ({
+  onSongSelect,
+  isPlaying,
+  currentSong,
+  currentTime,
+  duration,
+  audioRef,
+  toggleSongPlay, // Получаем функцию из App
+}) => {
   const [isHovered, setIsHovered] = useState(false);
-  // const [currentSong, setCurrentSong] = useState(null); // Состояние для текущей песни
-
-  // const handleSongSelect = (song) => {
-  //   setCurrentSong(song); // Обновляем текущее состояние песни
-  // };
   const [songs, setSongs] = useState([
     {
       id: 1,
@@ -45,6 +48,7 @@ const PlaylistPage = ({ onSongSelect }) => {
       cover: coverSong2,
     },
   ]);
+
   const options = [
     {
       label: "Поделиться",
@@ -107,12 +111,17 @@ const PlaylistPage = ({ onSongSelect }) => {
           </div>
         </div>
         <div className="tracklist">
-          {songs.map((song, index) => (
+          {songs.map((song) => (
             <Songs
               key={song.id}
               song={song}
-              onSongSelect={onSongSelect}
-              index={index}
+              //onSongSelect={onSongSelect} //больше не нужен
+              isPlaying={isPlaying}
+              currentSong={currentSong}
+              currentTime={currentTime}
+              duration={duration}
+              //audioRef={audioRef} //больше не нужен
+              toggleSongPlay={toggleSongPlay} // Передаем функцию в Songs
             />
           ))}
         </div>

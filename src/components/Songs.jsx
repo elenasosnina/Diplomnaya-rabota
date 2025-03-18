@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Songs.css";
 import Dropdown from "./MenuSong";
 import play from "../assets/play.png";
@@ -9,37 +9,29 @@ import {
   AddToPlaylistModalWindow,
 } from "./ModalWindows";
 
-const Songs = ({ song, onSongSelect, index }) => {
-  const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+const Songs = ({
+  song,
+  isPlaying,
+  currentSong,
+  currentTime,
+  duration,
+  toggleSongPlay, // Получаем функцию из App
+}) => {
   const [isFilled, setIsFilled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-
-    const setAudioData = () => {
-      setDuration(audio.duration);
-    };
-
-    const setAudioTime = () => {
-      setCurrentTime(audio.currentTime);
-    };
-
-    if (audio) {
-      audio.addEventListener("loadedmetadata", setAudioData);
-      audio.addEventListener("timeupdate", setAudioTime);
-
-      return () => {
-        audio.removeEventListener("loadedmetadata", setAudioData);
-        audio.removeEventListener("timeupdate", setAudioTime);
-      };
+  const formatTime = (time) => {
+    if (isNaN(time)) {
+      return "00:00";
     }
-  }, [song.audio]);
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   const handleOpenModal = (modalType) => {
     console.log(`Открытие модального окна: ${modalType}`);
@@ -75,26 +67,11 @@ const Songs = ({ song, onSongSelect, index }) => {
       },
     },
   ];
-  const handleClick = () => {
-    const audio = audioRef.current;
-
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
-      onSongSelect({
-        cover: song.cover,
-        audio: song.audio,
-        title: song.title,
-        artist: song.artist,
-      });
-    }
-    setIsPlaying(!isPlaying);
-  };
 
   const likeClick = () => {
     setIsFilled(!isFilled);
   };
+
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -102,20 +79,15 @@ const Songs = ({ song, onSongSelect, index }) => {
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
-  const formatTime = (time) => {
-    if (isNaN(time)) {
-      return "00:00";
-    }
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
+
+  const isThisSongPlaying = currentSong && currentSong.id === song.id;
+
   return (
     <div className="card-song">
       <div className="cover-title-song">
-        <div className="cover-container" onClick={handleClick}>
+        <div className="cover-container" onClick={() => toggleSongPlay(song)}>
+          {" "}
+          {/* Вызываем функцию из App */}
           <img
             className="cover"
             src={song.cover}
@@ -123,14 +95,28 @@ const Songs = ({ song, onSongSelect, index }) => {
             width={"50px"}
             alt="Cover"
           />
-          <img
-            className="play-pause-icon"
-            src={isPlaying ? pause : play}
-            onClick={handleClick}
-            alt={isPlaying ? "pause" : "play"}
-          />
+          {isPlaying && currentSong.id === song.id ? (
+            <img
+              className="play-pause-icon"
+              src={pause}
+              alt="pause"
+              onClick={(e) => {
+                e.stopPropagation(); // Остановить всплытие события клика
+                toggleSongPlay(song); // Вызываем функцию из App
+              }}
+            />
+          ) : (
+            <img
+              className="play-pause-icon"
+              src={play}
+              alt="play"
+              onClick={(e) => {
+                e.stopPropagation(); // Остановить всплытие события клика
+                toggleSongPlay(song); // Вызываем функцию из App
+              }}
+            />
+          )}
         </div>
-        <audio ref={audioRef} src={song.audio}></audio>
         <div className="title-singer">
           <p>{song.artist}</p>
           <p>{song.title}</p>
@@ -142,7 +128,7 @@ const Songs = ({ song, onSongSelect, index }) => {
           xmlns="http://www.w3.org/2000/svg"
           width="20"
           height="20"
-          viewBox="0 0 24 24"
+          viewBox="0 0 0 24 24"
           fill={isFilled ? "black" : "none"}
           stroke="black"
           strokeWidth="1"
@@ -164,7 +150,7 @@ const Songs = ({ song, onSongSelect, index }) => {
           <circle cx="25" cy="10" r="5" fill="black" />
           <circle cx="40" cy="10" r="5" fill="black" />
         </svg>
-        {isPlaying ? (
+        {isThisSongPlaying ? (
           <p>{formatTime(currentTime)}</p>
         ) : (
           <p>{formatTime(duration)}</p>
