@@ -15,7 +15,7 @@ const PlaylistPage = ({
   currentTime,
   duration,
   audioRef,
-  toggleSongPlay, // Получаем функцию из App
+  toggleSongPlay,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [songs, setSongs] = useState([
@@ -115,13 +115,11 @@ const PlaylistPage = ({
             <Songs
               key={song.id}
               song={song}
-              //onSongSelect={onSongSelect} //больше не нужен
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
               duration={duration}
-              //audioRef={audioRef} //больше не нужен
-              toggleSongPlay={toggleSongPlay} // Передаем функцию в Songs
+              toggleSongPlay={toggleSongPlay}
             />
           ))}
         </div>

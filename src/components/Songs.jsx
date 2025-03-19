@@ -86,8 +86,6 @@ const Songs = ({
     <div className="card-song">
       <div className="cover-title-song">
         <div className="cover-container" onClick={() => toggleSongPlay(song)}>
-          {" "}
-          {/* Вызываем функцию из App */}
           <img
             className="cover"
             src={song.cover}
@@ -101,8 +99,8 @@ const Songs = ({
               src={pause}
               alt="pause"
               onClick={(e) => {
-                e.stopPropagation(); // Остановить всплытие события клика
-                toggleSongPlay(song); // Вызываем функцию из App
+                e.stopPropagation();
+                toggleSongPlay(song);
               }}
             />
           ) : (
@@ -111,8 +109,8 @@ const Songs = ({
               src={play}
               alt="play"
               onClick={(e) => {
-                e.stopPropagation(); // Остановить всплытие события клика
-                toggleSongPlay(song); // Вызываем функцию из App
+                e.stopPropagation();
+                toggleSongPlay(song);
               }}
             />
           )}
@@ -150,11 +148,11 @@ const Songs = ({
           <circle cx="25" cy="10" r="5" fill="black" />
           <circle cx="40" cy="10" r="5" fill="black" />
         </svg>
-        {isThisSongPlaying ? (
-          <p>{formatTime(currentTime)}</p>
-        ) : (
-          <p>{formatTime(duration)}</p>
-        )}
+
+        <p>
+          {isThisSongPlaying ? formatTime(currentTime) : formatTime(duration)}
+        </p>
+
         {isHovered && (
           <div
             className="menu-dropdown"

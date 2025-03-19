@@ -1,17 +1,20 @@
 .player-card{
 background-color: #4f0fff;
 width: 100%;
-height: 70px;
+height: 120px;
 position: fixed;
 bottom:0;
 box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.5);
 border-radius: 20px 20px 0 0;
 display: flex;
-flex-direction: colomn;
+flex-direction:column;
 }
 .main-part{
-    display: flex;
-flex-direction: row;
+    display: grid;
+    grid-template-columns: 3fr 10fr 1fr;
+
+
+margin: 20px 30px 10px 30px; 
 }
 .cover {
     border-radius: 10px;
@@ -19,27 +22,60 @@ flex-direction: row;
     position: relative;
 }
 .icon-liked{
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
 }
-
+.player-icons {
+    padding-left: 250px;
+    grid-column-start: 2;
+    grid-column-end: 3;
+    padding-bottom: 22px;
+}
 .player-icons img{
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
+    margin-left: 8px;
 }
 .other-icons img{
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
+    margin-left: 5px;
+    grid-column-start: 3;
+    grid-column-end: 4;
 }
 .duration-music-line{
-    display: grid;
-    grid-template-columns: 4fr 1fr;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0 30px 0 30px;
 }
 .cover-artist-title{
     display: flex;
     flex-direction: row;
+    gap:20px;
+    align-items: center;
+}
+.song-information p{
+    height: 10px;
+    color: white;
 }
 .play-audio{
-    background-color: aliceblue;
+    background-color: rgb(251, 251, 251);
    height: 10px;
 }
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #4f0fff;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3); 
+  }
+  
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2); 
+  }
+  
