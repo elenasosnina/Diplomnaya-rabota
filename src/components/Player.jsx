@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Player.css";
 import shuffle from "../assets/shuffle.png";
-import repeat from "../assets/repeat.png";
+import repeatImg from "../assets/repeat.png";
 import next from "../assets/next.png";
 import dinamic from "../assets/dinamic.png";
 import lyrics from "../assets/lyrics.png";
-import liked from "../assets/liked.png";
+import maxPlayer from "../assets/maximize.png";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
 
@@ -17,12 +17,26 @@ const Player = ({
   onSeek,
   currentTime,
   duration,
+  onLikeChange,
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const [showSlider, setShowSlider] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
+  const [volume, setVolume] = useState(50); // Volume state
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
   const handleSeekChange = (e) => {
-    const newValue = e.target.value;
+    // перемотка песни
+    const newValue = e.target.value; //новое значение из события
     setSeekValue(newValue);
+
     const newTime = (parseFloat(newValue) / 100) * duration;
     if (!isNaN(newTime) && duration > 0) {
       audioRef.current.currentTime = newTime;
@@ -30,14 +44,21 @@ const Player = ({
     }
   };
 
+  const likeClick = () => {
+    onLikeChange(song.id, !song.liked);
+  };
+
+  const playedPercentage = (currentTime / duration) * 100;
+
   useEffect(() => {
     if (currentSong) {
-      setSeekValue((currentTime / duration) * 100 || 0);
-      setShowSlider(true); // Show the slider when a song is loaded
+      //выбрана ли текущая песня
+      setSeekValue(playedPercentage || 0); // отражение длительности
+      setShowSlider(true); // видимость полосы
     } else {
-      setShowSlider(false); // Hide the slider if no song is loaded
+      setShowSlider(false);
     }
-  }, [currentTime, duration, currentSong]);
+  }, [currentTime, duration, currentSong]); //функция будет вызываться каждый раз, когда изменяются значения currentTime, duration или currentSong
 
   const formatTime = (time) => {
     if (isNaN(time)) {
@@ -49,13 +70,53 @@ const Player = ({
       .toString()
       .padStart(2, "0")}`;
   };
-  const playedPercentage = (currentTime / duration) * 100;
+
+  const toggleRepeat = () => {
+    setIsRepeating(!isRepeating);
+  };
+
+  useEffect(() => {
+    const handleEnded = () => {
+      if (isRepeating) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch((error) => {
+          console.error("Error autoplaying after repeat:", error);
+        });
+      }
+    };
+
+    if (currentSong) {
+      audioRef.current.addEventListener("ended", handleEnded);
+
+      return () => {
+        audioRef.current.removeEventListener("ended", handleEnded);
+      };
+    }
+  }, [currentSong, isRepeating, audioRef]);
+
+  // Function to handle volume change
+  const handleVolumeChange = (event) => {
+    const newVolume = parseInt(event.target.value, 10);
+    setVolume(newVolume);
+
+    // Update audio volume
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume / 100; // Volume is between 0 and 1
+    }
+  };
+
+  // Effect to set initial volume and update on component mount
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [audioRef, volume]);
   return (
     <div className="player-card">
       <div className="main-part">
-        {currentSong && (
-          <>
-            <div className="cover-artist-title">
+        <div className="cover-artist-title">
+          {currentSong && (
+            <>
               <img
                 className="cover"
                 src={currentSong.cover}
@@ -67,10 +128,25 @@ const Player = ({
                 <p>{currentSong.title}</p>
                 <p>{currentSong.artist}</p>
               </div>
-              <img className="icon-liked" src={liked} alt="Liked" />
-            </div>
-          </>
-        )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 0 24 24"
+                fill={currentSong.liked ? "white" : "none"}
+                stroke="white"
+                strokeWidth="2"
+                onClick={likeClick}
+                className="icon-liked"
+              >
+                <path
+                  stroke-linejoin="round"
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                />
+              </svg>
+            </>
+          )}
+        </div>
 
         <div className="player-icons">
           <img
@@ -96,13 +172,15 @@ const Player = ({
           <img src={next} alt="Next" />
 
           <img
-            src={repeat}
+            src={repeatImg}
             alt="Repeat"
+            onClick={toggleRepeat}
             style={{
               width: "20px",
               height: "20px",
               marginLeft: "60px",
-              opacity: "0.7",
+              opacity: isRepeating ? 1 : 0.7,
+              cursor: "pointer",
             }}
           />
         </div>
@@ -113,8 +191,53 @@ const Player = ({
             marginLeft: "30px",
           }}
         >
-          <img src={dinamic} alt="Dinamic" />
+          <img
+            className="dinamic"
+            src={dinamic}
+            alt="Dinamic"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={{ cursor: "pointer" }}
+          />
+          {isHovered && (
+            <div
+              style={{
+                paddingLeft: "30px",
+                position: "absolute",
+                bottom: "190px",
+                right: "-25px",
+                transform: "rotate(-90deg)",
+              }}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <div className="volume-range">
+                <p
+                  style={{
+                    transform: "rotate(90deg)",
+                    margin: "0",
+                  }}
+                >
+                  {volume}
+                </p>
+                <input
+                  className="volume"
+                  style={{
+                    width: "150px",
+                  }}
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={volume}
+                  onChange={handleVolumeChange} // Use handleVolumeChange
+                />
+              </div>
+            </div>
+          )}
+
           <img src={lyrics} alt="Lyrics" />
+          <img src={maxPlayer} alt="maxPlayer" />
         </div>
       </div>
 
@@ -123,7 +246,7 @@ const Player = ({
           <div className="audio-line">
             <input
               style={{
-                width: "1220px",
+                width: "100%",
                 "--played-percentage": `${playedPercentage}%`,
                 appearance: "none",
                 height: "8px",
@@ -142,7 +265,9 @@ const Player = ({
               step="0.5"
             />
           </div>
-          <p style={{ color: "white" }}>{formatTime(currentTime)}</p>
+          <p style={{ color: "white", paddingLeft: "20px" }}>
+            {formatTime(currentTime)}
+          </p>
         </div>
       )}
     </div>

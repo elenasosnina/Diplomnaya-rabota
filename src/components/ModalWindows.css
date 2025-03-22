@@ -27,14 +27,22 @@ flex-direction: column;
     justify-content: left;
     margin-top:16px;
 }
+:root {
+  --purple-color: rgb(79, 15, 255);
+}
+
+.purple-text {
+  color: var(--purple-color);
+}
 .credits-info label{
-  margin:8px 0px;
+  margin:5px 0px;
+  font-size: 20px;
 }
   .line{
     background-color: rgb(160, 160, 160);
     border-radius: 50px;
     height:3px ;
-    width: 450px;
+    width: 520px;
     margin:30px 0 30px 0;
   }
   .share-link{
@@ -43,8 +51,8 @@ flex-direction: column;
     text-align: center;
     color:rgb(79, 15, 255);
     background-color: rgb(253, 253, 253);
-    border-radius: 20px;
-    padding: 5px 40px;
+    border-radius: 50px;
+    padding: 10px 20px;
   }
   .shareModalWindow, .creditsModalWindow, .addToPlaylistModalWindow {
     border-radius: 55px;
@@ -62,6 +70,20 @@ flex-direction: column;
   .heading{
     text-align: center;
     font-size: 40px;
+  }
+  .copy-button{
+    border: none;
+    border-radius:40px;
+    padding: 5px 15px;
+    cursor: pointer;
+    color:white;
+    background-color:rgb(79, 15, 255);
+    margin-left: 15px;
+  }
+  .copy-button:focus{
+    border: 1px solid rgb(79, 15, 255);
+    color:rgb(79, 15, 255);
+    background-color:white;
   }
   .close-button {
     background: none;

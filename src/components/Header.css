@@ -12,6 +12,7 @@
     align-items: center;
     gap: 10px;
     justify-content: space-between;
+    z-index: 1;
 }
 
 .logo-name {

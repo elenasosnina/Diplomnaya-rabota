@@ -8,12 +8,26 @@ box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.5);
 border-radius: 20px 20px 0 0;
 display: flex;
 flex-direction:column;
+min-width: 900px;
+}
+.volume-range{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+    gap: 10px;
+}
+.volume{
+    position:relative;
+
 }
 .main-part{
-    display: grid;
-    grid-template-columns: 3fr 10fr 1fr;
-
-
+    display: flex;
+    flex-direction: row;
+width: 100%;
+justify-content: space-between;
 margin: 20px 30px 10px 30px; 
 }
 .cover {
@@ -25,35 +39,38 @@ margin: 20px 30px 10px 30px;
     width: 30px;
     height: 30px;
 }
-.player-icons {
-    padding-left: 250px;
-    grid-column-start: 2;
-    grid-column-end: 3;
-    padding-bottom: 22px;
-}
+
 .player-icons img{
     width: 30px;
     height: 30px;
-    margin-left: 8px;
+    margin-left: 10px;
 }
 .other-icons img{
     width: 25px;
     height: 25px;
     margin-left: 5px;
-    grid-column-start: 3;
-    grid-column-end: 4;
+
+}
+.other-icons {
+    margin-right: 50px;
 }
 .duration-music-line{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     margin: 0 30px 0 30px;
+
+}
+.player-icons {
+    padding-right: 0px;
+    margin-right: 150px;
 }
 .cover-artist-title{
     display: flex;
     flex-direction: row;
     gap:20px;
     align-items: center;
+    min-width: 260px;
 }
 .song-information p{
     height: 10px;
@@ -62,6 +79,10 @@ margin: 20px 30px 10px 30px;
 .play-audio{
     background-color: rgb(251, 251, 251);
    height: 10px;
+   width: 100%;
+}
+.audio-line {
+    flex-grow: 1; 
 }
 input[type="range"]::-webkit-slider-thumb {
     appearance: none;

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import "./PlaylistPage.css";
 import Songs from "../components/Songs";
 import coverPlaylist from "../assets/login.jpg";
@@ -9,13 +9,13 @@ import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 
 const PlaylistPage = ({
-  onSongSelect,
   isPlaying,
   currentSong,
   currentTime,
   duration,
-  audioRef,
   toggleSongPlay,
+  onLikeChange,
+  audioRef, // Получаем audioRef
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [songs, setSongs] = useState([
@@ -25,6 +25,14 @@ const PlaylistPage = ({
       artist: "Justin Bieber",
       audio: audioCover,
       cover: coverSong,
+      liked: true,
+      lyrics: "cklfadsfdfdsfdfdgf",
+      producer: "ufgsdufk",
+      authorLyrics: "41324",
+      composer: "ewreq",
+      rights: "142343",
+      duration: "01:02",
+      url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
       id: 2,
@@ -32,6 +40,14 @@ const PlaylistPage = ({
       artist: "XXXTENTACION",
       audio: audioCover2,
       cover: coverSong2,
+      liked: true,
+      producer: "htfshfjh",
+      authorLyrics: "24321413243",
+      composer: "4321532413",
+      rights: "324",
+      lyrics: "32414",
+      duration: "02:02",
+      url: "https://jfgdhufdg.ru/playlist/fdgs41",
     },
     {
       id: 3,
@@ -39,6 +55,14 @@ const PlaylistPage = ({
       artist: "Some Artist",
       audio: audioCover,
       cover: coverSong,
+      liked: false,
+      producer: "jkj",
+      authorLyrics: "hjh",
+      composer: "jikj",
+      rights: "khj",
+      lyrics: "cklgf",
+      duration: "02:22",
+      url: "https://jfgdhufdg.ru/playlist/000hkjf",
     },
     {
       id: 4,
@@ -46,6 +70,14 @@ const PlaylistPage = ({
       artist: "Different Artist",
       audio: audioCover2,
       cover: coverSong2,
+      liked: false,
+      producer: "jk32421j",
+      authorLyrics: "h32421jh",
+      composer: "j3241ikj",
+      rights: "k343hj",
+      lyrics: "ckl3432gf",
+      duration: "02:32",
+      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
     },
   ]);
 
@@ -77,6 +109,19 @@ const PlaylistPage = ({
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
+
+  const handleSongChange = useCallback(
+    (newSong) => {
+      if (currentSong && currentSong.id === newSong.id) {
+        // Если песня та же, просто проигрываем/ставим на паузу
+        toggleSongPlay();
+      } else {
+        // Если песня другая, меняем песню и начинаем воспроизведение
+        toggleSongPlay(newSong);
+      }
+    },
+    [currentSong, toggleSongPlay]
+  );
 
   return (
     <main className="tracklist-page">
@@ -118,8 +163,8 @@ const PlaylistPage = ({
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
+              onLikeChange={onLikeChange}
             />
           ))}
         </div>

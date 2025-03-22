@@ -3,6 +3,7 @@ import "./Songs.css";
 import Dropdown from "./MenuSong";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
+
 import {
   ShareModalWindow,
   CreditsModalWindow,
@@ -10,14 +11,14 @@ import {
 } from "./ModalWindows";
 
 const Songs = ({
-  song,
-  isPlaying,
-  currentSong,
-  currentTime,
-  duration,
-  toggleSongPlay, // Получаем функцию из App
+  song, // список песен
+  isPlaying, // играет или нет
+  currentSong, // выбор текущей песни
+  currentTime, // текущая длительность
+  toggleSongPlay, // ф-я play/pause
+  onLikeChange,
 }) => {
-  const [isFilled, setIsFilled] = useState(false);
+  // const [isFilled, setIsFilled] = useState(song.liked);
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
@@ -54,6 +55,7 @@ const Songs = ({
     },
     {
       label: "Посмотреть сведения",
+      // Pass the song data when opening the credits modal
       action: () => {
         console.log("Посмотреть сведения нажато");
         handleOpenModal("credits");
@@ -69,7 +71,7 @@ const Songs = ({
   ];
 
   const likeClick = () => {
-    setIsFilled(!isFilled);
+    onLikeChange(song.id, !song.liked);
   };
 
   const handleMouseEnter = () => {
@@ -124,10 +126,10 @@ const Songs = ({
       <div className="timing-menu">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
+          width="25"
+          height="25"
           viewBox="0 0 0 24 24"
-          fill={isFilled ? "black" : "none"}
+          fill={song.liked ? "black" : "none"}
           stroke="black"
           strokeWidth="1"
           onClick={likeClick}
@@ -149,9 +151,7 @@ const Songs = ({
           <circle cx="40" cy="10" r="5" fill="black" />
         </svg>
 
-        <p>
-          {isThisSongPlaying ? formatTime(currentTime) : formatTime(duration)}
-        </p>
+        <p>{isThisSongPlaying ? formatTime(currentTime) : song.duration}</p>
 
         {isHovered && (
           <div
@@ -165,10 +165,10 @@ const Songs = ({
         {isModalOpen && (
           <div className="modal-overlay">
             {currentModal === "share" && (
-              <ShareModalWindow onClose={handleCloseModal} />
+              <ShareModalWindow onClose={handleCloseModal} link={song.url} />
             )}
             {currentModal === "credits" && (
-              <CreditsModalWindow onClose={handleCloseModal} />
+              <CreditsModalWindow onClose={handleCloseModal} song={song} />
             )}
             {currentModal === "addToPlaylist" && (
               <AddToPlaylistModalWindow onClose={handleCloseModal} />

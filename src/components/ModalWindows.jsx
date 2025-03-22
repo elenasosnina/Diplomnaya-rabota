@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import "./ModalWindows.css";
-import vkimg from "../assets/icon3.png";
-import instaimg from "../assets/icon2.png";
+import vkimg from "../assets/icon2.png";
 import tgimg from "../assets/icon1.png";
 import styled from "styled-components";
+import { useState } from "react";
 
 const List = styled.ul`
-  list-style-type: none; /* Убираем маркеры для всего списка */
-  padding: 0; /* Убираем отступы */
-  margin: 0; /* Убираем отступы */
-  height: 300px; /* Фиксированная высота для прокрутки */
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  height: 300px;
   overflow-y: auto;
 `;
 const ListItem = styled.li`
@@ -21,10 +21,9 @@ const ListItem = styled.li`
   border: none;
   font-size: 16px;
   cursor: pointer;
-  color: black;
 
   &:hover {
-    background-color: rgba(157, 157, 157, 0.5); /* Эффект при наведении */
+    background-color: rgba(157, 157, 157, 0.5);
   }
 `;
 const items = [
@@ -39,8 +38,45 @@ const items = [
   "кпкавп",
   "134",
 ];
+const title = "Посмотрите этот замечательный контент!";
 
-const ShareModalWindow = ({ onClose }) => {
+const handleCopy = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    console.error("Ошибка:", err);
+  }
+};
+
+const ShareModalWindow = ({ onClose, link }) => {
+  const shareOnTelegram = () => {
+    if (link) {
+      const url = link;
+      const titleText = title;
+      window.open(
+        `https://t.me/share/url?url=${encodeURIComponent(
+          url
+        )}&text=${encodeURIComponent(titleText)}`,
+        "_blank"
+      );
+    } else {
+      alert("Ссылка отсутствует");
+    }
+  };
+
+  const shareOnVK = () => {
+    if (link) {
+      window.open(
+        `https://vk.com/share.php?url=${encodeURIComponent(
+          link
+        )}&title=${encodeURIComponent(title)}`,
+        "_blank"
+      );
+    } else {
+      alert("Ссылка отсутствует");
+    }
+  };
+
   return (
     <div className="modal-overlay">
       <div className="shareModalWindow">
@@ -50,20 +86,23 @@ const ShareModalWindow = ({ onClose }) => {
         <h1 className="heading">Поделиться</h1>
         <p>Делитесь любимыми треками со своими близкими</p>
         <div className="share-link">
-          https://jfgdhufdg.ru/playlist/ewkhrueige4
+          {link}
+          <button className="copy-button" onClick={() => handleCopy(link)}>
+            Копировать
+          </button>
         </div>
+
         <div className="line"></div>
         <div className="sm-icons">
-          <img src={vkimg} alt="VK" />
-          <img src={instaimg} alt="Instagram" />
-          <img src={tgimg} alt="Telegram" />
+          <img onClick={shareOnVK} src={vkimg} alt="VK" />
+          <img onClick={shareOnTelegram} src={tgimg} alt="Telegram" />
         </div>
       </div>
     </div>
   );
 };
 
-const CreditsModalWindow = ({ onClose }) => {
+const CreditsModalWindow = ({ onClose, song }) => {
   return (
     <div className="modal-overlay">
       <div className="creditsModalWindow">
@@ -72,11 +111,26 @@ const CreditsModalWindow = ({ onClose }) => {
         </button>
         <h1 className="heading">Сведения о песне</h1>
         <div className="credits-info">
-          <label>Исполнитель:</label>
-          <label>Продюсер:</label>
-          <label>Автор текста:</label>
-          <label>Композитор:</label>
-          <label>Права принадлежат:</label>
+          <label>
+            <span className="purple-text">Исполнитель: </span>
+            {song.artist}
+          </label>
+          <label>
+            <span className="purple-text">Продюсер: </span>
+            {song.producer}
+          </label>
+          <label>
+            <span className="purple-text">Автор текста: </span>
+            {song.authorLyrics}
+          </label>
+          <label>
+            <span className="purple-text">Композитор: </span>
+            {song.composer}
+          </label>
+          <label>
+            <span className="purple-text">Права принадлежат: </span>
+            {song.rights}
+          </label>
         </div>
       </div>
     </div>
@@ -84,7 +138,7 @@ const CreditsModalWindow = ({ onClose }) => {
 };
 
 const AddToPlaylistModalWindow = ({ onClose }) => {
-  const [selectedItem, setSelectedItem] = useState(null); // Переместили сюда
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleItemClick = (index) => {
     setSelectedItem(index);
