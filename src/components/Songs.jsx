@@ -11,14 +11,13 @@ import {
 } from "./ModalWindows";
 
 const Songs = ({
-  song, // список песен
-  isPlaying, // играет или нет
-  currentSong, // выбор текущей песни
-  currentTime, // текущая длительность
-  toggleSongPlay, // ф-я play/pause
+  song,
+  isPlaying,
+  currentSong,
+  currentTime,
+  toggleSongPlay,
   onLikeChange,
 }) => {
-  // const [isFilled, setIsFilled] = useState(song.liked);
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
@@ -55,7 +54,6 @@ const Songs = ({
     },
     {
       label: "Посмотреть сведения",
-      // Pass the song data when opening the credits modal
       action: () => {
         console.log("Посмотреть сведения нажато");
         handleOpenModal("credits");

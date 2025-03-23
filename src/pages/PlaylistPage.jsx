@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import "./PlaylistPage.css";
 import Songs from "../components/Songs";
 import coverPlaylist from "../assets/login.jpg";
@@ -15,10 +15,14 @@ const PlaylistPage = ({
   duration,
   toggleSongPlay,
   onLikeChange,
-  audioRef, // Получаем audioRef
+  audioRef,
+  setSongs,
+  songs,
+  onSongSelect, // Pass song selection function
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [songs, setSongs] = useState([
+
+  const [initialSongs, setInitialSongs] = useState([
     {
       id: 1,
       title: "All Around The World",
@@ -81,6 +85,10 @@ const PlaylistPage = ({
     },
   ]);
 
+  useEffect(() => {
+    setSongs(initialSongs);
+  }, []);
+
   const options = [
     {
       label: "Поделиться",
@@ -113,15 +121,22 @@ const PlaylistPage = ({
   const handleSongChange = useCallback(
     (newSong) => {
       if (currentSong && currentSong.id === newSong.id) {
-        // Если песня та же, просто проигрываем/ставим на паузу
         toggleSongPlay();
       } else {
-        // Если песня другая, меняем песню и начинаем воспроизведение
         toggleSongPlay(newSong);
+        onSongSelect(newSong);
       }
     },
-    [currentSong, toggleSongPlay]
+    [currentSong, toggleSongPlay, onSongSelect]
   );
+
+  const handleLikeChangeInternal = (songId, newLiked) => {
+    const updatedSongs = songs.map((song) =>
+      song.id === songId ? { ...song, liked: newLiked } : song
+    );
+    setSongs(updatedSongs);
+    setSongs(updatedSongs);
+  };
 
   return (
     <main className="tracklist-page">
@@ -163,8 +178,8 @@ const PlaylistPage = ({
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              toggleSongPlay={toggleSongPlay}
-              onLikeChange={onLikeChange}
+              toggleSongPlay={handleSongChange}
+              onLikeChange={handleLikeChangeInternal}
             />
           ))}
         </div>

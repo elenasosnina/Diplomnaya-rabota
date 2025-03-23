@@ -32,22 +32,21 @@ const App = () => {
   const audioRef = useRef(new Audio());
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [songs, setSongs] = useState([]);
 
   useEffect(() => {
-    //отслеживание проигрывания песни
     const handleLoadedMetadata = () => {
       setDuration(audioRef.current.duration);
     };
+
     const handleTimeUpdate = () => {
       setCurrentTime(audioRef.current.currentTime);
     };
-    // const handleEnded = () => {
-    //   setCurrentTime(0); // Сброс текущего времени по завершении
-    //   setIsPlaying(false); // Остановить воспроизведение
-    // };
+
     if (currentSong) {
       audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
       audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+
       return () => {
         audioRef.current.removeEventListener(
           "loadedmetadata",
@@ -57,6 +56,7 @@ const App = () => {
       };
     }
   }, [currentSong]);
+
   const handleLikeChange = (songId, newLiked) => {
     setSongs((prevSongs) =>
       prevSongs.map((song) =>
@@ -64,45 +64,54 @@ const App = () => {
       )
     );
   };
-  //отвечает за play/pause
+
   const toggleSongPlay = (song) => {
-    // выбор и переключение воспроизведения
-    //ф-я при нажатии play/pause
     if (currentSong && currentSong.id === song.id) {
-      //если это та же песня
       togglePlay();
     } else {
-      // другая песня
       handleSongSelect(song);
     }
   };
+
   const togglePlay = () => {
-    // ф-я остановки и возобновления песни
     if (isPlaying) {
-      //если песня играет
-      audioRef.current.pause(); //то ставим на паузу
+      audioRef.current.pause();
     } else {
-      audioRef.current // возобновляем проигрывание
+      audioRef.current
         .play()
-        .then(() => {}) //если успешно, то что-то(в этом случае ничего) должно произойти
-        .catch((error) => console.error("Ошибка воспроизведения:", error)); //если возникнет ошибка
+        .then(() => {})
+        .catch((error) => console.error("Ошибка воспроизведения:", error));
     }
-    setIsPlaying(!isPlaying); // переключаем на противоположное состояние
+    setIsPlaying(!isPlaying);
   };
+
   const handleSongSelect = (song) => {
-    // выбор песни
-    setCurrentSong(song); // Устанавливаем выбранную песню как текущую
-    audioRef.current.src = song.audio; // Устанавливаем источник аудио на URL выбранной песни
+    setCurrentSong(song);
+    audioRef.current.src = song.audio;
     audioRef.current
       .play()
       .then(() => setIsPlaying(true))
       .catch((error) => console.error("Ошибка воспроизведения:", error));
   };
 
-  // перемотка
   const handleSeek = (newTime) => {
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
+  };
+
+  const playNextSong = () => {
+    if (!currentSong || songs.length === 0) return;
+
+    const currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+    const nextIndex = (currentIndex + 1) % songs.length;
+    handleSongSelect(songs[nextIndex]);
+  };
+  const playPreviousSong = () => {
+    if (!currentSong || songs.length === 0) return;
+
+    const currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+    const previousIndex = (currentIndex - 1 + songs.length) % songs.length;
+    handleSongSelect(songs[previousIndex]);
   };
 
   return (
@@ -122,6 +131,10 @@ const App = () => {
               duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
+              audioRef={audioRef}
+              setSongs={setSongs}
+              songs={songs}
+              onSongSelect={handleSongSelect}
             />
           }
         />
@@ -142,6 +155,10 @@ const App = () => {
             currentTime={currentTime}
             duration={duration}
             onLikeChange={handleLikeChange}
+            playNextSong={playNextSong}
+            playPreviousSong={playPreviousSong}
+            songs={songs}
+            onSongSelect={handleSongSelect}
           />
         )}
     </div>
