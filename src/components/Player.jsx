@@ -31,9 +31,8 @@ const Player = ({
   const [isHovered, setIsHovered] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const [showSlider, setShowSlider] = useState(false);
-  const [isRepeating, setIsRepeating] = useState(false);
   const [volume, setVolume] = useState(50);
-  const [isShuffled, setIsShuffled] = useState(false); // State for shuffle mode
+  // const [isShuffled, setIsShuffled] = useState(false); // State for shuffle mode
   const [shuffledSongs, setShuffledSongs] = useState([]);
   const [currentShuffledIndex, setCurrentShuffledIndex] = useState(0);
   const [isLyricsVisible, setIsLyricsVisible] = useState(false); // Состояние для видимости текста
@@ -41,14 +40,13 @@ const Player = ({
   const [songText, setSongText] = useState("");
 
   const playerLyrics = () => {
-    setIsLyricsVisible(!isLyricsVisible); // Переключаем видимость текста
-    // Изменяем стиль карточки при нажатии на изображение
+    setIsLyricsVisible(!isLyricsVisible);
     if (!isLyricsVisible) {
       setCardStyle({
         background: "linear-gradient(to top,rgb(205, 184, 255), #4f0fff)",
         height: "100%",
         zIndex: "10",
-      }); // Измените цвет фона или другие стили
+      });
     } else {
       setCardStyle({ backgroundColor: "#4f0fff", height: "120px" }); // Возвращаем исходный стиль
     }
@@ -99,10 +97,6 @@ const Player = ({
       .padStart(2, "0")}`;
   };
 
-  const toggleRepeat = () => {
-    setIsRepeating(!isRepeating);
-  };
-
   const playNextShuffledSong = useCallback(() => {
     if (shuffledSongs && shuffledSongs.length > 0) {
       if (currentShuffledIndex < shuffledSongs.length - 1) {
@@ -118,13 +112,13 @@ const Player = ({
   }, [shuffledSongs, currentShuffledIndex, songs, onSongSelect]);
 
   const handleEnded = () => {
-    if (isRepeating) {
+    if (isRepeat) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch((error) => {
         console.error("Error autoplaying after repeat:", error);
       });
     } else {
-      if (isShuffled) {
+      if (isShuffle) {
         playNextShuffledSong();
       } else {
         playNextSong();
@@ -141,15 +135,7 @@ const Player = ({
         audioRef.current.removeEventListener("ended", handleEnded);
       }
     };
-  }, [
-    isRepeating,
-    isShuffled,
-    playNextSong,
-    playNextShuffledSong,
-    audioRef,
-    handleEnded,
-    songs,
-  ]);
+  }, [isRepeat, isShuffle, playNextSong, playNextShuffledSong]);
 
   const handleVolumeChange = (event) => {
     const newVolume = parseInt(event.target.value, 10);
@@ -165,17 +151,8 @@ const Player = ({
     }
   }, [audioRef, volume]);
 
-  const toggleShuffle = () => {
-    setIsShuffled(!isShuffled);
-    if (!isShuffled) {
-      const shuffled = [...songs].sort(() => Math.random() - 0.5);
-      setShuffledSongs(shuffled);
-      setCurrentShuffledIndex(0);
-    }
-  };
-
   const handleNextClick = () => {
-    if (isShuffled) {
+    if (isShuffle) {
       playNextShuffledSong();
     } else {
       playNextSong();
@@ -224,12 +201,12 @@ const Player = ({
             alt="Shuffle"
             style={{
               width: "20px",
-              opacity: isShuffled ? 1 : 0.7,
+              opacity: isShuffle ? 1 : 0.7,
               height: "20px",
               marginRight: "60px",
               cursor: "pointer",
             }}
-            onClick={toggleShuffle}
+            onClick={onToggleShuffle}
           />
           <img
             style={{ transform: "rotate(180deg)" }}
@@ -246,12 +223,12 @@ const Player = ({
           <img
             src={repeatImg}
             alt="Repeat"
-            onClick={toggleRepeat}
+            onClick={onToggleRepeat}
             style={{
               width: "20px",
               height: "20px",
               marginLeft: "60px",
-              opacity: isRepeating ? 1 : 0.7,
+              opacity: isRepeat ? 1 : 0.7,
               cursor: "pointer",
             }}
           />

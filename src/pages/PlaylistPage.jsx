@@ -160,9 +160,9 @@ const PlaylistPage = ({
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              toggleSongPlay={toggleSongPlay} // Pass directly
+              toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChangeInternal}
-              onSongSelect={onSongSelect} // Pass directly
+              onSongSelect={onSongSelect}
             />
           ))}
         </div>

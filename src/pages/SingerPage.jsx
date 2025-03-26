@@ -173,13 +173,12 @@ const SingerPage = ({
             <Songs
               key={song.id}
               song={song}
-              isPlaying={isPlaying && currentSong?.id === song.id} // Corrected isPlaying check
+              isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration} // Pass the duration prop
-              toggleSongPlay={handleSongChange}
+              toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChangeInternal}
-              audioRef={audioRef}
+              onSongSelect={onSongSelect}
             />
           ))}
         </div>

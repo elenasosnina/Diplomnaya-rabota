@@ -124,8 +124,6 @@ const ManageMusic = () => {
       (currentIndex - 1 + songListToUse.length) % songListToUse.length;
     handleSongSelect(songListToUse[previousIndex]);
   }, [currentSong, songs, shuffledSongs, isShuffle, handleSongSelect]);
-
-  // Effect for updating duration and current time
   useEffect(() => {
     const handleLoadedMetadata = () => {
       setDuration(audioRef.current.duration);
@@ -148,17 +146,13 @@ const ManageMusic = () => {
       };
     }
   }, [currentSong]);
-
-  // Auto play next song when song ends
   useEffect(() => {
     const handleEnded = () => {
       if (isRepeat) {
-        // If repeat is on, play the same song again
         audioRef.current
           .play()
           .catch((error) => console.error("Ошибка воспроизведения:", error)); // Replay current song
       } else {
-        // Otherwise, play the next song
         playNextSong();
       }
     };
