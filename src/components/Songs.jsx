@@ -17,6 +17,7 @@ const Songs = ({
   currentTime,
   toggleSongPlay,
   onLikeChange,
+  onSongSelect,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);

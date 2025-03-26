@@ -1,0 +1,97 @@
+.singerPage{
+    display:flex;
+    flex-direction: column;
+    z-index: 0;
+}
+.cover-singerPage{
+    height: 260px;
+}
+.background-singerPage{
+    height: 320px;
+    width: 100%;
+/* filter: blur(5px); */
+top:0px;
+position:absolute;
+}
+.photoes-artist{
+    position: absolute;
+  top: 120px;
+  left: 150px;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  color: white;
+}
+.photoes-artist img{
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+}
+.btn-add{
+    position: absolute;
+    top:120px ;
+    left:130px;
+    /* border: 1px solid black; */
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btn-add img{
+    height:40px;
+    width: 40px;
+
+}
+.songCol {
+    flex: 1; /* Это позволит элементам занимать равное пространство */
+    margin: 10px 0; /* Добавьте отступы между элементами */
+}
+
+.btn-more {
+    height: 30px;
+    width: 100px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgb(120, 120, 122);
+    color: white;
+    margin: 0 30px 20px 0;
+    align-self: flex-end; /* Выравнивание по вертикали, если нужно */
+}
+
+.songs-singerPage {
+    display: flex;
+    flex-direction: column;
+    width: 97%;
+    background-color: rgb(210, 211, 212);
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 24px;
+    border-radius: 50px;
+}
+
+.albums-singerPage, .collaboration-singerPage, .mvs-singerPage{
+    display:flex;
+    flex-direction: column;
+    background-color:rgb(210, 211, 212) ;
+    border-radius: 50px;
+    margin: 20px 30px;
+}
+.collection-albums, .collection-collaborations, collection-mvs, .info-singerPage{
+    display:flex;
+    flex-direction: row;
+    background-color:rgb(210, 211, 212) ;
+    border-radius: 50px;
+}
+.info-singerPage{
+    
+    margin: 20px 30px;
+    
+}
+.info-about-singer{
+    display:flex;
+    flex-direction: column;
+    margin: 40px 0 40px 80px;
+}

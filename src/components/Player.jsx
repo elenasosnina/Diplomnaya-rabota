@@ -8,6 +8,7 @@ import lyrics from "../assets/lyrics.png";
 import maxPlayer from "../assets/maximize.png";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
+import textSong from "../assets/text.txt";
 
 const Player = ({
   currentSong,
@@ -20,6 +21,10 @@ const Player = ({
   onLikeChange,
   playNextSong,
   playPreviousSong,
+  isShuffle,
+  onToggleShuffle,
+  isRepeat,
+  onToggleRepeat,
   songs,
   onSongSelect,
 }) => {
@@ -31,6 +36,23 @@ const Player = ({
   const [isShuffled, setIsShuffled] = useState(false); // State for shuffle mode
   const [shuffledSongs, setShuffledSongs] = useState([]);
   const [currentShuffledIndex, setCurrentShuffledIndex] = useState(0);
+  const [isLyricsVisible, setIsLyricsVisible] = useState(false); // Состояние для видимости текста
+  const [cardStyle, setCardStyle] = useState({});
+  const [songText, setSongText] = useState("");
+
+  const playerLyrics = () => {
+    setIsLyricsVisible(!isLyricsVisible); // Переключаем видимость текста
+    // Изменяем стиль карточки при нажатии на изображение
+    if (!isLyricsVisible) {
+      setCardStyle({
+        background: "linear-gradient(to top,rgb(205, 184, 255), #4f0fff)",
+        height: "100%",
+        zIndex: "10",
+      }); // Измените цвет фона или другие стили
+    } else {
+      setCardStyle({ backgroundColor: "#4f0fff", height: "120px" }); // Возвращаем исходный стиль
+    }
+  };
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -114,7 +136,6 @@ const Player = ({
     if (audioRef.current) {
       audioRef.current.addEventListener("ended", handleEnded);
     }
-
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener("ended", handleEnded);
@@ -127,12 +148,12 @@ const Player = ({
     playNextShuffledSong,
     audioRef,
     handleEnded,
+    songs,
   ]);
 
   const handleVolumeChange = (event) => {
     const newVolume = parseInt(event.target.value, 10);
     setVolume(newVolume);
-
     if (audioRef.current) {
       audioRef.current.volume = newVolume / 100;
     }
@@ -162,7 +183,7 @@ const Player = ({
   };
 
   return (
-    <div className="player-card">
+    <div className="player-card" style={cardStyle}>
       <div className="main-part">
         <div className="cover-artist-title">
           {currentSong && (
@@ -197,7 +218,6 @@ const Player = ({
             </>
           )}
         </div>
-
         <div className="player-icons">
           <img
             src={shuffle}
@@ -236,7 +256,6 @@ const Player = ({
             }}
           />
         </div>
-
         <div className="other-icons" style={{ marginLeft: "30px" }}>
           <img
             className="dinamic"
@@ -275,7 +294,12 @@ const Player = ({
               </div>
             </div>
           )}
-          <img src={lyrics} alt="Lyrics" />
+          <img src={lyrics} alt="Lyrics" onClick={playerLyrics} />
+          {isLyricsVisible && (
+            <div className="text-songs">
+              <p>{songText}</p>
+            </div>
+          )}
           <img src={maxPlayer} alt="maxPlayer" />
         </div>
       </div>

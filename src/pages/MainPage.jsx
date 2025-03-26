@@ -43,7 +43,11 @@ const MainPage = () => {
         <div className="best-singers">
           <h1>Исполнители</h1>
           <div className="image-singers">
-            <img className="image1" src={playlistDay} />
+            <img
+              className="image1"
+              src={playlistDay}
+              onClick={() => handleNavigation("/singer")}
+            />
             <img className="image2" src={playlistDay2} />
             <img className="image3" src={playlistDay} />
             <img className="image4" src={playlistDay2} />

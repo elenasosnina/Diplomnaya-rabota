@@ -97,15 +97,9 @@ const PlaylistPage = ({
       },
     },
     {
-      label: "Посмотреть сведения",
+      label: "Добавить в избранное",
       action: () => {
         console.log("Посмотреть сведения нажато");
-      },
-    },
-    {
-      label: "Добавить в плейлист",
-      action: () => {
-        console.log("Добавить в плейлист нажато");
       },
     },
   ];
@@ -117,18 +111,6 @@ const PlaylistPage = ({
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
-
-  const handleSongChange = useCallback(
-    (newSong) => {
-      if (currentSong && currentSong.id === newSong.id) {
-        toggleSongPlay();
-      } else {
-        toggleSongPlay(newSong);
-        onSongSelect(newSong);
-      }
-    },
-    [currentSong, toggleSongPlay, onSongSelect]
-  );
 
   const handleLikeChangeInternal = (songId, newLiked) => {
     const updatedSongs = songs.map((song) =>
@@ -178,8 +160,9 @@ const PlaylistPage = ({
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              toggleSongPlay={handleSongChange}
+              toggleSongPlay={toggleSongPlay} // Pass directly
               onLikeChange={handleLikeChangeInternal}
+              onSongSelect={onSongSelect} // Pass directly
             />
           ))}
         </div>

@@ -10,6 +10,30 @@ display: flex;
 flex-direction:column;
 min-width: 900px;
 }
+.text-songs {
+    padding: 10px;
+    color: #fff;
+    position: absolute;
+    top: 120px; /* Отступ сверху */
+    left: 50%; /* Центрируем по горизонтали */
+    transform: translateX(-50%); /* Сдвиг на 50% ширины элемента для центрирования */
+    display: flex;
+    justify-content: center; /* Центрирует содержимое по горизонтали */
+    background-color: #827e7e37;
+    border-radius: 50px;
+    min-width: 300px;
+    max-width: 800px;
+    max-height: 560px;
+    overflow-y: auto; 
+    white-space: normal; 
+}
+
+.text-songs p{
+    font-size:30px;
+    font-weight: 100px;
+    text-align: left;
+    margin: 20px 45px;
+}
 .volume-range{
     display: flex;
     flex-direction: row;
