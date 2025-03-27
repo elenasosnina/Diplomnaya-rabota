@@ -3,9 +3,6 @@
 .header {
     background-color: rgb(79, 15, 255);
     position: sticky;
-    top: 10px;
-    left: 10px;
-    width: 99%;
     border-radius: 25px;
     display: flex;
     flex-direction: row;
@@ -13,6 +10,8 @@
     gap: 10px;
     justify-content: space-between;
     z-index: 1;
+    min-width: 1300px;
+    margin: 10px 0 0px 10px;
 }
 
 .logo-name {
@@ -21,10 +20,9 @@
 }
 
 .buttons {
-    display: grid;
-    grid-template-columns: 4fr 2fr 1fr;
+    display: flex;
     align-items: center;
-    margin-right: 10px;
+    gap: 20px;
 }
 
 .logo-img {
@@ -37,8 +35,25 @@
     align-self: center;
     color: white;
     font-family: "Nunito", sans-serif;
+    margin-top: 5px;
 }
+.user-profile-photo{
+    height: 40px;
+    width: 40px;
+    border-radius: 50px;
+    margin: 5px 10px;
+}
+.user-account{
+    background-color: white;
+    border-radius: 50px;
+    display: flex;
+    flex-direction: row;
 
+}
+.user-account p{
+    font-size: 20px;
+    margin: 10px 20px 10px 0;
+}
 .header-sign-up, .header-log-in {
     font-family: "Nunito", sans-serif;
     font-size: 20px;
@@ -68,6 +83,7 @@
     height: 30px;
     width: 30px;
     border-radius: 10px;
+    margin-right: 20px;
 }
 
 .search {

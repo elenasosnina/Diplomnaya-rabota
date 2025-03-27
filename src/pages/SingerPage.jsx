@@ -9,6 +9,7 @@ import Bheart from "../assets/Bheart.png";
 import Wheart from "../assets/Wheart.png";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
+import Media from "../components/ArtistMedia";
 
 const SingerPage = ({
   isPlaying,
@@ -37,7 +38,104 @@ const SingerPage = ({
     country: "South Korea",
     backgroundPhoto: singerBack,
   });
-
+  const [albums, setAlbum] = useState([
+    {
+      id: 1,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 2,
+      title: "hoho",
+      artist: "GH",
+      cover: coverSong,
+      producer: "в21312аы",
+      authorLyrics: "ав#а",
+      composer: "ф2eq",
+      rights: "ла3вы",
+      duration: "5 ч 12 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 3,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 4,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 5,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 1,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 1,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 1,
+      title: "BoyHeart",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+  ]);
   const [initialSongs, setInitialSongs] = useState([
     {
       id: 1,
@@ -186,15 +284,36 @@ const SingerPage = ({
       </div>
       <div className="albums-singerPage">
         <p>Альбомы</p>
-        <div className="collection-albums"></div>
+        <div className="collection-albums">
+          <div className="albums-covers">
+            {albums.slice(0, 6).map((album) => (
+              <Media key={album.id} albums={album} />
+            ))}
+          </div>
+          <button className="album-more">Больше</button>
+        </div>
       </div>
       <div className="collaboration-singerPage">
         <p>Коллаборации</p>
-        <div className="collection-collaborations"></div>
+        <div className="collection-collaborations">
+          <div className="albums-covers">
+            {albums.slice(0, 6).map((album) => (
+              <Media key={album.id} albums={album} />
+            ))}
+          </div>
+          <button className="album-more">Больше</button>
+        </div>
       </div>
       <div className="mvs-singerPage">
         <p>Музыкальные видео</p>
-        <div className="collection-mvs"></div>
+        <div className="collection-mvs">
+          <div className="albums-covers">
+            {albums.slice(0, 3).map((album) => (
+              <Media key={album.id} albums={album} />
+            ))}
+          </div>
+          <button className="album-more">Больше</button>
+        </div>
       </div>
       <div className="info-singerPage">
         <div className="info-about-singer">

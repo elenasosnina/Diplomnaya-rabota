@@ -7,8 +7,8 @@
 
 .card-song {
     border-radius: 20px;
-    margin: 0 30px;
-    padding: 10px 30px;
+    margin: 0 5px;
+    padding: 10px 15px;
 }
 .card-song:hover {
     background-color: rgb(210, 211, 212);

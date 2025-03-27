@@ -7,22 +7,7 @@ html {
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100%; /* Обеспечиваем, чтобы #root занимал всю высоту */
+  min-height: 100%; 
+  min-width: 1300px;
 }
 
-.app-content {
-  flex: 1; /*  Основной контент занимает все доступное пространство, отталкивая Footer вниз */
-}
-
-/* Стили для Header */
-.app-header {
-  height: 60px; /* Устанавливаем высоту для Header */
-  background-color: #f8f9fa; /* Цвет фона для Header */
-}
-
-/* Стили для Footer */
-.app-footer {
-  height: 300px; /* Устанавливаем высоту для Footer */
-  background-color: #f8f9fa; /* Цвет фона для Footer */
-  width: 100%;
-}

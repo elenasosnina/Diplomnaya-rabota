@@ -1,38 +1,44 @@
-.singerPage{
-    display:flex;
+.singerPage {
+    display: flex;
     flex-direction: column;
     z-index: 0;
+    margin: 0;
+    min-width: 1300px;
 }
-.cover-singerPage{
+
+.cover-singerPage {
     height: 260px;
 }
-.background-singerPage{
+
+.background-singerPage {
     height: 320px;
     width: 100%;
-/* filter: blur(5px); */
-top:0px;
-position:absolute;
-}
-.photoes-artist{
+    min-width: 1300px;
+    top: 0;
     position: absolute;
-  top: 120px;
-  left: 150px;
-  z-index: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: end;
-  color: white;
 }
-.photoes-artist img{
+
+.photoes-artist {
+    position: absolute;
+    top: 120px;
+    left: 150px;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    color: white;
+}
+
+.photoes-artist img {
     width: 180px;
     height: 180px;
     border-radius: 50%;
 }
-.btn-add{
+
+.btn-add {
     position: absolute;
-    top:120px ;
-    left:130px;
-    /* border: 1px solid black; */
+    top: 120px;
+    left: 130px;
     border-radius: 50%;
     height: 50px;
     width: 50px;
@@ -40,58 +46,78 @@ position:absolute;
     justify-content: center;
     align-items: center;
 }
-.btn-add img{
-    height:40px;
+
+.btn-add img {
+    height: 40px;
     width: 40px;
-
 }
+
 .songCol {
-    flex: 1; /* Это позволит элементам занимать равное пространство */
-    margin: 10px 0; /* Добавьте отступы между элементами */
+    flex: 1;
+    margin: 15px; 
 }
 
-.btn-more {
+.btn-more,.album-more {
     height: 30px;
     width: 100px;
     border: none;
     border-radius: 50%;
     background-color: rgb(120, 120, 122);
     color: white;
-    margin: 0 30px 20px 0;
-    align-self: flex-end; /* Выравнивание по вертикали, если нужно */
+    margin: 0px 30px 15px 0; 
+    align-self: flex-end; 
+    cursor: pointer; 
+    font-size:18px;
 }
-
+.album-more{
+    margin: 5px 15px 5px 0;
+}
 .songs-singerPage {
     display: flex;
     flex-direction: column;
-    width: 97%;
-    background-color: rgb(210, 211, 212);
+    min-width: 1300px;
+    background-color: rgb(233, 233, 233);
     justify-content: space-between;
     flex-wrap: wrap;
-    margin: 24px;
-    border-radius: 50px;
+    margin: 15px 24px ;
+    border-radius: 20px;
 }
 
-.albums-singerPage, .collaboration-singerPage, .mvs-singerPage{
-    display:flex;
+.albums-singerPage, .collaboration-singerPage, .mvs-singerPage {
+    display: flex;
     flex-direction: column;
-    background-color:rgb(210, 211, 212) ;
-    border-radius: 50px;
+    border-radius: 30px;
     margin: 20px 30px;
+    min-width: 1300px;
 }
-.collection-albums, .collection-collaborations, collection-mvs, .info-singerPage{
-    display:flex;
+
+.albums-covers, .info-singerPage {
+    display: flex;
     flex-direction: row;
-    background-color:rgb(210, 211, 212) ;
+    background-color: rgb(233, 233, 233);
     border-radius: 50px;
+    justify-content: space-between;
 }
-.info-singerPage{
-    
+.info-singerPage {
     margin: 20px 30px;
-    
 }
-.info-about-singer{
-    display:flex;
+
+.collection-albums, .collection-collaborations, .collection-mvs {
+    display: flex;
+    flex-direction: column;
+    border-radius: 26px;
+    background-color: rgb(233, 233, 233);
+    padding: 10px; 
+}
+
+.albums-singerPage p, .collaboration-singerPage p, .mvs-singerPage p {
+    font-size: 30px;
+    margin-left: 50px;
+    line-height: 26px;
+    font-weight:300;
+}
+.info-about-singer {
+    display: flex;
     flex-direction: column;
     margin: 40px 0 40px 80px;
 }
