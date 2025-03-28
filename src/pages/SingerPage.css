@@ -1,9 +1,12 @@
-.singerPage {
+body{
     display: flex;
     flex-direction: column;
     z-index: 0;
     margin: 0;
     min-width: 1300px;
+}
+.singerPage {
+    flex: 1;
 }
 
 .cover-singerPage {

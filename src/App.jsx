@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -13,10 +13,11 @@ import Registration from "./pages/RegistrationPage";
 import MainPage from "./pages/MainPage";
 import PlaylistPage from "./pages/PlaylistPage";
 import Player from "./components/Player";
+import SongsList from "./pages/SongsList";
 import "./App.css";
 import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
-
+import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 const App = () => {
   const location = useLocation();
   const appStyle = {
@@ -48,6 +49,26 @@ const App = () => {
     setSongs,
     toggleSongPlay,
   } = ManageMusic();
+  const [users, setUsers] = useState([
+    {
+      id: 1,
+      nickname: "hope",
+      login: "admin",
+      password: "12345",
+      email: "ojafi@gmail.com",
+      dateRegistration: "12.03.2024",
+      photo: vkPicture,
+    },
+    {
+      id: 2,
+      nickname: "ole",
+      login: "naruto",
+      password: "54321",
+      email: "uzu@gmail.com",
+      dateRegistration: "02.05.2024",
+      photo: vkPicture,
+    },
+  ]);
   return (
     <div style={appStyle}>
       {location.pathname !== "/login" &&
@@ -88,9 +109,24 @@ const App = () => {
               onSongSelect={handleSongSelect}
             />
           }
-        />
-        <Route path="/login" element={<Login />} />
+        ></Route>
+        <Route path="/login" element={<Login users={users} />} />
         <Route path="/registration" element={<Registration />} />
+        <Route
+          path="/songsList"
+          element={
+            <SongsList
+              isPlaying={isPlaying}
+              currentSong={currentSong}
+              currentTime={currentTime}
+              duration={duration}
+              toggleSongPlay={toggleSongPlay}
+              onLikeChange={handleLikeChange}
+              songs={songs}
+              onSongSelect={handleSongSelect}
+            />
+          }
+        />
       </Routes>
       {location.pathname !== "/login" &&
         location.pathname !== "/registration" && <Footer />}

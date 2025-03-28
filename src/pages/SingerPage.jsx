@@ -2,14 +2,15 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import "./SingerPage.css";
 import singerCover from "../assets/bibi.jpg";
 import singerBack from "../assets/bibi_back.jpg";
-import Songs from "../components/Songs";
 import coverSong from "../assets/party.webp";
 import coverSong2 from "../assets/login.jpg";
 import Bheart from "../assets/Bheart.png";
 import Wheart from "../assets/Wheart.png";
+import Songs from "../components/Songs";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 import Media from "../components/ArtistMedia";
+import { useNavigate } from "react-router-dom";
 
 const SingerPage = ({
   isPlaying,
@@ -38,9 +39,10 @@ const SingerPage = ({
     country: "South Korea",
     backgroundPhoto: singerBack,
   });
+
   const [albums, setAlbum] = useState([
     {
-      id: 1,
+      id: 101,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -52,7 +54,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 2,
+      id: 102,
       title: "hoho",
       artist: "GH",
       cover: coverSong,
@@ -64,7 +66,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 3,
+      id: 103,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -76,7 +78,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 4,
+      id: 104,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -88,7 +90,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 5,
+      id: 105,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -100,7 +102,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 1,
+      id: 106,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -112,7 +114,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 1,
+      id: 107,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -124,7 +126,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 1,
+      id: 108,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -136,6 +138,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
   ]);
+
   const [initialSongs, setInitialSongs] = useState([
     {
       id: 1,
@@ -184,7 +187,52 @@ const SingerPage = ({
     },
     {
       id: 4,
-      title: "Yet Another Song",
+      title: "Yet 5657 Song",
+      artist: "Different Artist",
+      audio: audioCover2,
+      cover: coverSong2,
+      liked: false,
+      producer: "jk32421j",
+      authorLyrics: "h32421jh",
+      composer: "j3241ikj",
+      rights: "k343hj",
+      lyrics: "ckl3432gf",
+      duration: "02:32",
+      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
+    },
+    {
+      id: 5,
+      title: "change",
+      artist: "XXXTENTACION",
+      audio: audioCover2,
+      cover: coverSong2,
+      liked: true,
+      producer: "htfshfjh",
+      authorLyrics: "24321413243",
+      composer: "4321532413",
+      rights: "324",
+      lyrics: "32414",
+      duration: "02:02",
+      url: "https://jfgdhufdg.ru/playlist/fdgs41",
+    },
+    {
+      id: 6,
+      title: "Another Song",
+      artist: "Some Artist",
+      audio: audioCover,
+      cover: coverSong,
+      liked: false,
+      producer: "jkj",
+      authorLyrics: "hjh",
+      composer: "jikj",
+      rights: "khj",
+      lyrics: "cklgf",
+      duration: "02:22",
+      url: "https://jfgdhufdg.ru/playlist/000hkjf",
+    },
+    {
+      id: 7,
+      title: "Yet 5657 Song",
       artist: "Different Artist",
       audio: audioCover2,
       cover: coverSong2,
@@ -199,12 +247,12 @@ const SingerPage = ({
     },
   ]);
 
-  const [isLiked, setIsLiked] = useState(false); // State for the artist's like button
+  const [isLiked, setIsLiked] = useState(false);
   const heartRef = useRef(null);
 
   useEffect(() => {
     setSongs(initialSongs);
-  }, []); // Run only once on mount
+  }, [setSongs, initialSongs]);
 
   const handleSongChange = useCallback(
     (newSong) => {
@@ -230,6 +278,12 @@ const SingerPage = ({
 
   const likeClick = () => {
     setIsLiked(!isLiked);
+  };
+
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
   };
 
   return (
@@ -265,9 +319,10 @@ const SingerPage = ({
           </h1>
         </div>
       </div>
+
       <div className="songs-singerPage">
         <div className="songCol">
-          {songs.map((song) => (
+          {songs.slice(0, 6).map((song) => (
             <Songs
               key={song.id}
               song={song}
@@ -280,8 +335,14 @@ const SingerPage = ({
             />
           ))}
         </div>
-        <button className="btn-more">Больше</button>
+        <button
+          className="btn-more"
+          onClick={() => handleNavigation("/songsList")}
+        >
+          Больше
+        </button>
       </div>
+
       <div className="albums-singerPage">
         <p>Альбомы</p>
         <div className="collection-albums">
@@ -293,6 +354,7 @@ const SingerPage = ({
           <button className="album-more">Больше</button>
         </div>
       </div>
+
       <div className="collaboration-singerPage">
         <p>Коллаборации</p>
         <div className="collection-collaborations">
@@ -304,6 +366,7 @@ const SingerPage = ({
           <button className="album-more">Больше</button>
         </div>
       </div>
+
       <div className="mvs-singerPage">
         <p>Музыкальные видео</p>
         <div className="collection-mvs">
@@ -315,6 +378,7 @@ const SingerPage = ({
           <button className="album-more">Больше</button>
         </div>
       </div>
+
       <div className="info-singerPage">
         <div className="info-about-singer">
           <h2>Об исполнителе</h2>

@@ -73,6 +73,9 @@ input::placeholder, input::placeholder {
     border: none;
     margin: 8px 8px 24px 8px;
 }
+.card-btn:focus{
+    background-color: #30079f;
+}
 .hyperlink{
     font-size: 12px;
     color: black;

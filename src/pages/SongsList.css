@@ -1,0 +1,12 @@
+.songs-list{
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    margin: 30px 20px;
+}
+.every-song-in-list{
+   width: 1300px;
+    background-color: rgb(233, 233, 233);
+    padding: 20px 15px;
+    border-radius: 20px;
+}
