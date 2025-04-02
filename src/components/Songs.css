@@ -10,22 +10,18 @@
     margin: 0 5px;
     padding: 10px 15px;
 }
-.card-song:hover {
-    background-color: rgb(210, 211, 212);
 
-}
 .menu-dropdown{
-    position: absolute; /* Меняем на absolute */
-    z-index: 1000; /* Добавляем z-index для видимости */
+    position: absolute; 
+    z-index: 1000; 
     transform: translateY(12px);
 }
 .hidden-svg {
-    display: none; /* Скрываем SVG элементы по умолчанию */
+    display: none; 
   }
-  
-  /* Показываем SVG элементы при наведении на card-song */
+
 .card-song:hover .hidden-svg {
-    display: block; /* Показываем SVG элементы при наведении */
+    display: block;
   }
 
 .cover-title-song {
@@ -71,5 +67,5 @@
 }
 
 .cover-container:hover .play-pause-icon {
-    opacity: 1; /* Показываем иконку при наведении на контейнер */
+    opacity: 1;
 }

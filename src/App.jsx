@@ -17,6 +17,7 @@ import SongsList from "./pages/SongsList";
 import "./App.css";
 import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
+import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 const App = () => {
   const location = useLocation();
@@ -110,6 +111,23 @@ const App = () => {
             />
           }
         ></Route>
+        <Route
+          path="/album"
+          element={
+            <AlbumSongs
+              isPlaying={isPlaying}
+              currentSong={currentSong}
+              currentTime={currentTime}
+              duration={duration}
+              toggleSongPlay={toggleSongPlay}
+              onLikeChange={handleLikeChange}
+              audioRef={audioRef}
+              setSongs={setSongs}
+              songs={songs}
+              onSongSelect={handleSongSelect}
+            />
+          }
+        />
         <Route path="/login" element={<Login users={users} />} />
         <Route path="/registration" element={<Registration />} />
         <Route

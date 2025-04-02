@@ -34,10 +34,16 @@ const MainPage = () => {
             <b>Альбомы Сибири*</b>
           </h2>
           <div className="image-albums">
-            <img src={playlistDay} />
-            <img src={playlistDay2} />
-            <img src={playlistDay} />
-            <img src={playlistDay2} />
+            <img src={playlistDay} onClick={() => handleNavigation("/album")} />
+            <img
+              src={playlistDay2}
+              onClick={() => handleNavigation("/album")}
+            />
+            <img src={playlistDay} onClick={() => handleNavigation("/album")} />
+            <img
+              src={playlistDay2}
+              onClick={() => handleNavigation("/album")}
+            />
           </div>
         </div>
         <div className="best-singers">

@@ -1,12 +1,10 @@
-body{
+.singerPage {
     display: flex;
     flex-direction: column;
     z-index: 0;
     margin: 0;
     min-width: 1300px;
-}
-.singerPage {
-    flex: 1;
+
 }
 
 .cover-singerPage {
@@ -86,7 +84,7 @@ body{
     border-radius: 20px;
 }
 
-.albums-singerPage, .collaboration-singerPage, .mvs-singerPage {
+.albums-singerPage, .collaboration-singerPage {
     display: flex;
     flex-direction: column;
     border-radius: 30px;
@@ -105,7 +103,7 @@ body{
     margin: 20px 30px;
 }
 
-.collection-albums, .collection-collaborations, .collection-mvs {
+.collection-albums, .collection-collaborations {
     display: flex;
     flex-direction: column;
     border-radius: 26px;
@@ -113,7 +111,7 @@ body{
     padding: 10px; 
 }
 
-.albums-singerPage p, .collaboration-singerPage p, .mvs-singerPage p {
+.albums-singerPage p, .collaboration-singerPage p {
     font-size: 30px;
     margin-left: 50px;
     line-height: 26px;
@@ -124,3 +122,4 @@ body{
     flex-direction: column;
     margin: 40px 0 40px 80px;
 }
+

@@ -18,7 +18,7 @@ const PlaylistPage = ({
   audioRef,
   setSongs,
   songs,
-  onSongSelect, // Pass song selection function
+  onSongSelect,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -129,7 +129,7 @@ const PlaylistPage = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <button className="menu-playlist"></button>
+            <div className="menu-playlist"></div>
           </div>
           {isHovered && (
             <div

@@ -109,7 +109,9 @@ const CreditsModalWindow = ({ onClose, song }) => {
         <button className="close-button" onClick={onClose}>
           ✕
         </button>
-        <h1 className="heading">Сведения о песне</h1>
+        <p className="heading" >
+          Сведения о песне
+        </p>
         <div className="credits-info">
           <label>
             <span className="purple-text">Исполнитель: </span>

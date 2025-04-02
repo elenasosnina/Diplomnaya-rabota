@@ -24,18 +24,18 @@
     text-align: center;
     border: 1px solid black;
     padding: 5px 10px;
-    position: relative; /* Изменено на absolute */
-    bottom: 50px; /* Расстояние от нижнего края */
+    position: relative; 
+    bottom: 50px; 
     left: 210px;
   }
   .dropdown-container {
-    position: relative; /* или relative в зависимости от вашего дизайна */
+    position: relative; 
     z-index: 1000;
   }
   .block-menu-playlist {
-    position: relative; /* Измените на absolute */
-    top: 55px; /* Расстояние от верхнего края */
-    right: 45px; /* Расстояние от левого края */
+    position: relative;
+    top: 55px; 
+    right: 45px; 
   }
   .menu-playlist {
     background-color: rgb(183, 184, 184);

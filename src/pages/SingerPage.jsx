@@ -30,7 +30,7 @@ const SingerPage = ({
   };
 
   const [singer, setSinger] = useState({
-    id: 1,
+    id: 10,
     biography:
       "jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk ",
     nickname: "BIBI",
@@ -42,7 +42,7 @@ const SingerPage = ({
 
   const [albums, setAlbum] = useState([
     {
-      id: 101,
+      id: 1,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -54,7 +54,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 102,
+      id: 2,
       title: "hoho",
       artist: "GH",
       cover: coverSong,
@@ -66,7 +66,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 103,
+      id: 3,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -78,7 +78,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 104,
+      id: 4,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -90,7 +90,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 105,
+      id: 5,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -102,7 +102,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 106,
+      id: 6,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -114,7 +114,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 107,
+      id: 7,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -126,7 +126,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 108,
+      id: 8,
       title: "BoyHeart",
       artist: "Kiko",
       cover: coverSong,
@@ -141,7 +141,7 @@ const SingerPage = ({
 
   const [initialSongs, setInitialSongs] = useState([
     {
-      id: 1,
+      id: 11,
       title: "All Around The World",
       artist: "Justin Bieber",
       audio: audioCover,
@@ -156,7 +156,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
     {
-      id: 2,
+      id: 12,
       title: "change",
       artist: "XXXTENTACION",
       audio: audioCover2,
@@ -171,7 +171,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/fdgs41",
     },
     {
-      id: 3,
+      id: 13,
       title: "Another Song",
       artist: "Some Artist",
       audio: audioCover,
@@ -186,7 +186,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/000hkjf",
     },
     {
-      id: 4,
+      id: 14,
       title: "Yet 5657 Song",
       artist: "Different Artist",
       audio: audioCover2,
@@ -201,7 +201,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
     },
     {
-      id: 5,
+      id: 15,
       title: "change",
       artist: "XXXTENTACION",
       audio: audioCover2,
@@ -216,7 +216,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/fdgs41",
     },
     {
-      id: 6,
+      id: 16,
       title: "Another Song",
       artist: "Some Artist",
       audio: audioCover,
@@ -231,7 +231,7 @@ const SingerPage = ({
       url: "https://jfgdhufdg.ru/playlist/000hkjf",
     },
     {
-      id: 7,
+      id: 17,
       title: "Yet 5657 Song",
       artist: "Different Artist",
       audio: audioCover2,
@@ -366,19 +366,6 @@ const SingerPage = ({
           <button className="album-more">Больше</button>
         </div>
       </div>
-
-      <div className="mvs-singerPage">
-        <p>Музыкальные видео</p>
-        <div className="collection-mvs">
-          <div className="albums-covers">
-            {albums.slice(0, 3).map((album) => (
-              <Media key={album.id} albums={album} />
-            ))}
-          </div>
-          <button className="album-more">Больше</button>
-        </div>
-      </div>
-
       <div className="info-singerPage">
         <div className="info-about-singer">
           <h2>Об исполнителе</h2>
