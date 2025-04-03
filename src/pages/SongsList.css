@@ -1,8 +1,9 @@
+
 .songs-list{
     display: flex;
     justify-content: center;
-    height: 100vh;
     margin: 30px 20px;
+    flex: 1;
 }
 .every-song-in-list{
    width: 1300px;

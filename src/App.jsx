@@ -14,6 +14,7 @@ import MainPage from "./pages/MainPage";
 import PlaylistPage from "./pages/PlaylistPage";
 import Player from "./components/Player";
 import SongsList from "./pages/SongsList";
+import AlbumList from "./pages/AlbumList";
 import "./App.css";
 import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
@@ -128,6 +129,7 @@ const App = () => {
             />
           }
         />
+        <Route path="/albumList" element={<AlbumList />} />
         <Route path="/login" element={<Login users={users} />} />
         <Route path="/registration" element={<Registration />} />
         <Route

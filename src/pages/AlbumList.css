@@ -1,0 +1,21 @@
+.album-list {
+    flex: 1;
+    padding: 20px; 
+    display: flex;
+flex-direction: column;
+width: 1250px;
+margin: 0 auto;
+
+}
+
+.palitra-albums {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 200px); 
+    margin: 10px 0 20px 0;
+}
+
+.album-list h1 {
+    text-align: left;
+    margin-top: 10px;
+    font-size: 2em;
+}

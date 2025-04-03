@@ -1,0 +1,47 @@
+.album-component-cover {
+    border: 2px solid black;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    width: 200px; /* Ensure container has a fixed width */
+    height: 200px; /* Ensure container has a fixed height */
+    position: relative; /*  Needed for absolute positioning of overlay */
+}
+
+.card-album-cover {
+    width: 100%; /* Take full width of parent */
+    height: 100%; /* Take full height of parent */
+    object-fit: cover; /*  Scales the image to cover the entire container, cropping if necessary */
+    display: block; /*  Removes extra space under the image if it's behaving unexpectedly */
+}
+
+.info-album-Oncover {
+    position: absolute; /* Positioned relative to .album-component-cover */
+    top: 0; /* Cover the entire parent */
+    left: 0;
+    width: 100%; /* Cover the entire parent */
+    height: 100%; /* Cover the entire parent */
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    display: flex; /* Use flexbox for centering */
+    flex-direction: column; /* Stack elements vertically */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+    opacity: 0; /* Initially hide the overlay */
+    transition: opacity 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.album-component-cover:hover .info-album-Oncover {
+    opacity: 1; /* Show the overlay on hover */
+}
+
+.info-album-Oncover h2 {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    word-break: break-word; /* Prevent overflow for long titles */
+}
+
+.info-album-Oncover p {
+    font-size: 0.9em;
+    word-break: break-word; /* Prevent overflow for long artist names */
+}

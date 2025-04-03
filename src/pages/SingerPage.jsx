@@ -351,7 +351,12 @@ const SingerPage = ({
               <Media key={album.id} albums={album} />
             ))}
           </div>
-          <button className="album-more">Больше</button>
+          <button
+            className="album-more"
+            onClick={() => handleNavigation("/albumList")}
+          >
+            Больше
+          </button>
         </div>
       </div>
 

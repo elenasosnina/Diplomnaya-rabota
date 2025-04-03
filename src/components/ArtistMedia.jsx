@@ -3,7 +3,7 @@ import "./ArtistMedia.css";
 const ArtistMedia = ({ albums }) => {
   return (
     <div className="cover-title-media">
-      <img className="album-cover" src={albums.cover}></img>
+      <img className="album-cover-component" src={albums.cover}></img>
       <h1>{albums.title}</h1>
     </div>
   );
