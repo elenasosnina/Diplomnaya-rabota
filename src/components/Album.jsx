@@ -1,11 +1,14 @@
 import React from "react";
 import "./Album.css";
 import { useNavigate } from "react-router-dom";
+
 const Album = ({ album }) => {
   const navigate = useNavigate();
+
   const handleNavigation = (path) => {
     navigate(path);
   };
+
   return (
     <div
       className="album-component-cover"
@@ -18,4 +21,5 @@ const Album = ({ album }) => {
     </div>
   );
 };
+
 export default Album;

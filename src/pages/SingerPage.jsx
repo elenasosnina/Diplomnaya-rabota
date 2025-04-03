@@ -39,8 +39,21 @@ const SingerPage = ({
     country: "South Korea",
     backgroundPhoto: singerBack,
   });
-
-  const [albums, setAlbum] = useState([
+  const [collaboration, setCollaboration] = useState([
+    {
+      id: 21,
+      title: "fuiesjcufmev",
+      artist: "Kiko",
+      cover: coverSong,
+      producer: "ваы",
+      authorLyrics: "ава",
+      composer: "ewrуаф2eq",
+      rights: "лавы",
+      duration: "4 ч 32 м",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+  ]);
+  const [albums, setAlbums] = useState([
     {
       id: 1,
       title: "BoyHeart",
@@ -269,7 +282,12 @@ const SingerPage = ({
   const handleLikeChangeInternal = useCallback(
     (songId, newLiked) => {
       const updatedSongs = songs.map((song) =>
-        song.id === songId ? { ...song, liked: newLiked } : song
+        song.id === songId
+          ? {
+              ...song,
+              liked: newLiked,
+            }
+          : song
       );
       setSongs(updatedSongs);
     },
@@ -299,7 +317,9 @@ const SingerPage = ({
           <div
             className="btn-add"
             onClick={likedArtist}
-            style={{ backgroundColor: IsClicked ? "#4f0fff" : "white" }}
+            style={{
+              backgroundColor: IsClicked ? "#4f0fff" : "white",
+            }}
           >
             {IsClicked ? (
               <img src={Wheart} alt="White Heart" />
@@ -319,7 +339,6 @@ const SingerPage = ({
           </h1>
         </div>
       </div>
-
       <div className="songs-singerPage">
         <div className="songCol">
           {songs.slice(0, 6).map((song) => (
@@ -342,9 +361,8 @@ const SingerPage = ({
           Больше
         </button>
       </div>
-
       <div className="albums-singerPage">
-        <p>Альбомы</p>
+        <p> Альбомы </p>
         <div className="collection-albums">
           <div className="albums-covers">
             {albums.slice(0, 6).map((album) => (
@@ -353,28 +371,45 @@ const SingerPage = ({
           </div>
           <button
             className="album-more"
-            onClick={() => handleNavigation("/albumList")}
+            onClick={() =>
+              navigate("/albumList", {
+                state: {
+                  albums: albums,
+                  name: "Альбомы",
+                },
+              })
+            }
           >
             Больше
           </button>
         </div>
       </div>
-
       <div className="collaboration-singerPage">
-        <p>Коллаборации</p>
+        <p> Коллаборации </p>
         <div className="collection-collaborations">
           <div className="albums-covers">
-            {albums.slice(0, 6).map((album) => (
-              <Media key={album.id} albums={album} />
+            {collaboration.slice(0, 6).map((collab) => (
+              <Media key={collab.id} albums={collab} />
             ))}
           </div>
-          <button className="album-more">Больше</button>
+          <button
+            className="album-more"
+            onClick={() =>
+              navigate("/albumList", {
+                state: {
+                  albums: collaboration,
+                  name: "Коллаборации",
+                },
+              })
+            }
+          >
+            Больше
+          </button>
         </div>
       </div>
       <div className="info-singerPage">
         <div className="info-about-singer">
-          <h2>Об исполнителе</h2>
-          <p>{singer.biography}</p>
+          <h2> Об исполнителе </h2> <p> {singer.biography} </p>
         </div>
         <img
           src={coverSong}
