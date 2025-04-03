@@ -7,6 +7,7 @@ import coverSong from "../assets/party.webp";
 import coverSong2 from "../assets/login.jpg";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AlbumPage = ({
   isPlaying,
@@ -21,6 +22,7 @@ const AlbumPage = ({
   onSongSelect,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   const options = [
     {
       label: "Поделит432432432ься",
@@ -142,9 +144,11 @@ const AlbumPage = ({
       url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
     },
   ]);
+
   useEffect(() => {
     setSongs(initialSongs);
   }, [setSongs, initialSongs]);
+
   const handleLikeChangeInternal = (songId) => {
     setSongs((prevSongs) =>
       prevSongs.map((song) =>
@@ -152,6 +156,7 @@ const AlbumPage = ({
       )
     );
   };
+
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -159,13 +164,28 @@ const AlbumPage = ({
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
+
+  const location = useLocation();
+  const album = location.state?.album; // Safe access to album
+
+  useEffect(() => {
+    if (!album) {
+      // If album is null or undefined, redirect to a safe route or display an error
+      console.error("Album data is missing in location.state");
+      // Example: Redirect to the main page
+      navigate("/");
+    }
+  }, [album, navigate]);
+  if (!album) {
+    return <div>Loading...</div>; // or display an error message
+  }
   return (
     <div className="main-al">
       <div className="album-component">
         <div className="album-cover">
           <img
             className="main-cover-album"
-            src={covercover}
+            src={album.cover}
             alt="Album Cover"
           />
           <div
@@ -188,7 +208,7 @@ const AlbumPage = ({
         </div>
         <div className="album-page-info">
           <div className="album-page-tracklist">
-            <h1>Boyfriend</h1>
+            <h1>{album.title}</h1>
             {songs.map((song) => (
               <Songs
                 key={song.id}
@@ -207,4 +227,5 @@ const AlbumPage = ({
     </div>
   );
 };
+
 export default AlbumPage;

@@ -366,7 +366,17 @@ const SingerPage = ({
         <div className="collection-albums">
           <div className="albums-covers">
             {albums.slice(0, 6).map((album) => (
-              <Media key={album.id} albums={album} />
+              <Media
+                key={album.id}
+                albums={album}
+                onClick={() =>
+                  navigate("/album", {
+                    state: {
+                      album: album,
+                    },
+                  })
+                }
+              />
             ))}
           </div>
           <button
@@ -389,7 +399,17 @@ const SingerPage = ({
         <div className="collection-collaborations">
           <div className="albums-covers">
             {collaboration.slice(0, 6).map((collab) => (
-              <Media key={collab.id} albums={collab} />
+              <Media
+                key={collab.id}
+                albums={collab}
+                onClick={() =>
+                  navigate("/album", {
+                    state: {
+                      album: collab,
+                    },
+                  })
+                }
+              />
             ))}
           </div>
           <button
