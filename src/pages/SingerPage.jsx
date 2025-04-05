@@ -9,7 +9,7 @@ import Wheart from "../assets/Wheart.png";
 import Songs from "../components/Songs";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
-import Media from "../components/ArtistMedia";
+import Media from "../components/Media";
 import { useNavigate } from "react-router-dom";
 
 const SingerPage = ({
@@ -183,81 +183,6 @@ const SingerPage = ({
       duration: "02:02",
       url: "https://jfgdhufdg.ru/playlist/fdgs41",
     },
-    {
-      id: 13,
-      title: "Another Song",
-      artist: "Some Artist",
-      audio: audioCover,
-      cover: coverSong,
-      liked: false,
-      producer: "jkj",
-      authorLyrics: "hjh",
-      composer: "jikj",
-      rights: "khj",
-      lyrics: "cklgf",
-      duration: "02:22",
-      url: "https://jfgdhufdg.ru/playlist/000hkjf",
-    },
-    {
-      id: 14,
-      title: "Yet 5657 Song",
-      artist: "Different Artist",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: false,
-      producer: "jk32421j",
-      authorLyrics: "h32421jh",
-      composer: "j3241ikj",
-      rights: "k343hj",
-      lyrics: "ckl3432gf",
-      duration: "02:32",
-      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
-    },
-    {
-      id: 15,
-      title: "change",
-      artist: "XXXTENTACION",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: true,
-      producer: "htfshfjh",
-      authorLyrics: "24321413243",
-      composer: "4321532413",
-      rights: "324",
-      lyrics: "32414",
-      duration: "02:02",
-      url: "https://jfgdhufdg.ru/playlist/fdgs41",
-    },
-    {
-      id: 16,
-      title: "Another Song",
-      artist: "Some Artist",
-      audio: audioCover,
-      cover: coverSong,
-      liked: false,
-      producer: "jkj",
-      authorLyrics: "hjh",
-      composer: "jikj",
-      rights: "khj",
-      lyrics: "cklgf",
-      duration: "02:22",
-      url: "https://jfgdhufdg.ru/playlist/000hkjf",
-    },
-    {
-      id: 17,
-      title: "Yet 5657 Song",
-      artist: "Different Artist",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: false,
-      producer: "jk32421j",
-      authorLyrics: "h32421jh",
-      composer: "j3241ikj",
-      rights: "k343hj",
-      lyrics: "ckl3432gf",
-      duration: "02:32",
-      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
-    },
   ]);
 
   const [isLiked, setIsLiked] = useState(false);
@@ -368,7 +293,8 @@ const SingerPage = ({
             {albums.slice(0, 6).map((album) => (
               <Media
                 key={album.id}
-                albums={album}
+                item={album}
+                type="album"
                 onClick={() =>
                   navigate("/album", {
                     state: {
@@ -401,7 +327,8 @@ const SingerPage = ({
             {collaboration.slice(0, 6).map((collab) => (
               <Media
                 key={collab.id}
-                albums={collab}
+                item={collab}
+                type="album"
                 onClick={() =>
                   navigate("/album", {
                     state: {

@@ -52,7 +52,10 @@ const Header = () => {
           </>
         ) : (
           <>
-            <div className="user-account">
+            <div
+              className="user-account"
+              onClick={() => handleNavigation("/userAccount")}
+            >
               <img className="user-profile-photo" src={userFace} />
               <p>fghjgfyjkgujk</p>
             </div>

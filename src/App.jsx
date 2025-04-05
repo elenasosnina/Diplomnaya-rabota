@@ -14,6 +14,7 @@ import MainPage from "./pages/MainPage";
 import PlaylistPage from "./pages/PlaylistPage";
 import Player from "./components/Player";
 import SongsList from "./pages/SongsList";
+import UserAccount from "./pages/UserAccountPage";
 import AlbumList from "./pages/AlbumList";
 import "./App.css";
 import SingerPage from "./pages/SingerPage";
@@ -78,6 +79,23 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/main" element={<MainPage />} />
+        <Route
+          path="/userAccount"
+          element={
+            <UserAccount
+              isPlaying={isPlaying}
+              currentSong={currentSong}
+              currentTime={currentTime}
+              duration={duration}
+              toggleSongPlay={toggleSongPlay}
+              onLikeChange={handleLikeChange}
+              audioRef={audioRef}
+              setSongs={setSongs}
+              songs={songs}
+              onSongSelect={handleSongSelect}
+            />
+          }
+        />
         <Route
           path="/playlist"
           element={

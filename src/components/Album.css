@@ -2,46 +2,46 @@
     border: 2px solid black;
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
     background-color: white;
-    width: 200px; /* Ensure container has a fixed width */
-    height: 200px; /* Ensure container has a fixed height */
-    position: relative; /*  Needed for absolute positioning of overlay */
+    width: 200px;
+    height: 200px; 
+    position: relative;
 }
 
 .card-album-cover {
-    width: 100%; /* Take full width of parent */
-    height: 100%; /* Take full height of parent */
-    object-fit: cover; /*  Scales the image to cover the entire container, cropping if necessary */
-    display: block; /*  Removes extra space under the image if it's behaving unexpectedly */
+    width: 100%;
+    height: 100%; 
+    object-fit: cover;
+    display: block;
 }
 
 .info-album-Oncover {
-    position: absolute; /* Positioned relative to .album-component-cover */
-    top: 0; /* Cover the entire parent */
+    position: absolute; 
+    top: 0;
     left: 0;
-    width: 100%; /* Cover the entire parent */
-    height: 100%; /* Cover the entire parent */
+    width: 100%; 
+    height: 100%; 
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
     text-align: center;
-    display: flex; /* Use flexbox for centering */
-    flex-direction: column; /* Stack elements vertically */
-    justify-content: center; /* Center vertically */
-    align-items: center; /* Center horizontally */
-    opacity: 0; /* Initially hide the overlay */
-    transition: opacity 0.3s ease; /* Smooth transition for hover effect */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
 }
 
 .album-component-cover:hover .info-album-Oncover {
-    opacity: 1; /* Show the overlay on hover */
+    opacity: 1; 
 }
 
 .info-album-Oncover h2 {
     font-size: 1.2em;
     margin-bottom: 5px;
-    word-break: break-word; /* Prevent overflow for long titles */
+    word-break: break-word;
 }
 
 .info-album-Oncover p {
     font-size: 0.9em;
-    word-break: break-word; /* Prevent overflow for long artist names */
+    word-break: break-word;
 }

@@ -1,0 +1,193 @@
+.component-statistics {
+  border-radius: 20px;
+  padding: 30px;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  
+}
+
+.statistics-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333; 
+  text-align: center;
+}
+
+.listened {
+  display: flex;
+  flex-direction: row;
+  gap:150px;
+  width: 100%;
+  justify-content: space-evenly;
+  margin-bottom: 20px;
+}
+
+.listened-days,
+.listened-hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.listened-value {
+  font-size: 60px;
+  font-weight: bold;
+  color: #222; 
+  line-height: 1;
+  margin-bottom: 0px;
+}
+
+.listened-label {
+  font-size: 24px;
+  color: #555; 
+  padding-left: 100%;
+}
+
+.fav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-self: start;
+  width: 100%;
+}
+
+.fav-item {
+  display: flex;
+  flex-direction: column;
+  align-items:center;
+  text-align: center;
+}
+
+.fav-item-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.fav-item-cover {
+  height: 200px;
+  width: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.fav-item-name {
+  font-size: 24px;
+  color: #444;
+}
+
+.userPage {
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+  margin: 0;
+  min-width: 1300px;
+  flex: 1;
+}
+
+.cover-userPage {
+  height: 260px;
+}
+
+.background-userPage {
+  height: 320px;
+  width: 100%;
+  min-width: 1300px;
+  top: 0;
+  position: absolute;
+}
+
+.photoes-user {
+  position: absolute;
+  top: 120px;
+  left: 150px;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  color: white;
+}
+
+.photoes-user img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+}
+
+.inner-menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 50px;
+  margin: 15px 0 5px 70px;
+}
+
+.inner-menu h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.component-elected {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-elected-component {
+  display: flex;
+  flex-direction: row;
+  border: 1px solid black;
+  border-radius: 30px;
+  padding: 10px 20px;
+  gap: 25px;
+  margin: 5px 40px 15px 40px;
+}
+
+.menu-elected-component div {
+  border: 1px solid black;
+  border-radius: 30px;
+  padding: 5px 20px;
+  font-size: 20px;
+}
+
+.favourites-artists {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px 60px;
+  padding: 30px 60px;
+}
+
+.array-favourites {
+  border-radius: 30px;
+  margin: 10px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.songs-list-fav {
+  width: 100%;
+  padding: 20px 15px;
+}
+
+.favourites-playlists {
+  display: flex;
+  padding: 20px 0px;
+  flex-direction: row;
+  border-radius: 50px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.favourites-albums {
+  display: flex;
+  padding: 10px 25px;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
