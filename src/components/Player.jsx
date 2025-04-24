@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./Player.css";
 import shuffle from "../assets/shuffle.png";
 import repeatImg from "../assets/repeat.png";
 import next from "../assets/next.png";
 import dinamic from "../assets/dinamic.png";
 import lyrics from "../assets/lyrics.png";
-import maxPlayer from "../assets/maximize.png";
+import maxPlayerImg from "../assets/maximize.png";
+import minPlayerImg from "../assets/maximize.png";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
-import textSong from "../assets/text.txt";
 
 const Player = ({
   currentSong,
@@ -27,32 +27,50 @@ const Player = ({
   onToggleRepeat,
   songs,
   onSongSelect,
+  isMaximized,
+  setIsMaximized,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const [showSlider, setShowSlider] = useState(false);
   const [volume, setVolume] = useState(50);
-  // const [isShuffled, setIsShuffled] = useState(false); // State for shuffle mode
   const [shuffledSongs, setShuffledSongs] = useState([]);
   const [currentShuffledIndex, setCurrentShuffledIndex] = useState(0);
-  const [isLyricsVisible, setIsLyricsVisible] = useState(false); // Состояние для видимости текста
-  const [cardStyle, setCardStyle] = useState({});
+  const [isLyricsVisible, setIsLyricsVisible] = useState(false);
   const [songText, setSongText] = useState("");
+  const playerCardRef = useRef(null);
+  const [cardStyle, setCardStyle] = useState({});
 
-  const playerLyrics = () => {
-    setIsLyricsVisible(!isLyricsVisible);
-    if (!isLyricsVisible) {
-      setCardStyle({
-        background: "linear-gradient(to top,rgb(205, 184, 255), #4f0fff)",
-        height: "100%",
-        zIndex: "10",
-      });
-    } else {
-      setCardStyle({ backgroundColor: "#4f0fff", height: "120px" }); // Возвращаем исходный стиль
+  useEffect(() => {
+    if (playerCardRef.current) {
+      if (!currentSong) {
+        playerCardRef.current.classList.add("empty");
+      } else {
+        playerCardRef.current.classList.remove("empty");
+      }
     }
-  };
+  }, [currentSong]);
+
+  useEffect(() => {
+    const fetchLyrics = async () => {
+      if (currentSong && currentSong.lyricsUrl) {
+        try {
+          setSongText(
+            `Lyrics for ${currentSong.title} - ${currentSong.artist} would be here.\n(Simulated)`
+          );
+        } catch (error) {
+          console.error("Error fetching lyrics:", error);
+          setSongText("Error loading lyrics.");
+        }
+      } else {
+        setSongText("");
+      }
+    };
+    fetchLyrics();
+  }, [currentSong]);
 
   const handleMouseEnter = () => {
+    if (!currentSong) return;
     setIsHovered(true);
   };
 
@@ -65,12 +83,12 @@ const Player = ({
     setSeekValue(newValue);
     const newTime = (parseFloat(newValue) / 100) * duration;
     if (!isNaN(newTime) && duration > 0) {
-      audioRef.current.currentTime = newTime;
-      onSeek(newTime);
+      onSeek(newTime); // Corrected: Calling onSeek instead of directly setting audioRef.current.currentTime
     }
   };
 
   const likeClick = () => {
+    if (!currentSong) return;
     onLikeChange(currentSong.id, !currentSong.liked);
   };
 
@@ -99,24 +117,26 @@ const Player = ({
 
   const playNextShuffledSong = useCallback(() => {
     if (shuffledSongs && shuffledSongs.length > 0) {
-      if (currentShuffledIndex < shuffledSongs.length - 1) {
-        setCurrentShuffledIndex((prevIndex) => prevIndex + 1);
-        onSongSelect(shuffledSongs[currentShuffledIndex + 1]);
-      } else {
+      let nextIndex = currentShuffledIndex + 1;
+      if (nextIndex >= shuffledSongs.length) {
+        // If we reach the end, shuffle and start from the beginning
         const shuffled = [...songs].sort(() => Math.random() - 0.5);
         setShuffledSongs(shuffled);
-        setCurrentShuffledIndex(0);
-        onSongSelect(shuffled[0]);
+        nextIndex = 0;
       }
+      setCurrentShuffledIndex(nextIndex);
+      onSongSelect(shuffledSongs[nextIndex]);
     }
   }, [shuffledSongs, currentShuffledIndex, songs, onSongSelect]);
 
-  const handleEnded = () => {
+  const handleEnded = useCallback(() => {
     if (isRepeat) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch((error) => {
-        console.error("Error autoplaying after repeat:", error);
-      });
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch((error) => {
+          console.error("Error autoplaying after repeat:", error);
+        });
+      }
     } else {
       if (isShuffle) {
         playNextShuffledSong();
@@ -124,7 +144,7 @@ const Player = ({
         playNextSong();
       }
     }
-  };
+  }, [isRepeat, isShuffle, playNextSong, playNextShuffledSong, audioRef]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -135,14 +155,11 @@ const Player = ({
         audioRef.current.removeEventListener("ended", handleEnded);
       }
     };
-  }, [isRepeat, isShuffle, playNextSong, playNextShuffledSong]);
+  }, [handleEnded, audioRef]);
 
   const handleVolumeChange = (event) => {
     const newVolume = parseInt(event.target.value, 10);
     setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume / 100;
-    }
   };
 
   useEffect(() => {
@@ -151,162 +168,267 @@ const Player = ({
     }
   }, [audioRef, volume]);
 
-  const handleNextClick = () => {
+  const handleNextClick = useCallback(() => {
     if (isShuffle) {
       playNextShuffledSong();
     } else {
       playNextSong();
     }
-  };
+  }, [isShuffle, playNextSong, playNextShuffledSong]);
 
-  return (
-    <div className="player-card" style={cardStyle}>
-      <div className="main-part">
-        <div className="cover-artist-title">
-          {currentSong && (
-            <>
-              <img
-                className="cover"
-                src={currentSong.cover}
-                height={"50px"}
-                width={"50px"}
-                alt="Cover"
-              />
-              <div className="song-information">
-                <p>{currentSong.title}</p>
-                <p>{currentSong.artist}</p>
-              </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 0 24 24"
-                fill={currentSong.liked ? "white" : "none"}
-                stroke="white"
-                strokeWidth="2"
-                onClick={likeClick}
-                className="icon-liked"
-              >
-                <path
-                  strokeLinejoin="round"
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                />
-              </svg>
-            </>
-          )}
-        </div>
-        <div className="player-icons">
-          <img
-            src={shuffle}
-            alt="Shuffle"
+  const handleNextClickFullScreen = useCallback(() => {
+    if (isShuffle) {
+      playNextShuffledSong();
+    } else {
+      playNextSong();
+    }
+    setIsMaximized(true);
+  }, [isShuffle, playNextSong, playNextShuffledSong, setIsMaximized]);
+
+  const isDisabled = !currentSong;
+
+  const PlayerControls = () => (
+    <div className="player-icons">
+      <img
+        src={shuffle}
+        alt="Shuffle"
+        style={{
+          width: "30px",
+          height: "30px",
+          cursor: "pointer",
+          opacity: isShuffle ? 1 : 0.7,
+        }}
+        onClick={isDisabled ? null : onToggleShuffle}
+        className={isDisabled ? "disabled" : ""}
+        role="button"
+        aria-label="Toggle Shuffle"
+      />
+      <img
+        style={{ width: "30px", height: "30px", transform: "rotate(180deg)" }}
+        src={next}
+        alt="Previous"
+        onClick={isDisabled ? null : playPreviousSong}
+        className={isDisabled ? "disabled" : ""}
+        role="button"
+        aria-label="Play Previous"
+      />
+      <img
+        style={{ width: "30px", height: "30px" }}
+        src={isPlaying ? pause : play}
+        onClick={isDisabled ? null : onTogglePlay}
+        alt={isPlaying ? "Pause" : "Play"}
+        className={isDisabled ? "disabled" : ""}
+        role="button"
+        aria-label={isPlaying ? "Pause" : "Play"}
+      />
+      {isMaximized ? (
+        <img
+          style={{ width: "30px", height: "30px" }}
+          src={next}
+          alt="Next"
+          onClick={isDisabled ? null : handleNextClickFullScreen}
+          className={isDisabled ? "disabled" : ""}
+          role="button"
+          aria-label="Play Next"
+        />
+      ) : (
+        <img
+          style={{ width: "30px", height: "30px" }}
+          src={next}
+          alt="Next"
+          onClick={isDisabled ? null : handleNextClick}
+          className={isDisabled ? "disabled" : ""}
+          role="button"
+          aria-label="Play Next"
+        />
+      )}
+      <img
+        src={repeatImg}
+        alt="Repeat"
+        onClick={isDisabled ? null : onToggleRepeat}
+        style={{
+          width: "30px",
+          height: "30px",
+          cursor: "pointer",
+          opacity: isRepeat ? 1 : 0.7,
+        }}
+        className={isDisabled ? "disabled" : ""}
+        role="button"
+        aria-label="Toggle Repeat"
+      />
+    </div>
+  );
+
+  const AudioSlider = () =>
+    showSlider && (
+      <div className="duration-music-line">
+        <div className="audio-line">
+          <input
             style={{
-              width: "20px",
-              opacity: isShuffle ? 1 : 0.7,
-              height: "20px",
-              marginRight: "60px",
+              width: "100%",
+              "--played-percentage": `${playedPercentage}%`,
+              appearance: "none",
+              height: "8px",
+              background:
+                "linear-gradient(to right,rgb(255, 255, 255) var(--played-percentage), rgba(216, 215, 215, 0.5) var(--played-percentage))",
+              outline: "none",
+              transition: "background 0.2s ease-in-out",
+              borderRadius: "4px",
               cursor: "pointer",
             }}
-            onClick={onToggleShuffle}
-          />
-          <img
-            style={{ transform: "rotate(180deg)" }}
-            src={next}
-            alt="Previous"
-            onClick={playPreviousSong}
-          />
-          <img
-            src={isPlaying ? pause : play}
-            onClick={onTogglePlay}
-            alt={isPlaying ? "Pause" : "Play"}
-          />
-          <img src={next} alt="Next" onClick={handleNextClick} />
-          <img
-            src={repeatImg}
-            alt="Repeat"
-            onClick={onToggleRepeat}
-            style={{
-              width: "20px",
-              height: "20px",
-              marginLeft: "60px",
-              opacity: isRepeat ? 1 : 0.7,
-              cursor: "pointer",
-            }}
+            type="range"
+            min="0"
+            max="100"
+            value={seekValue}
+            onChange={handleSeekChange}
+            step="0.5"
+            aria-label="Seek track"
           />
         </div>
-        <div className="other-icons" style={{ marginLeft: "30px" }}>
-          <img
-            className="dinamic"
-            src={dinamic}
-            alt="Dinamic"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            style={{ cursor: "pointer" }}
-          />
-          {isHovered && (
-            <div
-              style={{
-                paddingLeft: "30px",
-                position: "absolute",
-                bottom: "190px",
-                right: "-25px",
-                transform: "rotate(-90deg)",
-              }}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <div className="volume-range">
-                <p style={{ transform: "rotate(90deg)", margin: "0" }}>
-                  {volume}
-                </p>
-                <input
-                  className="volume"
-                  style={{ width: "150px" }}
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                />
-              </div>
-            </div>
-          )}
-          <img src={lyrics} alt="Lyrics" onClick={playerLyrics} />
-          {isLyricsVisible && (
-            <div className="text-songs">
-              <p>{songText}</p>
-            </div>
-          )}
-          <img src={maxPlayer} alt="maxPlayer" />
-        </div>
+        <p style={{ color: "white", paddingLeft: "20px" }}>
+          {formatTime(currentTime)}
+        </p>
       </div>
-      {showSlider && (
-        <div className="duration-music-line">
-          <div className="audio-line">
+    );
+
+  const VolumeControl = () => (
+    <>
+      <img
+        src={dinamic}
+        alt="Dinamic"
+        style={{
+          width: "30px",
+          height: "30px",
+          cursor: currentSong ? "pointer" : "default",
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={isDisabled ? "disabled" : ""}
+        role="button"
+        aria-label="Volume Control"
+      />
+      {isHovered && (
+        <div
+          style={{
+            paddingLeft: "30px",
+            position: "absolute",
+            bottom: "170px",
+            right: "-18px",
+            transform: "rotate(-90deg)",
+            color: "black",
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="volume-range">
+            <p style={{ transform: "rotate(90deg)", margin: "0" }}>{volume}</p>
             <input
-              style={{
-                width: "100%",
-                "--played-percentage": `${playedPercentage}%`,
-                appearance: "none",
-                height: "8px",
-                background:
-                  "linear-gradient(to right,rgb(255, 255, 255) var(--played-percentage), rgba(216, 215, 215, 0.5) var(--played-percentage))",
-                outline: "none",
-                transition: "background 0.2s ease-in-out",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
+              className="volume"
+              style={{ width: "150px" }}
               type="range"
               min="0"
               max="100"
-              value={seekValue}
-              onChange={handleSeekChange}
-              step="0.5"
+              step="1"
+              value={volume}
+              onChange={handleVolumeChange}
+              aria-label="Change volume"
             />
           </div>
-          <p style={{ color: "white", paddingLeft: "20px" }}>
-            {formatTime(currentTime)}
-          </p>
+        </div>
+      )}
+    </>
+  );
+
+  const toggleLyricsVisibility = () => {
+    setIsLyricsVisible((prev) => !prev);
+  };
+
+  const LyricsButton = () => (
+    <img
+      src={lyrics}
+      alt="Lyrics"
+      style={{ width: "30px", height: "30px" }}
+      onClick={isDisabled ? null : toggleLyricsVisibility}
+      className={isDisabled ? "disabled" : ""}
+      role="button"
+      aria-label="View Lyrics"
+    />
+  );
+
+  const LikeButton = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="30"
+      height="30"
+      viewBox="0 0 24 24"
+      fill={currentSong && currentSong.liked ? "white" : "none"}
+      stroke="white"
+      strokeWidth="2"
+      onClick={likeClick}
+      className="icon-liked"
+      role="button"
+      aria-label={currentSong && currentSong.liked ? "Unlike" : "Like"}
+    >
+      <path
+        strokeLinejoin="round"
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+      />
+    </svg>
+  );
+
+  const MaxPlayer = () => (
+    <img
+      style={{ width: "30px", height: "30px" }}
+      src={isMaximized ? minPlayerImg : maxPlayerImg} // Toggle between maximize and minimize icons
+      alt="maxPlayer"
+      className={isDisabled ? "disabled" : ""}
+      role="button"
+      aria-label="Toggle Max Player"
+      onClick={() => setIsMaximized(!isMaximized)}
+    />
+  );
+
+  return (
+    <div
+      className={`player-card ${isMaximized ? "maximized" : ""}`}
+      style={cardStyle}
+      ref={playerCardRef}
+    >
+      {!isLyricsVisible && (
+        <>
+          <div className="main-part">
+            <div className="cover-artist-title">
+              {currentSong && (
+                <>
+                  <img
+                    className="cover"
+                    src={currentSong.cover}
+                    height={"50px"}
+                    width={"50px"}
+                    alt="Cover"
+                  />
+                  <div className="song-information">
+                    <p>{currentSong.title}</p>
+                    <p>{currentSong.artist}</p>
+                  </div>
+                  <LikeButton />
+                </>
+              )}
+            </div>
+            <PlayerControls />
+            <div className="other-icons">
+              <VolumeControl />
+              <LyricsButton />
+              <MaxPlayer />
+            </div>
+          </div>
+          <AudioSlider />
+        </>
+      )}
+      {isLyricsVisible && (
+        <div className="text-songs">
+          <div onClick={toggleLyricsVisibility}>✕</div>
+          <p>{songText}</p>
         </div>
       )}
     </div>

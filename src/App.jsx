@@ -21,6 +21,7 @@ import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
 import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
+
 const App = () => {
   const location = useLocation();
   const appStyle = {
@@ -32,6 +33,7 @@ const App = () => {
         ? "rgb(50, 0, 249)"
         : "rgb(255, 255, 255)",
   };
+
   const {
     currentSong,
     isPlaying,
@@ -52,6 +54,7 @@ const App = () => {
     setSongs,
     toggleSongPlay,
   } = ManageMusic();
+
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -72,6 +75,9 @@ const App = () => {
       photo: vkPicture,
     },
   ]);
+
+  const [isMaximized, setIsMaximized] = useState(false); // Add state for maximized mode
+
   return (
     <div style={appStyle}>
       {location.pathname !== "/login" &&
@@ -189,6 +195,8 @@ const App = () => {
             onToggleShuffle={toggleShuffle}
             isRepeat={isRepeat}
             onToggleRepeat={toggleRepeat}
+            isMaximized={isMaximized}
+            setIsMaximized={setIsMaximized}
           />
         )}
     </div>
