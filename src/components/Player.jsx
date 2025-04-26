@@ -40,6 +40,7 @@ const Player = ({
   const [songText, setSongText] = useState("");
   const playerCardRef = useRef(null);
   const [cardStyle, setCardStyle] = useState({});
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     if (playerCardRef.current) {
@@ -48,6 +49,14 @@ const Player = ({
       } else {
         playerCardRef.current.classList.remove("empty");
       }
+    }
+  }, [currentSong]);
+
+  useEffect(() => {
+    if (currentSong) {
+      setIsLiked(!!currentSong.liked);
+    } else {
+      setIsLiked(false);
     }
   }, [currentSong]);
 
@@ -83,13 +92,8 @@ const Player = ({
     setSeekValue(newValue);
     const newTime = (parseFloat(newValue) / 100) * duration;
     if (!isNaN(newTime) && duration > 0) {
-      onSeek(newTime); // Corrected: Calling onSeek instead of directly setting audioRef.current.currentTime
+      onSeek(newTime);
     }
-  };
-
-  const likeClick = () => {
-    if (!currentSong) return;
-    onLikeChange(currentSong.id, !currentSong.liked);
   };
 
   const playedPercentage = (currentTime / duration) * 100 || 0;
@@ -119,7 +123,6 @@ const Player = ({
     if (shuffledSongs && shuffledSongs.length > 0) {
       let nextIndex = currentShuffledIndex + 1;
       if (nextIndex >= shuffledSongs.length) {
-        // If we reach the end, shuffle and start from the beginning
         const shuffled = [...songs].sort(() => Math.random() - 0.5);
         setShuffledSongs(shuffled);
         nextIndex = 0;
@@ -355,31 +358,39 @@ const Player = ({
     />
   );
 
-  const LikeButton = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="30"
-      height="30"
-      viewBox="0 0 24 24"
-      fill={currentSong && currentSong.liked ? "white" : "none"}
-      stroke="white"
-      strokeWidth="2"
-      onClick={likeClick}
-      className="icon-liked"
-      role="button"
-      aria-label={currentSong && currentSong.liked ? "Unlike" : "Like"}
-    >
-      <path
-        strokeLinejoin="round"
-        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      />
-    </svg>
-  );
+  const LikeButton = () => {
+    const handleLikeClick = () => {
+      setIsLiked((prev) => !prev);
+      onLikeChange && onLikeChange(!isLiked);
+    };
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="30"
+        height="30"
+        viewBox="0 0 24 24"
+        stroke="white"
+        strokeWidth="2"
+        fill={isLiked ? "white" : "none"}
+        className="icon-liked"
+        role="button"
+        aria-label={isLiked ? "Unlike" : "Like"}
+        onClick={isDisabled ? null : handleLikeClick}
+        style={{ cursor: isDisabled ? "default" : "pointer" }}
+      >
+        <path
+          strokeLinejoin="round"
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+        />
+      </svg>
+    );
+  };
 
   const MaxPlayer = () => (
     <img
       style={{ width: "30px", height: "30px" }}
-      src={isMaximized ? minPlayerImg : maxPlayerImg} // Toggle between maximize and minimize icons
+      src={isMaximized ? minPlayerImg : maxPlayerImg}
       alt="maxPlayer"
       className={isDisabled ? "disabled" : ""}
       role="button"

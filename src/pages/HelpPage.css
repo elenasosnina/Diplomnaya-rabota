@@ -1,0 +1,73 @@
+.help-page {
+    position: fixed; 
+    top: 0;
+    width: 100%; 
+    min-height: 100vh; 
+    
+    z-index: 0;
+  }
+  
+  .help-page-content {
+    background-color: rgb(79, 15, 255);
+    padding: 90px 20px 20px 20px;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box; /*  Include padding and border in the element's total width and height */
+    z-index: 1; /* Ensure this is above .help-page */
+    color: white;  /* Default text color */
+  }
+  
+.help-page-content h1 {
+    color: white;
+    font-size: 40px;
+    font-weight: 600;
+    margin: 15px 0px 0px 20px;
+}
+.list-group-item{
+    color:rgb(79, 15, 255);
+    font-size: 25px;
+    font-weight: 400;
+    padding: 15px 25px 15px 30px;
+   margin-left: 10px;
+}
+.help-page-content p{
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.656);
+    margin: 10px 0px 0px 20px;
+}
+.help-search-element{
+    background-color: rgb(255, 255, 255);
+    
+}
+.help-page-btn {
+    background-color: rgb(255, 255, 255); 
+    color: rgb(79, 15, 255); 
+    font-size: 25px; 
+    font-weight: 700;
+    padding: 10px 20px; 
+    border:none;
+    border-radius: 30px;
+    margin: 24px 0 0 18px;
+}
+.help-message{
+    margin: 35px 20px 0 20px;
+}
+.help-content-list{
+    margin-top: 20px;
+}
+.help-page-form{
+    margin: 20px 0px 15px 10px;
+}
+.full-answer-questions{
+    display: flex;
+    margin: 40px 20% 10px 20px;
+    font-size: 25px;
+    text-align: justify;
+    
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 30px;
+    padding: 30px;
+}

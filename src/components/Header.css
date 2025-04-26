@@ -5,18 +5,25 @@
     position: sticky;
     border-radius: 25px;
     display: flex;
+    top: 8px;
     flex-direction: row;
     align-items: center;
     gap: 10px;
     justify-content: space-between;
     z-index: 1;
+    width: 100%;
     min-width: 1300px;
-    margin: 10px 0 0px 10px;
+    margin: 0px 0px 0px 10px;
 }
-
+.header-menu-dropdown{
+    position: absolute; 
+    z-index: 1000; 
+    transform: translateY(17px);
+}
 .logo-name {
     display: flex;
     flex-direction: row;
+    cursor: pointer;
 }
 
 .buttons {

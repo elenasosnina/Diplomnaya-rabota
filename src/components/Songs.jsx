@@ -117,8 +117,8 @@ const Songs = ({
           )}
         </div>
         <div className="title-singer">
-          <p>{song.artist}</p>
           <p>{song.title}</p>
+          <p>{song.artist}</p>
         </div>
       </div>
 

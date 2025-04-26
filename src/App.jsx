@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -21,7 +21,9 @@ import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
 import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
-
+import WebsiteInformationPage from "./pages/WebsiteInformationPage";
+import HelpPage from "./pages/HelpPage";
+import SettingsPage from "./pages/SettingsPage";
 const App = () => {
   const location = useLocation();
   const appStyle = {
@@ -75,16 +77,28 @@ const App = () => {
       photo: vkPicture,
     },
   ]);
+  const ScrollToTop = () => {
+    const { pathname } = useLocation();
 
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [pathname]);
+
+    return null;
+  };
   const [isMaximized, setIsMaximized] = useState(false); // Add state for maximized mode
 
   return (
     <div style={appStyle}>
       {location.pathname !== "/login" &&
         location.pathname !== "/registration" && <Header />}
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/main" element={<MainPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/help" element={<HelpPage />} />
+        <Route path="/websiteInfo" element={<WebsiteInformationPage />} />
         <Route
           path="/userAccount"
           element={
