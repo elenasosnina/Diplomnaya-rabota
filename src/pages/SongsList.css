@@ -1,8 +1,7 @@
-
 .songs-list{
     display: flex;
     justify-content: center;
-    margin: 30px 20px;
+    margin: 0px 0px 20px 0px;
     flex: 1;
 }
 .every-song-in-list{
@@ -10,4 +9,5 @@
     background-color: rgb(233, 233, 233);
     padding: 20px 15px;
     border-radius: 20px;
+    margin: 30px 20px auto 20px;
 }

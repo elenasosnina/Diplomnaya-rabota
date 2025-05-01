@@ -5,20 +5,23 @@ import companyLogo from "C:/Users/user/diplomnaya-rabota/src/assets/sound-wave.p
 import userFace from "../assets/bibi.jpg";
 import Dropdown from "./MenuSong";
 
-const Header = () => {
+const Header = ({ onSearchChange, searchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const handleNavigation = (path) => {
     navigate(path);
   };
+
   const [isVisible, setVisible] = useState(false);
   const [isOpenMenu, setOpenMenu] = useState(false);
   const handleOpenMenu = () => {
     setOpenMenu(!isOpenMenu);
   };
+
   useEffect(() => {
     setOpenMenu(false);
   }, [location]);
+
   const options = [
     {
       label: "Настройки",
@@ -39,6 +42,7 @@ const Header = () => {
       },
     },
   ];
+
   useEffect(() => {
     if (location.pathname === "/" || location.pathname === "/main") {
       setVisible(true);
@@ -46,6 +50,15 @@ const Header = () => {
       setVisible(false);
     }
   }, [location.pathname]);
+
+  const handleChange = (e) => {
+    const query = e.target.value;
+    onSearchChange(query);
+    if (query) {
+      navigate("/search");
+    }
+  };
+
   return (
     <header className="header">
       <div className="logo-name" onClick={() => handleNavigation("/main")}>
@@ -56,10 +69,15 @@ const Header = () => {
         <></>
       ) : (
         <div className="search-container">
-          {<input className="search" type="text" placeholder="Поиск..." />}
+          <input
+            className="form-control"
+            type="search"
+            placeholder="Поиск..."
+            value={searchQuery}
+            onChange={handleChange}
+          />
         </div>
       )}
-
       <div className="buttons">
         {isVisible ? (
           <>
@@ -75,7 +93,6 @@ const Header = () => {
             >
               Войти
             </button>
-            )
           </>
         ) : (
           <>

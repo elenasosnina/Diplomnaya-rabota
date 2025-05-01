@@ -93,10 +93,8 @@
     margin-right: 20px;
 }
 
-.search {
-    border-radius: 13px;
-    color: black;
-    border: none;
-    padding: 9px;
-    width: 600px;
+.form-control {
+    border-radius: 13px !important;
+    padding: 9px 10px !important;
+    width: 600px !important;
 }

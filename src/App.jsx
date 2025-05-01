@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -23,8 +24,12 @@ import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
+import Songs from "./components/Songs";
+
 const App = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const appStyle = {
     minHeight: "100vh",
     display: "flex",
@@ -76,21 +81,70 @@ const App = () => {
       photo: vkPicture,
     },
   ]);
+
   const ScrollToTop = () => {
     const { pathname } = useLocation();
-
     useEffect(() => {
       window.scrollTo(0, 0);
     }, [pathname]);
-
     return null;
   };
-  const [isMaximized, setIsMaximized] = useState(false); // Add state for maximized mode
+
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeout = useRef(null);
+  const [previousLocation, setPreviousLocation] = useState(null); // Store the location before searching
+
+  useEffect(() => {
+    if (location.pathname !== "/search" && searchQuery === "") {
+      setPreviousLocation(location.pathname);
+    }
+  }, [location.pathname, searchQuery]);
+
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    setIsSearching(true);
+
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+
+    searchTimeout.current = setTimeout(() => {
+      if (query) {
+        const results = songs.filter((song) =>
+          song.title.toLowerCase().includes(query.toLowerCase())
+        );
+        setSearchResults(results);
+        navigate("/search");
+      } else {
+        setSearchResults([]);
+        setIsSearching(false);
+        if (location.pathname === "/search") {
+          if (previousLocation) {
+            navigate(previousLocation);
+          } else {
+            navigate("/main");
+          }
+        }
+      }
+    }, 2000);
+  };
+
+  const handleLikeChangeInternal = (songId) => {
+    handleLikeChange(songId);
+  };
 
   return (
     <div style={appStyle}>
       {location.pathname !== "/login" &&
-        location.pathname !== "/registration" && <Header />}
+        location.pathname !== "/registration" && (
+          <Header
+            onSearchChange={handleSearchChange}
+            searchQuery={searchQuery}
+          />
+        )}
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Main />} />
@@ -147,7 +201,7 @@ const App = () => {
               onSongSelect={handleSongSelect}
             />
           }
-        ></Route>
+        />
         <Route
           path="/album"
           element={
@@ -181,6 +235,37 @@ const App = () => {
               songs={songs}
               onSongSelect={handleSongSelect}
             />
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            isSearching ? (
+              searchResults.length > 0 ? (
+                <SongsList
+                  songs={searchResults}
+                  isPlaying={isPlaying}
+                  currentSong={currentSong}
+                  currentTime={currentTime}
+                  duration={duration}
+                  toggleSongPlay={toggleSongPlay}
+                  onLikeChange={handleLikeChange}
+                  onSongSelect={handleSongSelect}
+                />
+              ) : (
+                <div class="search-process">
+                  <p>
+                    Ничего с названием <b>{searchQuery}</b> не найдено
+                  </p>
+                </div>
+              )
+            ) : (
+              <div class="search-process">
+                <div className="spinner-border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            )
           }
         />
       </Routes>
