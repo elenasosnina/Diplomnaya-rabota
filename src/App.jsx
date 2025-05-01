@@ -21,7 +21,6 @@ import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
 import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
-import WebsiteInformationPage from "./pages/WebsiteInformationPage";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
 const App = () => {
@@ -98,7 +97,6 @@ const App = () => {
         <Route path="/main" element={<MainPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/help" element={<HelpPage />} />
-        <Route path="/websiteInfo" element={<WebsiteInformationPage />} />
         <Route
           path="/userAccount"
           element={

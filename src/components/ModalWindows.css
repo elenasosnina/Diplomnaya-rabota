@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1;
+    z-index: 9999;
   }
   .sm-icons{
     display: flex;
@@ -53,7 +53,7 @@ flex-direction: column;
     border-radius: 50px;
     padding: 10px 20px;
   }
-  .shareModalWindow, .creditsModalWindow, .addToPlaylistModalWindow {
+  .shareModalWindow, .creditsModalWindow, .addToPlaylistModalWindow, .warningModalWindow {
     border-radius: 55px;
     padding: 50px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);

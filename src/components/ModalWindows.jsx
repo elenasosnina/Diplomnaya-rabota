@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import "./ModalWindows.css";
 import vkimg from "../assets/icon2.png";
 import tgimg from "../assets/icon1.png";
 import styled from "styled-components";
-import { useState } from "react";
 
 const List = styled.ul`
   list-style-type: none;
@@ -109,9 +108,7 @@ const CreditsModalWindow = ({ onClose, song }) => {
         <button className="close-button" onClick={onClose}>
           ✕
         </button>
-        <p className="heading" >
-          Сведения о песне
-        </p>
+        <p className="heading">Сведения о песне</p>
         <div className="credits-info">
           <label>
             <span className="purple-text">Исполнитель: </span>
@@ -177,4 +174,24 @@ const AddToPlaylistModalWindow = ({ onClose }) => {
     </div>
   );
 };
-export { ShareModalWindow, CreditsModalWindow, AddToPlaylistModalWindow };
+const ModalWindowInformation = ({ onClose }) => {
+  return (
+    <div className="modal-overlay">
+      <div className="warningModalWindow">
+        <button className="close-button" onClick={onClose}>
+          ✕
+        </button>
+        <p className="heading">Внимание!</p>
+        <div className="credits-info">
+          Если вы удалите аккаунт то все данные потеряются
+        </div>
+      </div>
+    </div>
+  );
+};
+export {
+  ShareModalWindow,
+  CreditsModalWindow,
+  AddToPlaylistModalWindow,
+  ModalWindowInformation,
+};

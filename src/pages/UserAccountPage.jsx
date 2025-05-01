@@ -6,10 +6,9 @@ import Artist from "../components/Media";
 import { useNavigate } from "react-router-dom";
 import Songs from "../components/Songs";
 import coverSong from "../assets/party.webp";
-import coverSong2 from "../assets/login.jpg";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import Album from "../components/Album";
-import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
+import Plus from "../assets/add-playlist.png";
 
 const UserAccountPage = ({
   isPlaying,
@@ -206,7 +205,6 @@ const UserAccountPage = ({
   };
 
   const renderCreatedContent = () => {
-    // Replace this with the actual data and logic for the "Created" tab
     return (
       <div className="favourites-playlists">
         {playlists.map((playlist) => (
@@ -223,6 +221,7 @@ const UserAccountPage = ({
             }
           />
         ))}
+        <img className="add-playlist" src={Plus} />
       </div>
     );
   };

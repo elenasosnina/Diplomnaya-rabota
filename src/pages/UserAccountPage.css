@@ -181,9 +181,14 @@
   flex-direction: row;
   border-radius: 50px;
   justify-content: flex-start;
+  align-items: center;
   flex-wrap: wrap;
 }
-
+.add-playlist{
+  width:100px;
+  height: 100px;
+  margin: 0px 20px 40px 50px;
+}
 .favourites-albums {
   display: flex;
   padding: 10px 25px;

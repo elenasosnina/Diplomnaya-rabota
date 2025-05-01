@@ -33,12 +33,6 @@ const Header = () => {
       },
     },
     {
-      label: "Справка",
-      action: () => {
-        handleNavigation("/websiteInfo");
-      },
-    },
-    {
       label: "Выйти",
       action: () => {
         handleNavigation("/main");

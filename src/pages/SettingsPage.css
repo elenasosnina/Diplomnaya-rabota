@@ -1,0 +1,280 @@
+.settings-page {
+  position:st; 
+  top: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2); /* Прозрачный черный фон */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.settings-page-form {
+  min-width: 800px;
+}
+.settings-page-form label {
+  font-size: 20px;
+}
+.settings-form {
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.settings-nav {
+  position: fixed;
+  top: 100px;
+  z-index: 0;
+  background-color: rgb(79, 15, 255);
+  padding: 10px;
+  min-width: 200px;
+}
+.settings-nav a {
+  font-size: 20px;
+}
+.settings-page-content {
+  background-color: rgb(79, 15, 255);
+  padding: 20px 100px;
+  width: 100%;
+  box-sizing: border-box;
+  color: white;
+  flex-grow: 1;
+}
+
+.settings-content-wrapper {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-direction: row-reverse;
+}
+
+#list-example {
+  width: 200px;
+}
+
+.scrollspy-example {
+  flex-grow: 1;
+}
+
+.set-profile-photo {
+  width: 170px;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 100px;
+  display: block;
+  background-color: rgba(0, 0, 0, 0.702);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px;
+}
+.edit-images div{
+  display: flex;
+  flex-direction: column;
+}
+.set-background-photo {
+  width: 600px;
+  height: 170px;
+  display: block;
+  object-fit: cover;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin:10px;
+}
+
+.set-profile-photo:hover,
+.set-background-photo:hover {
+  opacity: 0.5 ;
+
+}
+
+.btn.btn-primary {
+  color: rgb(79, 15, 255) !important;
+  background-color: white !important;
+  border: none !important;
+  font-weight: 500 !important;
+  font-size: 18px !important;
+}
+.del-account {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
+}
+
+.del-account p {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.718);
+  width: 450px;
+  line-height: 15px;
+  margin: 0;
+}
+.secure-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 600px;
+  margin: 10px 0;
+}
+.secure-form div:nth-child(1) {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.secure-form div:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+}
+.secure-form button {
+  height: 50px;
+  padding: 0px 30px;
+}
+.secure-form img {
+  height: 60px;
+  width: 60px;
+}
+
+.image-upload-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+
+
+
+
+.image-container {
+  position: relative;
+  display: inline-block; /* Чтобы контейнер не занимал всю ширину */
+}
+
+.image-container:hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(128, 128, 128, 0.5); /* Полупрозрачный серый фон */
+  z-index: 1; /* Убедитесь, что фон поверх изображения */
+}
+.sm-icons{
+  display: flex;
+  justify-content: center;
+  gap:15px;
+}
+.sm-icons img{
+  height:80px ;
+  width: 80px;
+}
+.credits-info{
+font-weight: bold;
+display: flex;
+flex-direction: column;
+    justify-content: left;
+    margin-top:30px;
+}
+:root {
+  --purple-color: rgb(79, 15, 255);
+}
+
+.purple-text {
+  color: var(--purple-color);
+}
+.credits-info label{
+  margin:5px 0px;
+  font-size: 20px;
+}
+.line{
+  background-color: rgb(160, 160, 160);
+  border-radius: 50px;
+  height:3px ;
+  width: 520px;
+  margin:30px 0 30px 0;
+}
+.share-link{
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  color:rgb(79, 15, 255);
+  background-color: rgb(253, 253, 253);
+  border-radius: 50px;
+  padding: 10px 20px;
+}
+.shareModalWindow, .creditsModalWindow, .addToPlaylistModalWindow {
+  border-radius: 55px;
+  padding: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative; /* Добавлено для правильного позиционирования кнопки закрытия */
+  color: black; /* Изменено на черный для лучшей видимости текста */
+  background-color: rgb(236, 235, 237);
+}
+.shareModalWindow p{
+  text-align: center;
+  font-size: 15px;
+  margin: 12px 10px 8px 10px;
+}
+.heading{
+  text-align: center;
+  font-size: 40px;
+
+}
+.copy-button{
+  border: none;
+  border-radius:40px;
+  padding: 5px 15px;
+  cursor: pointer;
+  color:white;
+  background-color:rgb(79, 15, 255);
+  margin-left: 15px;
+}
+.copy-button:focus{
+  border: 1px solid rgb(79, 15, 255);
+  color:rgb(79, 15, 255);
+  background-color:white;
+}
+.close-button {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 30px;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 40px;
+}
+.playlist-search{
+width:500px;
+height: 50px;
+border:none;
+padding-left: 10px;
+margin-top:15px;
+}
+.playlist-search:focus{
+outline: none;
+
+}
+.create-playlist, .save-playlist{
+background-color: white;
+border:none;
+border-radius: 10px;
+padding:4px 24px;
+color: black;
+}
+.buttons-playlist{
+margin:18px 0 0px 0;
+display: flex;
+justify-content: space-evenly;
+flex-direction: row;
+}

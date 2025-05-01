@@ -1,15 +1,15 @@
 .help-page {
-    position: fixed; 
+    position: absolute; 
     top: 0;
     width: 100%; 
     min-height: 100vh; 
-    
     z-index: 0;
+
   }
   
   .help-page-content {
     background-color: rgb(79, 15, 255);
-    padding: 90px 20px 20px 20px;
+    padding: 90px 20px 90px 20px;
     width: 100%;
     min-height: 100vh;
     box-sizing: border-box; /*  Include padding and border in the element's total width and height */

@@ -2,7 +2,7 @@ body,
 html {
   height: 100%;
   margin: 0; /* Убираем стандартные отступы, чтобы избежать проблем с размерами */
-  /* overflow-x: hidden; */
+position:relative;
 }
 
 #root {
