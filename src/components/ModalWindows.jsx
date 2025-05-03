@@ -46,12 +46,8 @@ const items = [
 
 const title = "Посмотрите этот замечательный контент!";
 
-const handleCopy = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch (err) {
-    console.error("Ошибка:", err);
-  }
+const handleCopy = (text) => {
+  navigator.clipboard.writeText(text);
 };
 
 const ShareModalWindow = ({ onClose, link }) => {
@@ -178,7 +174,13 @@ const AddToPlaylistModalWindow = ({ onClose }) => {
   );
 };
 
-const ModalWindowInformation = ({ onClose }) => {
+const ModalWindowInformation = ({
+  onClose,
+  message,
+  onConfirm,
+  showCancelButton = true,
+  confirmButtonText = "Подтвердить",
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -188,27 +190,35 @@ const ModalWindowInformation = ({ onClose }) => {
           ✕
         </button>
         <p className="heading">Внимание!</p>
-        <div>Если вы удалите аккаунт то все данные потеряются</div>
+        <div>{message}</div>
         <br />
         <div className="buttons-playlist">
-          <button className="create-playlist" onClick={onClose}>
-            Отмена
-          </button>
-          <button
-            className="save-playlist"
-            onClick={() => {
-              navigate("/main");
-            }}
-          >
-            Подтвердить
-          </button>
+          {showCancelButton && (
+            <button className="create-playlist" onClick={onClose}>
+              Отмена
+            </button>
+          )}
+          {onConfirm ? (
+            <button className="save-playlist" onClick={onConfirm}>
+              {confirmButtonText}
+            </button>
+          ) : (
+            <button
+              className="save-playlist"
+              onClick={() => {
+                navigate("/main");
+              }}
+            >
+              {confirmButtonText}
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-const ChangeLoginModal = ({ onClose }) => {
+const ChangeLoginModal = ({ onClose, onSuccess }) => {
   const [login, setLogin] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
@@ -220,9 +230,7 @@ const ChangeLoginModal = ({ onClose }) => {
 
   const handleConfirmationSubmit = (e) => {
     e.preventDefault();
-    console.log("New Login:", login);
-    console.log("Confirmation Code:", confirmationCode);
-    onClose();
+    onSuccess();
   };
 
   return (
@@ -276,9 +284,14 @@ const ChangeLoginModal = ({ onClose }) => {
                 onChange={(e) => setConfirmationCode(e.target.value)}
               />
             </div>
-            <button className="btn btn-primary" type="submit">
-              Подтвердить
-            </button>
+            <div className="buttons-playlist">
+              <button className="create-playlist" onClick={onClose}>
+                Отмена
+              </button>
+              <button className="save-playlist" type="submit">
+                Подтвердить
+              </button>
+            </div>
           </form>
         )}
       </div>
@@ -286,7 +299,7 @@ const ChangeLoginModal = ({ onClose }) => {
   );
 };
 
-const ChangePasswordModal = ({ onClose }) => {
+const ChangePasswordModal = ({ onClose, onSuccess }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -297,9 +310,7 @@ const ChangePasswordModal = ({ onClose }) => {
       alert("Пароли не совпадают");
       return;
     }
-    console.log("Current Password:", currentPassword);
-    console.log("New Password:", newPassword);
-    onClose();
+    onSuccess();
   };
 
   return (

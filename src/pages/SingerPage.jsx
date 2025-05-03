@@ -10,7 +10,7 @@ import Songs from "../components/Songs";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 import Media from "../components/Media";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom"; // Import useParams and useLocation
 
 const SingerPage = ({
   isPlaying,
@@ -29,6 +29,11 @@ const SingerPage = ({
     setClicked(!IsClicked);
   };
 
+  // Use useParams to get the artist name from the URL
+  const { artistName } = useParams();
+  const location = useLocation();
+
+  // State to hold the singer data.  Initialize with a default value.
   const [singer, setSinger] = useState({
     id: 10,
     biography:
@@ -191,6 +196,39 @@ const SingerPage = ({
   useEffect(() => {
     setSongs(initialSongs);
   }, [setSongs, initialSongs]);
+
+  useEffect(() => {
+    // Fetch or determine singer data based on the artistName parameter.
+    //  Replace this with your actual data fetching logic.
+
+    // Example: Assuming you have a function fetchSingerData(artistName) that retrieves
+    // singer data from an API.
+    const fetchSingerData = async (artistName) => {
+      // Simulate fetching data (replace with your actual API call)
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+      console.log("location", location.state.artistName);
+
+      const fakeSingerData = {
+        id: 10,
+        biography: `This is a biography for ${location.state.artistName}.  It's currently placeholder text.`,
+        nickname: location.state.artistName,
+        photo: singerCover, // Replace with a dynamic photo if available
+        subcribers: 150,
+        country: "USA",
+        backgroundPhoto: singerBack,
+      };
+
+      setSinger(fakeSingerData);
+    };
+
+    if (location.state?.artistName) {
+      fetchSingerData(location.state.artistName);
+    } else {
+      console.log("location.state", location.state);
+      // Handle the case where artistName is not available (e.g., redirect or display an error)
+      console.warn("Artist name not found in URL.");
+    }
+  }, [location.state]);
 
   const handleSongChange = useCallback(
     (newSong) => {

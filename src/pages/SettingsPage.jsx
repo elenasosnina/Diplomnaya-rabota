@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./SettingsPage.css";
 import userCover from "../assets/bibi.jpg";
 import userBack from "../assets/bibi_back.jpg";
@@ -16,37 +15,37 @@ const SettingsPage = () => {
   const [backgroundPicture, setBackgroundPicture] = useState(userBack);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
-  const navigate = useNavigate();
+  const [loginChangeInitiated, setLoginChangeInitiated] = useState(false);
+  const [passwordChangeInitiated, setPasswordChangeInitiated] = useState(false);
+  const [loginChangeSuccess, setLoginChangeSuccess] = useState(false);
+  const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
 
-  const handleProfilePictureChange = (event) => {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+
+  const handleImageChange = (setter) => (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfilePicture(reader.result);
+        setter(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleBackgroundPictureChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBackgroundPicture(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleProfilePictureChange = handleImageChange(setProfilePicture);
+  const handleBackgroundPictureChange = handleImageChange(setBackgroundPicture);
+
+  const handleImageClick = (inputId) => () => {
+    document.getElementById(inputId).click();
   };
 
-  const handleProfilePictureClick = () => {
-    document.getElementById("profile-picture-input").click();
-  };
-
-  const handleBackgroundPictureClick = () => {
-    document.getElementById("background-picture-input").click();
-  };
+  const handleProfilePictureClick = handleImageClick("profile-picture-input");
+  const handleBackgroundPictureClick = handleImageClick(
+    "background-picture-input"
+  );
 
   const handleOpenModal = (modalType) => {
     setCurrentModal(modalType);
@@ -56,6 +55,143 @@ const SettingsPage = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setCurrentModal(null);
+    setLoginChangeInitiated(false);
+    setPasswordChangeInitiated(false);
+    setLoginChangeSuccess(false);
+    setPasswordChangeSuccess(false);
+  };
+
+  const handleChangeFlow = (setter, modalType, infoModalType) => () => {
+    setter(true);
+    handleOpenModal(infoModalType);
+  };
+
+  const handleLoginChangeFlow = handleChangeFlow(
+    setLoginChangeInitiated,
+    "changeLogin",
+    "loginInfo"
+  );
+  const handlePasswordChangeFlow = handleChangeFlow(
+    setPasswordChangeInitiated,
+    "changePassword",
+    "passwordInfo"
+  );
+
+  const handleChangeSuccess = (setter, successModalType) => () => {
+    setter(true);
+    handleCloseModal();
+    handleOpenModal(successModalType);
+  };
+
+  const handleLoginChangeSuccess = handleChangeSuccess(
+    setLoginChangeSuccess,
+    "loginSuccess"
+  );
+  const handlePasswordChangeSuccess = handleChangeSuccess(
+    setPasswordChangeSuccess,
+    "passwordSuccess"
+  );
+
+  const handleSaveChanges = () => {
+    handleOpenModal("saveInfo");
+  };
+  const handleRefreshPage = () => {
+    window.location.reload();
+  };
+
+  const modalConfig = {
+    delInfo: {
+      component: ModalWindowInformation,
+      props: {
+        message: "Если вы удалите аккаунт то все данные потеряются",
+      },
+    },
+    saveInfo: {
+      component: ModalWindowInformation,
+      props: {
+        message:
+          "Ваш профиль обновлен. Изменения успешно зафиксированы и сохранены.",
+        onConfirm: handleRefreshPage,
+        showCancelButton: true,
+        confirmButtonText: "Подтвердить",
+      },
+    },
+    loginInfo: {
+      component: ModalWindowInformation,
+      props: {
+        message: "Смена логина затрагивает ваши данные. Будьте внимательны.",
+        showCancelButton: true,
+        confirmButtonText: "Подтвердить",
+        onConfirm: () => {
+          handleOpenModal("changeLogin");
+        },
+      },
+    },
+    passwordInfo: {
+      component: ModalWindowInformation,
+      props: {
+        message: "Смена пароля затрагивает ваши данные. Будьте внимательны.",
+        showCancelButton: true,
+        confirmButtonText: "Подтвердить",
+        onConfirm: () => {
+          handleOpenModal("changePassword");
+        },
+      },
+    },
+    changeLogin: {
+      component: ChangeLoginModal,
+      props: {
+        onSuccess: handleLoginChangeSuccess,
+        showCancelButton: true,
+        confirmButtonText: "Подтвердить",
+      },
+    },
+    changePassword: {
+      component: ChangePasswordModal,
+      props: {
+        onSuccess: handlePasswordChangeSuccess,
+        showCancelButton: true,
+        confirmButtonText: "Подтвердить",
+      },
+    },
+    loginSuccess: {
+      component: ModalWindowInformation,
+      props: {
+        message: "Вы успешно изменили логин",
+        onConfirm: handleRefreshPage,
+        showCancelButton: false,
+        confirmButtonText: "Ок",
+      },
+    },
+    passwordSuccess: {
+      component: ModalWindowInformation,
+      props: {
+        message: "Вы успешно изменили пароль",
+        onConfirm: handleRefreshPage,
+        showCancelButton: false,
+        confirmButtonText: "Ок",
+      },
+    },
+    delInfo: {
+      component: ModalWindowInformation,
+      props: {
+        message: "Если вы удалите аккаунт то все данные потеряются",
+        showCancelButton: true,
+        confirmButtonText: "Подтвердить",
+      },
+    },
+  };
+
+  const renderModal = () => {
+    if (!isModalOpen || !currentModal) return null;
+
+    const ModalComponent = modalConfig[currentModal].component;
+    const modalProps = {
+      ...modalConfig[currentModal].props,
+      onClose: handleCloseModal,
+    };
+
+    return <ModalComponent {...modalProps} />;
   };
 
   return (
@@ -137,16 +273,35 @@ const SettingsPage = () => {
                     className="form-control"
                     id="exampleInputEmail1"
                     aria-describedby="emailHelp"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
                   <label>Имя пользователя</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Дата рождения</label>
-                  <input type="date" className="form-control" />
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                  />
                 </div>
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={handleSaveChanges}
+                >
+                  Сохранить изменения
+                </button>
               </div>
               <hr />
 
@@ -154,7 +309,7 @@ const SettingsPage = () => {
                 <button
                   className="btn btn-primary"
                   type="button"
-                  onClick={() => handleOpenModal("information")} // Corrected line
+                  onClick={() => handleOpenModal("delInfo")}
                 >
                   Удалить аккаунт
                 </button>
@@ -177,7 +332,7 @@ const SettingsPage = () => {
                 <button
                   className="btn btn-primary"
                   type="button"
-                  onClick={() => handleOpenModal("changeLogin")}
+                  onClick={handleLoginChangeFlow}
                 >
                   Изменить
                 </button>
@@ -194,32 +349,16 @@ const SettingsPage = () => {
                 <button
                   className="btn btn-primary"
                   type="button"
-                  onClick={() => handleOpenModal("changePassword")}
+                  onClick={handlePasswordChangeFlow}
                 >
                   Изменить
                 </button>
               </div>
-
-              <button className="btn btn-primary" type="submit">
-                Сохранить изменения
-              </button>
             </form>
           </div>
         </div>
 
-        {isModalOpen && (
-          <div className="modal-overlay">
-            {currentModal === "information" && (
-              <ModalWindowInformation onClose={handleCloseModal} />
-            )}
-            {currentModal === "changeLogin" && (
-              <ChangeLoginModal onClose={handleCloseModal} />
-            )}
-            {currentModal === "changePassword" && (
-              <ChangePasswordModal onClose={handleCloseModal} />
-            )}
-          </div>
-        )}
+        {isModalOpen && renderModal()}
       </div>
     </div>
   );

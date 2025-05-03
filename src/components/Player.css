@@ -151,6 +151,9 @@
 .song-information p:last-child {
   font-weight: 300;
 }
+.song-information p:last-child:hover {
+  text-decoration: underline;
+}
 .audio-line {
   flex-grow: 1;
 }

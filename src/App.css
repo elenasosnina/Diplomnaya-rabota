@@ -1,20 +1,29 @@
 body,
 html {
-  height: 100%;
-  margin: 0; /* Убираем стандартные отступы, чтобы избежать проблем с размерами */
-position:relative;
+    height: 100%;
+    margin: 0;
+    position: relative;
+    font-family: 'Nunito', sans-serif; /* Добавил шрифт ко всему приложению */
+    background-color: #f8f8f8; /* Светлый фон для всего приложения */
+    min-height: 100vh;
 }
 
 #root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%; 
-  min-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    min-width: 1300px;
 }
-.search-process{
-  display: flex;
-  flex-direction: row;
-  flex:1;
-  justify-content: center;
-  padding: 50px ;
+
+.search-process {
+    display: flex;
+    flex-direction: column; /* Changed to column */
+    flex: 1; /* Занимает оставшееся пространство */
+    align-items: center; /* Center items horizontally */
+    padding: 20px;
+}
+
+.main-content {
+    flex: 1; /*  Основной контент занимает оставшееся место */
+    padding: 20px;
 }

@@ -3,9 +3,7 @@
 .header {
     background-color: rgb(79, 15, 255);
     position: sticky;
-    border-radius: 25px;
     display: flex;
-    top: 8px;
     flex-direction: row;
     align-items: center;
     gap: 10px;
@@ -13,7 +11,6 @@
     z-index: 1;
     width: 100%;
     min-width: 1300px;
-    margin: 0px 0px 0px 10px;
 }
 .header-menu-dropdown{
     position: absolute; 
@@ -96,5 +93,5 @@
 .form-control {
     border-radius: 13px !important;
     padding: 9px 10px !important;
-    width: 600px !important;
+    min-width: 700px !important;
 }

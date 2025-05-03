@@ -38,6 +38,9 @@
     justify-content: center; 
     font-size: 17px;
 }
+.title-singer p:hover:last-child {
+    text-decoration: underline;
+}
 .title-singer p, .timing-menu p {
     margin: 0; 
     padding: 0; 

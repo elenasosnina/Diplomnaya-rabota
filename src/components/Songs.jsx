@@ -3,6 +3,7 @@ import "./Songs.css";
 import Dropdown from "./MenuSong";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 import {
   ShareModalWindow,
@@ -22,6 +23,7 @@ const Songs = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const formatTime = (time) => {
     if (isNaN(time)) {
@@ -83,6 +85,14 @@ const Songs = ({
 
   const isThisSongPlaying = currentSong && currentSong.id === song.id;
 
+  const handleArtistClick = (artistName) => {
+    // Replace spaces with hyphens and convert to lowercase for URL-friendly format
+    const formattedArtistName = artistName.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/singer/${formattedArtistName}`, {
+      state: { artistName: artistName },
+    }); // Navigate to the singer page
+  };
+
   return (
     <div className="card-song">
       <div className="cover-title-song">
@@ -118,7 +128,12 @@ const Songs = ({
         </div>
         <div className="title-singer">
           <p>{song.title}</p>
-          <p>{song.artist}</p>
+          <p
+            style={{ cursor: "pointer" }} // Style the artist name as a link
+            onClick={() => handleArtistClick(song.artist)} // Call handleArtistClick on click
+          >
+            {song.artist}
+          </p>
         </div>
       </div>
 

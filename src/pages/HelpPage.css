@@ -4,7 +4,7 @@
     width: 100%; 
     min-height: 100vh; 
     z-index: 0;
-
+    background-color: rgb(79, 15, 255);
   }
   
   .help-page-content {
@@ -15,6 +15,10 @@
     box-sizing: border-box; /*  Include padding and border in the element's total width and height */
     z-index: 1; /* Ensure this is above .help-page */
     color: white;  /* Default text color */
+    display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-direction: column;
   }
   
 .help-page-content h1 {
@@ -52,6 +56,8 @@
 }
 .help-message{
     margin: 35px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
 }
 .help-content-list{
     margin-top: 20px;
@@ -70,4 +76,7 @@
     border: none;
     border-radius: 30px;
     padding: 30px;
+}
+#exampleFormControlTextarea1{
+    width: 100% !important;
 }
