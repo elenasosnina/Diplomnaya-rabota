@@ -5,7 +5,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  
 }
 
 .statistics-title {
@@ -85,7 +84,6 @@
 .userPage {
   display: flex;
   flex-direction: column;
-  z-index: 0;
   margin: 0;
   min-width: 1300px;
   flex: 1;
@@ -107,7 +105,6 @@
   position: absolute;
   top: 120px;
   left: 150px;
-  z-index: 1;
   display: flex;
   flex-direction: row;
   align-items: end;
@@ -161,6 +158,7 @@
   flex-wrap: wrap;
   gap: 10px 60px;
   padding: 30px 60px;
+  justify-content: flex-start;
 }
 
 .array-favourites {
@@ -183,7 +181,10 @@
   justify-content: flex-start;
   align-items: center;
   flex-wrap: wrap;
+  position: relative;
 }
+
+
 .add-playlist{
   width:100px;
   height: 100px;
@@ -196,3 +197,4 @@
   justify-content: flex-start;
   flex-wrap: wrap;
 }
+

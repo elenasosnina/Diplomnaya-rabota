@@ -1,29 +1,43 @@
 import React from "react";
 import "./Media.css";
+import editSign from "../assets/edit.png";
 
-const Media = ({ item, type, onClick }) => {
+const Media = ({ item, type, onClick, showEditIcon, onClickEdit }) => {
   if (type === "artist") {
     return (
-      <div className="cover-artist">
+      <div className="media-container media-container--artist">
         <img
-          className="artist-cover-component"
+          className="media-image media-image--artist"
           src={item.photo}
           alt={item.nickname}
           onClick={onClick}
         />
-        <h1>{item.nickname}</h1>
+        <h1 className="media-title media-title--artist">{item.nickname}</h1>
       </div>
     );
   } else if (type === "album") {
     return (
-      <div className="cover-title-media">
-        <img
-          className="album-cover-component"
-          src={item.cover}
-          alt={item.title}
-          onClick={onClick}
-        />
-        <h1>{item.title}</h1>
+      <div className="media-container media-container--album">
+        <div className="media-wrapper" onClick={onClick}>
+          <img
+            className="media-image media-image--album"
+            src={item.cover}
+            alt={item.title}
+          />
+          <div className="media-overlay" />
+          {showEditIcon && (
+            <img
+              className="media-edit-icon"
+              src={editSign}
+              alt="Edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClickEdit();
+              }}
+            />
+          )}
+        </div>
+        <h1 className="media-title media-title--album">{item.title}</h1>
       </div>
     );
   } else {

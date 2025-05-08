@@ -7,7 +7,11 @@ import coverSong from "../assets/party.webp";
 import coverSong2 from "../assets/login.jpg";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  ShareModalWindow,
+  ModalWindowInformation,
+} from "../components/ModalWindows";
 const PlaylistPage = ({
   isPlaying,
   currentSong,
@@ -84,22 +88,30 @@ const PlaylistPage = ({
       url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
     },
   ]);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentModal, setCurrentModal] = useState(null);
   useEffect(() => {
     setSongs(initialSongs);
   }, []);
-
+  const handleOpenModal = (modalType) => {
+    setIsModalOpen(true);
+    setCurrentModal(modalType);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCurrentModal(null);
+  };
   const options = [
     {
       label: "Поделиться",
       action: () => {
-        console.log("Поделиться нажато");
+        handleOpenModal("share");
       },
     },
     {
       label: "Добавить в избранное",
       action: () => {
-        console.log("Посмотреть сведения нажато");
+        handleOpenModal("addToFav");
       },
     },
   ];
@@ -119,7 +131,8 @@ const PlaylistPage = ({
     setSongs(updatedSongs);
     setSongs(updatedSongs);
   };
-
+  const location = useLocation();
+  const playlist = location.state?.playlist;
   return (
     <main className="tracklist-page">
       <div className="card-tracklist">
@@ -140,13 +153,32 @@ const PlaylistPage = ({
               <Dropdown options={options} />
             </div>
           )}
+          {isModalOpen && (
+            <div className="modal-overlay">
+              {currentModal === "share" && (
+                <ShareModalWindow
+                  onClose={handleCloseModal}
+                  link={playlist.url}
+                />
+              )}
+              {currentModal === "addToFav" && (
+                <ModalWindowInformation
+                  onClose={handleCloseModal}
+                  showCancelButton={false}
+                  confirmButtonText={"Ок"}
+                  onConfirm={handleCloseModal}
+                  message={"Выбранный плейлист добавлен в Избранное"}
+                />
+              )}
+            </div>
+          )}
           <div className="playlist-cover">
-            <img src={coverPlaylist} alt="Cover" />
+            <img src={playlist.cover} alt="Cover" />
             <div className="listen-counter">204</div>
           </div>
           <div className="playlist-info">
             <p>
-              <b>Billie Eilish</b>
+              <b>{playlist.title}</b>
             </p>
             <p style={{ fontSize: "18px", marginTop: "30px" }}>4 ч 32 м</p>
             <p style={{ fontSize: "25px", marginTop: "0px" }}>user1</p>

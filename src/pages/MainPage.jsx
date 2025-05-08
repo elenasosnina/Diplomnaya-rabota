@@ -7,12 +7,15 @@ import { useNavigate } from "react-router-dom";
 
 const MainPage = () => {
   const navigate = useNavigate();
-
+  const playlists = [
+    { id: 1, title: "34647", cover: playlistDay, url: "wuiryew78r" },
+    { id: 2, title: "uhfd", cover: playlistDay2, url: "f.knhdusf7" },
+  ];
   const albums = [
-    { id: 1, title: "Album 1", cover: playlistDay },
-    { id: 2, title: "Album 2", cover: playlistDay2 },
-    { id: 3, title: "Album 3", cover: playlistDay },
-    { id: 4, title: "Album 4", cover: playlistDay2 },
+    { id: 1, title: "Album 1", cover: playlistDay, url: "98gfdg" },
+    { id: 2, title: "Album 2", cover: playlistDay, url: "ok4r" },
+    { id: 3, title: "Album 3", cover: playlistDay, url: "vgfd" },
+    { id: 4, title: "Album 4", cover: playlistDay2, url: "543" },
   ];
   const navigateToAlbum = (album) => {
     navigate("/album", { state: { album } });
@@ -30,8 +33,8 @@ const MainPage = () => {
     navigate("/singer", { state: { singer } });
   };
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  const navigateToPlaylist = (playlist) => {
+    navigate("/playlist", { state: { playlist } });
   };
 
   return (
@@ -43,16 +46,14 @@ const MainPage = () => {
           Дня
         </h1>
         <div className="image-playlists">
-          <img
-            src={playlistDay}
-            onClick={() => handleNavigation("/playlist")}
-            alt="Playlist 1"
-          />
-          <img
-            src={playlistDay2}
-            onClick={() => handleNavigation("/playlist")}
-            alt="Playlist 2"
-          />
+          {playlists.map((playlist) => (
+            <img
+              key={playlist.id}
+              src={playlist.cover}
+              onClick={() => navigateToPlaylist(playlist)}
+              alt={playlist.title}
+            />
+          ))}
         </div>
       </div>
       <div className="top">

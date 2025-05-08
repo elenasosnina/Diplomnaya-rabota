@@ -8,7 +8,7 @@ import Songs from "../components/Songs";
 import coverSong from "../assets/party.webp";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import Album from "../components/Album";
-import Plus from "../assets/add-playlist.png";
+import { AddToPlaylistModalWindow } from "../components/ModalWindows";
 
 const UserAccountPage = ({
   isPlaying,
@@ -35,12 +35,9 @@ const UserAccountPage = ({
     },
   ]);
   const user = users[0];
+
   const [playlists, setPlaylists] = useState([
-    {
-      id: 121,
-      title: "All Around The World",
-      cover: coverSong,
-    },
+    { id: 121, title: "All Around The World", cover: coverSong },
   ]);
   const [initialSongs, setInitialSongs] = useState([
     {
@@ -157,29 +154,27 @@ const UserAccountPage = ({
       url: "https://jfgdhufdg.ru/playlist/244124",
     },
   ]);
+
   useEffect(() => {
     setSongs(initialSongs);
   }, [setSongs, initialSongs]);
+
   const [artists, setArtists] = useState([
-    {
-      id: 10,
-      nickname: "kddsfdsfsfsfsdfdfdsfsfljk",
-      photo: userCover,
-    },
-    {
-      id: 2,
-      nickname: "55sads",
-      photo: userCover,
-    },
+    { id: 10, nickname: "kddsfdsfsfsfsdfdfdsfsfljk", photo: userCover },
+    { id: 2, nickname: "55sads", photo: userCover },
   ]);
+
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("ИЗБРАННОЕ"); // 'ИЗБРАННОЕ' or 'СОЗДАННОЕ' or 'СТАТИСТИКА'
+  const [activeTab, setActiveTab] = useState("ИЗБРАННОЕ");
   const [activeCategory, setActiveCategory] = useState("Исполнители");
+  const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false); // State for modal visibility
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
 
   const handleCategoryClick = (category) => {
     setActiveCategory(category);
   };
+
   const getCategoryStyle = (category) => {
     return {
       border: "1px solid black",
@@ -204,6 +199,16 @@ const UserAccountPage = ({
     };
   };
 
+  const handleEditClick = (playlist) => {
+    setSelectedPlaylist(playlist);
+    setCreatePlaylistModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setCreatePlaylistModalOpen(false);
+    setSelectedPlaylist(null);
+  };
+
   const renderCreatedContent = () => {
     return (
       <div className="favourites-playlists">
@@ -214,14 +219,26 @@ const UserAccountPage = ({
             type="album"
             onClick={() =>
               navigate("/playlist", {
-                state: {
-                  playlist: playlist,
-                },
+                state: { playlist: playlist },
               })
             }
+            showEditIcon={activeTab === "СОЗДАННОЕ"}
+            onClickEdit={() => handleEditClick(playlist)}
           />
         ))}
-        <img className="add-playlist" src={Plus} />
+        {createPlaylistModalOpen && (
+          <AddToPlaylistModalWindow
+            onClose={handleCloseModal}
+            isPlaying={isPlaying}
+            currentSong={currentSong}
+            currentTime={currentTime}
+            toggleSongPlay={toggleSongPlay}
+            onLikeChange={onLikeChange}
+            onSongSelect={onSongSelect}
+            initialModal="createPlaylist"
+            selectedPlaylist={selectedPlaylist}
+          />
+        )}
       </div>
     );
   };
@@ -286,6 +303,7 @@ const UserAccountPage = ({
           </h1>
         </div>
       </div>
+
       <div className="inner-menu">
         <h1
           style={getTabStyle("ИЗБРАННОЕ")}
@@ -335,6 +353,7 @@ const UserAccountPage = ({
               Альбомы
             </div>
           </div>
+
           <div
             className="array-favourites"
             style={{
@@ -353,9 +372,7 @@ const UserAccountPage = ({
                     type="artist"
                     onClick={() =>
                       navigate("/singer", {
-                        state: {
-                          singer: artist,
-                        },
+                        state: { singer: artist },
                       })
                     }
                   />
@@ -379,6 +396,7 @@ const UserAccountPage = ({
                 ))}
               </div>
             )}
+
             {activeCategory === "Плейлисты" && (
               <div className="favourites-playlists">
                 {playlists.map((playlist) => (
@@ -388,15 +406,14 @@ const UserAccountPage = ({
                     type="album"
                     onClick={() =>
                       navigate("/playlist", {
-                        state: {
-                          playlist: playlist,
-                        },
+                        state: { playlist: playlist },
                       })
                     }
                   />
                 ))}
               </div>
             )}
+
             {activeCategory === "Альбомы" && (
               <div className="favourites-albums">
                 {albums.map((album) => (

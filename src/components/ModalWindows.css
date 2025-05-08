@@ -22,7 +22,7 @@
 .credits-info{
 font-weight: 300;
 display: flex;
-flex-direction: column;
+  flex-direction: column;
     justify-content: left;
     margin-top:60px;
 }
@@ -149,4 +149,12 @@ flex-direction: row;
 }
 .added-songs-list{
   margin: 0 0 10px 0;
+  height: 180px; 
+  border-bottom: 1px solid gainsboro;
+  overflow-y: auto; 
+  overflow-x: hidden;
+}
+.add-songs-list{
+  height: 300px;
+  overflow-y: auto;
 }

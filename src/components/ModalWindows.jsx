@@ -136,15 +136,16 @@ const AddToPlaylistModalWindow = ({
   toggleSongPlay,
   onLikeChange,
   onSongSelect,
+  initialModal = "addIntoPlaylist", // Added initialModal prop
 }) => {
   const [cover, setCover] = useState(defoultPhoto);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [currentModal, setCurrentModal] = useState("addIntoPlaylist");
+  const [selectedItems, setSelectedItems] = useState([]); // Use an array to store multiple selections
+  const [currentModal, setCurrentModal] = useState(initialModal); // Initialize with initialModal prop
   const [playlistName, setPlaylistName] = useState("");
   const [selectedSongs, setSelectedSongs] = useState([]);
   const [playlistSongs, setPlaylistSongs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [playlistSearchTerm, setPlaylistSearchTerm] = useState(""); // State for playlist search term
   const [songs, setSongs] = useState([
     {
       id: 1,
@@ -210,6 +211,10 @@ const AddToPlaylistModalWindow = ({
 
   const [filteredSongs, setFilteredSongs] = useState(songs);
   const [playlistItems, setPlaylistItems] = useState([]);
+  const [filteredPlaylistItems, setFilteredPlaylistItems] =
+    useState(playlistItems);
+
+  const modalRef = useRef(null);
 
   useEffect(() => {
     const results = songs.filter((song) =>
@@ -218,8 +223,21 @@ const AddToPlaylistModalWindow = ({
     setFilteredSongs(results);
   }, [songs, searchTerm]);
 
+  useEffect(() => {
+    const results = playlistItems.filter((item) =>
+      item.name.toLowerCase().includes(playlistSearchTerm.toLowerCase())
+    );
+    setFilteredPlaylistItems(results);
+  }, [playlistItems, playlistSearchTerm]);
+
   const handleItemClick = (index) => {
-    setSelectedItem(index);
+    setSelectedItems((prevSelectedItems) => {
+      if (prevSelectedItems.includes(index)) {
+        return prevSelectedItems.filter((item) => item !== index);
+      } else {
+        return [...prevSelectedItems, index];
+      }
+    });
   };
 
   const handleImageClick = (inputId) => () => {
@@ -272,8 +290,16 @@ const AddToPlaylistModalWindow = ({
 
   const handleSavePlaylist = () => {
     if (playlistName.trim() !== "") {
-      setPlaylistItems((prevItems) => [...prevItems, playlistName]);
-      setSelectedItem(playlistItems.length);
+      const newPlaylistItem = {
+        name: playlistName,
+        cover: cover,
+        songs: [...playlistSongs],
+      };
+      setPlaylistItems((prevItems) => [...prevItems, newPlaylistItem]);
+      setSelectedItems([playlistItems.length]);
+      setPlaylistName("");
+      setCover(defoultPhoto);
+      setPlaylistSongs([]);
     }
     setCurrentModal("addIntoPlaylist");
   };
@@ -316,9 +342,27 @@ const AddToPlaylistModalWindow = ({
     ));
   };
 
+  const handleAddSelectedPlaylists = () => {
+    const playlistsToAdd = selectedItems.map((index) => playlistItems[index]);
+    console.log("Adding playlists:", playlistsToAdd);
+    onClose();
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setSelectedItems([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [modalRef]);
+
   return (
     <div className="modal-overlay">
-      <div className="addToPlaylistModalWindow">
+      <div className="addToPlaylistModalWindow" ref={modalRef}>
         <button className="close-button" onClick={handleModalClose}>
           ✕
         </button>
@@ -329,15 +373,17 @@ const AddToPlaylistModalWindow = ({
               className="playlist-search"
               type="search"
               placeholder="Поиск плейлистов..."
+              value={playlistSearchTerm}
+              onChange={(e) => setPlaylistSearchTerm(e.target.value)}
             />
             <List className="list-playlist">
-              {playlistItems.map((item, index) => (
+              {filteredPlaylistItems.map((item, index) => (
                 <ListItem
                   key={index}
-                  isSelected={selectedItem === index}
+                  isSelected={selectedItems.includes(index)}
                   onClick={() => handleItemClick(index)}
                 >
-                  {item}
+                  {item.name}
                 </ListItem>
               ))}
             </List>
@@ -348,7 +394,10 @@ const AddToPlaylistModalWindow = ({
               >
                 Создать плейлист
               </button>
-              <button className="save-playlist" onClick={handleModalClose}>
+              <button
+                className="save-playlist"
+                onClick={handleAddSelectedPlaylists}
+              >
                 Добавить
               </button>
             </div>

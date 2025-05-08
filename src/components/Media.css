@@ -1,43 +1,86 @@
-.cover-title-media {
+.media-container {
     display: flex;
     flex-direction: column;
-    justify-content: center; 
-    align-items: center; 
-    margin: 20px 20px 0px 40px;
-}
-
-.album-cover-component {
-    min-height: 150px;
-    width: 150px;
-    border-radius: 20px;
-    margin: 10px 0;
-}
-
-.cover-title-media h1 {
-    font-size: 20px;
-    text-align: center;
-    word-break: break-word; 
-    max-width: 150px;
-}
-
-.cover-artist {
-    display: flex;
-    flex-direction: column;
-    justify-content: center; 
-    align-items: center; 
-}
-
-.artist-cover-component {
-    height: 180px;
-    width: 180px;
-    border-radius: 50%;
-    margin: 10px 0;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 20px 0 40px;
+    width: 150px; 
+  }
   
-}
-
-.cover-artist h1 {
+  .media-container--artist {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .media-image {
+    border-radius: 20px;
+    margin-bottom: 10px; 
+    cursor: pointer; 
+    transition: transform 0.2s ease-in-out; 
+    object-fit: cover; 
+  }
+  
+  .media-image:hover {
+    transform: scale(1.05);
+  }
+  
+  .media-image--album {
+    width: 100%; 
+    height: auto; 
+    aspect-ratio: 1 / 1; 
+  }
+  
+  .media-image--artist {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+  }
+  
+  .media-title {
     font-size: 20px;
     text-align: center;
     word-break: break-word;
-    max-width: 180px; 
-}
+    white-space: wrap; 
+  }
+  
+  .media-title--album {
+    max-width: 100%;
+  }
+  
+  .media-title--artist {
+    max-width: 180px;
+  }
+  
+  .media-wrapper {
+    position: relative;
+    display: inline-block; 
+  }
+  
+  .media-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 150px;
+    height: 150px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .media-edit-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px; 
+    height: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .media-wrapper:hover .media-overlay,
+  .media-wrapper:hover .media-edit-icon {
+    opacity: 1;
+  }

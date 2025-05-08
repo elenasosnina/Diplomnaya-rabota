@@ -8,6 +8,10 @@ import coverSong2 from "../assets/login.jpg";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  ShareModalWindow,
+  ModalWindowInformation,
+} from "../components/ModalWindows";
 
 const AlbumPage = ({
   isPlaying,
@@ -23,17 +27,27 @@ const AlbumPage = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentModal, setCurrentModal] = useState(null);
+  const handleOpenModal = (modalType) => {
+    setIsModalOpen(true);
+    setCurrentModal(modalType);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCurrentModal(null);
+  };
   const options = [
     {
-      label: "Поделит432432432ься",
+      label: "Поделиться",
       action: () => {
-        console.log("Поделиться нажато");
+        handleOpenModal("share");
       },
     },
     {
       label: "Добавить в избранное",
       action: () => {
-        console.log("Посмотреть сведения нажато");
+        handleOpenModal("addToFav");
       },
     },
   ];
@@ -166,18 +180,16 @@ const AlbumPage = ({
   };
 
   const location = useLocation();
-  const album = location.state?.album; // Safe access to album
+  const album = location.state?.album;
 
   useEffect(() => {
     if (!album) {
-      // If album is null or undefined, redirect to a safe route or display an error
       console.error("Album data is missing in location.state");
-      // Example: Redirect to the main page
       navigate("/");
     }
   }, [album, navigate]);
   if (!album) {
-    return <div>Loading...</div>; // or display an error message
+    return <div>Loading...</div>;
   }
   return (
     <div className="main-al">
@@ -203,6 +215,18 @@ const AlbumPage = ({
             >
               <Dropdown options={options} />
             </div>
+          )}
+          {currentModal === "share" && (
+            <ShareModalWindow onClose={handleCloseModal} link={album.url} />
+          )}
+          {currentModal === "addToFav" && (
+            <ModalWindowInformation
+              onClose={handleCloseModal}
+              showCancelButton={false}
+              confirmButtonText={"Ок"}
+              onConfirm={handleCloseModal}
+              message={"Выбранный альбом добавлен в Избранное"}
+            />
           )}
           <div className="main-timing">1ч 24м</div>
         </div>
