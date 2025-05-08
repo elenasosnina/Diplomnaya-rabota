@@ -29,11 +29,9 @@ const SingerPage = ({
     setClicked(!IsClicked);
   };
 
-  // Use useParams to get the artist name from the URL
   const { artistName } = useParams();
   const location = useLocation();
 
-  // State to hold the singer data.  Initialize with a default value.
   const [singer, setSinger] = useState({
     id: 10,
     biography:
@@ -198,21 +196,15 @@ const SingerPage = ({
   }, [setSongs, initialSongs]);
 
   useEffect(() => {
-    // Fetch or determine singer data based on the artistName parameter.
-    //  Replace this with your actual data fetching logic.
-
-    // Example: Assuming you have a function fetchSingerData(artistName) that retrieves
-    // singer data from an API.
     const fetchSingerData = async (artistName) => {
-      // Simulate fetching data (replace with your actual API call)
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
       console.log("location", location.state.artistName);
 
       const fakeSingerData = {
         id: 10,
         biography: `This is a biography for ${location.state.artistName}.  It's currently placeholder text.`,
         nickname: location.state.artistName,
-        photo: singerCover, // Replace with a dynamic photo if available
+        photo: singerCover,
         subcribers: 150,
         country: "USA",
         backgroundPhoto: singerBack,
@@ -225,7 +217,6 @@ const SingerPage = ({
       fetchSingerData(location.state.artistName);
     } else {
       console.log("location.state", location.state);
-      // Handle the case where artistName is not available (e.g., redirect or display an error)
       console.warn("Artist name not found in URL.");
     }
   }, [location.state]);

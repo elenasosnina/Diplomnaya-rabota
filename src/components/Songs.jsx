@@ -3,7 +3,7 @@ import "./Songs.css";
 import Dropdown from "./MenuSong";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 
 import {
   ShareModalWindow,
@@ -19,11 +19,12 @@ const Songs = ({
   toggleSongPlay,
   onLikeChange,
   onSongSelect,
+  isInAddToPlaylistModal = false,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const formatTime = (time) => {
     if (isNaN(time)) {
@@ -86,11 +87,10 @@ const Songs = ({
   const isThisSongPlaying = currentSong && currentSong.id === song.id;
 
   const handleArtistClick = (artistName) => {
-    // Replace spaces with hyphens and convert to lowercase for URL-friendly format
     const formattedArtistName = artistName.toLowerCase().replace(/\s+/g, "-");
     navigate(`/singer/${formattedArtistName}`, {
       state: { artistName: artistName },
-    }); // Navigate to the singer page
+    });
   };
 
   return (
@@ -129,67 +129,77 @@ const Songs = ({
         <div className="title-singer">
           <p>{song.title}</p>
           <p
-            style={{ cursor: "pointer" }} // Style the artist name as a link
-            onClick={() => handleArtistClick(song.artist)} // Call handleArtistClick on click
+            style={{ cursor: "pointer" }}
+            onClick={() => handleArtistClick(song.artist)}
           >
             {song.artist}
           </p>
         </div>
       </div>
 
-      <div className="timing-menu">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="25"
-          height="25"
-          viewBox="0 0 24 24"
-          fill={song.liked ? "black" : "none"}
-          stroke="black"
-          strokeWidth="1"
-          onClick={likeClick}
-          style={{ cursor: "pointer" }}
-          className="hidden-svg"
-        >
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
-        <svg
-          className="hidden-svg"
-          style={{ padding: "15px 0px 0px 0px" }}
-          width="60"
-          height="50"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <circle cx="10" cy="10" r="5" fill="black" />
-          <circle cx="25" cy="10" r="5" fill="black" />
-          <circle cx="40" cy="10" r="5" fill="black" />
-        </svg>
-
-        <p>{isThisSongPlaying ? formatTime(currentTime) : song.duration}</p>
-
-        {isHovered && (
-          <div
-            className="menu-dropdown"
+      {!isInAddToPlaylistModal && (
+        <div className="timing-menu">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            viewBox="0 0 24 24"
+            fill={song.liked ? "black" : "none"}
+            stroke="black"
+            strokeWidth="1"
+            onClick={likeClick}
+            style={{ cursor: "pointer" }}
+            className="hidden-svg"
+          >
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          <svg
+            className="hidden-svg"
+            style={{ padding: "15px 0px 0px 0px" }}
+            width="60"
+            height="50"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <Dropdown options={options} />
-          </div>
-        )}
-        {isModalOpen && (
-          <div className="modal-overlay">
-            {currentModal === "share" && (
-              <ShareModalWindow onClose={handleCloseModal} link={song.url} />
-            )}
-            {currentModal === "credits" && (
-              <CreditsModalWindow onClose={handleCloseModal} song={song} />
-            )}
-            {currentModal === "addToPlaylist" && (
-              <AddToPlaylistModalWindow onClose={handleCloseModal} />
-            )}
-          </div>
-        )}
-      </div>
+            <circle cx="10" cy="10" r="5" fill="black" />
+            <circle cx="25" cy="10" r="5" fill="black" />
+            <circle cx="40" cy="10" r="5" fill="black" />
+          </svg>
+
+          <p>{isThisSongPlaying ? formatTime(currentTime) : song.duration}</p>
+
+          {isHovered && (
+            <div
+              className="menu-dropdown"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <Dropdown options={options} />
+            </div>
+          )}
+          {isModalOpen && (
+            <div className="modal-overlay">
+              {currentModal === "share" && (
+                <ShareModalWindow onClose={handleCloseModal} link={song.url} />
+              )}
+              {currentModal === "credits" && (
+                <CreditsModalWindow onClose={handleCloseModal} song={song} />
+              )}
+              {currentModal === "addToPlaylist" && (
+                <AddToPlaylistModalWindow
+                  onClose={handleCloseModal}
+                  isPlaying={isPlaying}
+                  currentSong={currentSong}
+                  currentTime={currentTime}
+                  toggleSongPlay={toggleSongPlay}
+                  onLikeChange={onLikeChange}
+                  onSongSelect={onSongSelect}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

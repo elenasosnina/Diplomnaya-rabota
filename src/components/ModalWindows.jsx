@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import "./ModalWindows.css";
 import { useNavigate } from "react-router-dom";
 import vkimg from "../assets/icon2.png";
 import tgimg from "../assets/icon1.png";
 import styled from "styled-components";
+import defoultPhoto from "../assets/bibi.jpg";
+import Songs from "../components/Songs";
+import coverSong from "../assets/party.webp";
+import coverSong2 from "../assets/login.jpg";
+import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
+import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 
 const List = styled.ul`
   list-style-type: none;
-  padding: 0px 30px 0px 0;
+  padding: 0px 15px 0px 0;
   margin: 0;
   height: 300px;
   overflow-y: auto;
@@ -30,19 +36,6 @@ const ListItem = styled.li`
     color: white;
   }
 `;
-
-const items = [
-  "кпкавп",
-  "134",
-  "афыа",
-  "кпкавп",
-  "134",
-  "кпкавп",
-  "134",
-  "афыа",
-  "кпкавп",
-  "134",
-];
 
 const title = "Посмотрите этот замечательный контент!";
 
@@ -113,21 +106,21 @@ const CreditsModalWindow = ({ onClose, song }) => {
         <p className="heading">Сведения о песне</p>
         <div className="credits-info">
           <label>
-            <span className="purple-text">Исполнитель: </span> {song.artist}
+            <span className="purple-text">Исполнитель: </span> {song?.artist}
           </label>
           <label>
-            <span className="purple-text">Продюсер: </span> {song.producer}
+            <span className="purple-text">Продюсер: </span> {song?.producer}
           </label>
           <label>
             <span className="purple-text">Автор текста: </span>{" "}
-            {song.authorLyrics}
+            {song?.authorLyrics}
           </label>
           <label>
-            <span className="purple-text">Композитор: </span> {song.composer}
+            <span className="purple-text">Композитор: </span> {song?.composer}
           </label>
           <label>
             <span className="purple-text">Права принадлежат: </span>{" "}
-            {song.rights}
+            {song?.rights}
           </label>
         </div>
       </div>
@@ -135,40 +128,312 @@ const CreditsModalWindow = ({ onClose, song }) => {
   );
 };
 
-const AddToPlaylistModalWindow = ({ onClose }) => {
+const AddToPlaylistModalWindow = ({
+  onClose,
+  isPlaying,
+  currentSong,
+  currentTime,
+  toggleSongPlay,
+  onLikeChange,
+  onSongSelect,
+}) => {
+  const [cover, setCover] = useState(defoultPhoto);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [currentModal, setCurrentModal] = useState("addIntoPlaylist");
+  const [playlistName, setPlaylistName] = useState("");
+  const [selectedSongs, setSelectedSongs] = useState([]);
+  const [playlistSongs, setPlaylistSongs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [songs, setSongs] = useState([
+    {
+      id: 1,
+      title: "All Around The World",
+      artist: "Justin Bieber",
+      audio: audioCover,
+      cover: coverSong,
+      liked: true,
+      lyrics: "cklfadsfdfdsfdfdgf",
+      producer: "ufgsdufk",
+      authorLyrics: "41324",
+      composer: "ewreq",
+      rights: "142343",
+      duration: "01:02",
+      url: "https://jfgdhufdg.ru/playlist/244124",
+    },
+    {
+      id: 2,
+      title: "change",
+      artist: "XXXTENTACION",
+      audio: audioCover2,
+      cover: coverSong2,
+      liked: true,
+      producer: "htfshfjh",
+      authorLyrics: "24321413243",
+      composer: "4321532413",
+      rights: "324",
+      lyrics: "32414",
+      duration: "02:02",
+      url: "https://jfgdhufdg.ru/playlist/fdgs41",
+    },
+    {
+      id: 3,
+      title: "Another Song",
+      artist: "Some Artist",
+      audio: audioCover,
+      cover: coverSong,
+      liked: false,
+      producer: "jkj",
+      authorLyrics: "hjh",
+      composer: "jikj",
+      rights: "khj",
+      lyrics: "cklgf",
+      duration: "02:22",
+      url: "https://jfgdhufdg.ru/playlist/000hkjf",
+    },
+    {
+      id: 4,
+      title: "Yet Another Song",
+      artist: "Different Artist",
+      audio: audioCover2,
+      cover: coverSong2,
+      liked: false,
+      producer: "jk32421j",
+      authorLyrics: "h32421jh",
+      composer: "j3241ikj",
+      rights: "k343hj",
+      lyrics: "ckl3432gf",
+      duration: "02:32",
+      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
+    },
+  ]);
+
+  const [filteredSongs, setFilteredSongs] = useState(songs);
+  const [playlistItems, setPlaylistItems] = useState([]);
+
+  useEffect(() => {
+    const results = songs.filter((song) =>
+      song.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredSongs(results);
+  }, [songs, searchTerm]);
 
   const handleItemClick = (index) => {
     setSelectedItem(index);
   };
 
+  const handleImageClick = (inputId) => () => {
+    document.getElementById(inputId).click();
+  };
+
+  const handleImageChange = (setPicture) => (event) => {
+    if (event.target.files && event.target.files[0]) {
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        setPicture(e.target.result);
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  };
+
+  const handleCoverPictureChange = handleImageChange(setCover);
+  const handleCoverPlaylistClick = handleImageClick("cover-picture-input");
+
+  const isSongSelected = (songId) => selectedSongs.includes(songId);
+
+  const handleSongSelection = (songId) => {
+    setSelectedSongs((prevSelected) => {
+      if (prevSelected.includes(songId)) {
+        return prevSelected.filter((id) => id !== songId);
+      } else {
+        return [...prevSelected, songId];
+      }
+    });
+  };
+
+  const handleAddSongsToPlaylist = () => {
+    const songsToAdd = songs.filter((song) => selectedSongs.includes(song.id));
+    setPlaylistSongs((prevPlaylistSongs) => [
+      ...prevPlaylistSongs,
+      ...songsToAdd,
+    ]);
+    setSelectedSongs([]);
+    setCurrentModal("createPlaylist");
+  };
+
+  const handleDeleteSelectedSongs = () => {
+    setPlaylistSongs((prevPlaylistSongs) => {
+      return prevPlaylistSongs.filter(
+        (song) => !selectedSongs.includes(song.id)
+      );
+    });
+    setSelectedSongs([]);
+  };
+
+  const handleSavePlaylist = () => {
+    if (playlistName.trim() !== "") {
+      setPlaylistItems((prevItems) => [...prevItems, playlistName]);
+      setSelectedItem(playlistItems.length);
+    }
+    setCurrentModal("addIntoPlaylist");
+  };
+
+  const handleModalClose = () => {
+    onClose();
+  };
+
+  const handleAddSongsModalClose = () => {
+    setCurrentModal("createPlaylist");
+  };
+
+  const renderSongs = (songsList) => {
+    return songsList.map((song) => (
+      <div
+        key={song.id}
+        style={{
+          backgroundColor: isSongSelected(song.id)
+            ? "rgba(157, 157, 157, 0.5)"
+            : "transparent",
+          cursor: "pointer",
+          padding: "5px",
+          borderRadius: "15px",
+          width: "400px",
+        }}
+        onClick={() => handleSongSelection(song.id)}
+      >
+        <Songs
+          key={song.id}
+          song={song}
+          isPlaying={isPlaying}
+          currentSong={currentSong}
+          currentTime={currentTime}
+          toggleSongPlay={toggleSongPlay}
+          onLikeChange={onLikeChange}
+          onSongSelect={onSongSelect}
+          isInAddToPlaylistModal={true}
+        />
+      </div>
+    ));
+  };
+
   return (
     <div className="modal-overlay">
       <div className="addToPlaylistModalWindow">
-        <button className="close-button" onClick={onClose}>
+        <button className="close-button" onClick={handleModalClose}>
           ✕
         </button>
-        <h1 className="heading">Добавить в плейлист</h1>
-        <input
-          className="playlist-search"
-          type="search"
-          placeholder="Поиск плейлистов..."
-        />
-        <List className="list-playlist">
-          {items.map((item, index) => (
-            <ListItem
-              key={index}
-              isSelected={selectedItem === index}
-              onClick={() => handleItemClick(index)}
-            >
-              {item}
-            </ListItem>
-          ))}
-        </List>
-        <div className="buttons-playlist">
-          <button className="create-playlist">Создать плейлист</button>
-          <button className="save-playlist">Сохранить</button>
-        </div>
+        {currentModal === "addIntoPlaylist" && (
+          <div>
+            <h1 className="heading">Добавить в плейлист</h1>
+            <input
+              className="playlist-search"
+              type="search"
+              placeholder="Поиск плейлистов..."
+            />
+            <List className="list-playlist">
+              {playlistItems.map((item, index) => (
+                <ListItem
+                  key={index}
+                  isSelected={selectedItem === index}
+                  onClick={() => handleItemClick(index)}
+                >
+                  {item}
+                </ListItem>
+              ))}
+            </List>
+            <div className="buttons-playlist">
+              <button
+                className="create-playlist"
+                onClick={() => setCurrentModal("createPlaylist")}
+              >
+                Создать плейлист
+              </button>
+              <button className="save-playlist" onClick={handleModalClose}>
+                Добавить
+              </button>
+            </div>
+          </div>
+        )}
+        {currentModal === "createPlaylist" && (
+          <div className="create-playlist-form">
+            <h1 className="heading">Создание плейлиста</h1>
+            <div className="photo-name-playlist">
+              <img
+                className="img-playlist"
+                src={cover}
+                alt="Playlist Cover"
+                onClick={handleCoverPlaylistClick}
+                style={{ cursor: "pointer" }}
+              />
+              <input
+                type="file"
+                id="cover-picture-input"
+                accept="image/*"
+                onChange={handleCoverPictureChange}
+                style={{ display: "none" }}
+              />
+              <input
+                className="form-control"
+                placeholder="Введите название плейлиста..."
+                value={playlistName}
+                onChange={(e) => setPlaylistName(e.target.value)}
+              />
+            </div>
+            <hr />
+            <div className="added-songs-list">{renderSongs(playlistSongs)}</div>
+            <div className="add-songs-form">
+              <button
+                className="create-playlist"
+                style={{ fontSize: "20px", padding: "0 10px" }}
+                onClick={() => setCurrentModal("addSongs")}
+              >
+                +
+              </button>
+              <p>Добавить песни из Избранного</p>
+            </div>
+            <div className="buttons-playlist">
+              <button
+                className="create-playlist"
+                onClick={handleDeleteSelectedSongs}
+              >
+                Удалить
+              </button>
+              <button className="save-playlist" onClick={handleSavePlaylist}>
+                Сохранить
+              </button>
+            </div>
+          </div>
+        )}
+        {currentModal === "addSongs" && (
+          <div>
+            <h1 className="heading">Добавить песни</h1>
+            <div className="photo-name-playlist">
+              <input
+                className="form-control"
+                placeholder="Введите название песни..."
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ margin: "30px 0px 10px 0px" }}
+              />
+              <div className="add-songs-list">{renderSongs(filteredSongs)}</div>
+            </div>
+            <div className="buttons-playlist">
+              <button
+                className="create-playlist"
+                onClick={handleAddSongsModalClose}
+              >
+                Отмена
+              </button>
+              <button
+                className="save-playlist"
+                onClick={handleAddSongsToPlaylist}
+              >
+                Добавить
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -244,7 +509,7 @@ const ChangeLoginModal = ({ onClose, onSuccess }) => {
           <form onSubmit={handleSubmit} className="settings-form">
             <div>
               <p>
-                Код подтверждения будет отправлен по адресу почты: @gmail.com
+                Код подтверждения будет отправлен по адресу почты: @gmail.com{" "}
               </p>
               <label>Новый логин</label>
               <input
@@ -254,7 +519,6 @@ const ChangeLoginModal = ({ onClose, onSuccess }) => {
                 onChange={(e) => setLogin(e.target.value)}
               />
             </div>
-
             <div className="buttons-playlist">
               <button className="create-playlist" onClick={onClose}>
                 Отмена

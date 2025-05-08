@@ -75,6 +75,7 @@ const Header = ({ onSearchChange, searchQuery }) => {
             placeholder="Поиск..."
             value={searchQuery}
             onChange={handleChange}
+            style={{ minWidth: "700px" }}
           />
         </div>
       )}

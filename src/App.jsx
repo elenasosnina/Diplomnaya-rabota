@@ -24,7 +24,6 @@ import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
-import Songs from "./components/Songs";
 
 const App = () => {
   const location = useLocation();
@@ -237,6 +236,7 @@ const App = () => {
             />
           }
         />
+
         <Route
           path="/search"
           element={

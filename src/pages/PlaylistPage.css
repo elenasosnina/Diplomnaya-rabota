@@ -58,6 +58,6 @@
     margin-top: -15px;
   }
   .tracklist {
-    margin: 42px 15px 0 15px;
-    width: 820px;
+    margin: 42px 20px 0 25px;
+    min-width: 810px;
   }

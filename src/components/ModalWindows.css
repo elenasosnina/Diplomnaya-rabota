@@ -4,7 +4,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3); /* Прозрачный черный фон */
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,8 +59,8 @@ flex-direction: column;
     border-radius: 55px;
     padding: 50px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative; /* Добавлено для правильного позиционирования кнопки закрытия */
-    color: black; /* Изменено на черный для лучшей видимости текста */
+    position: relative;
+    color: black;
     background-color: rgb(255, 255, 255);
   }
   .shareModalWindow p{
@@ -70,7 +70,7 @@ flex-direction: column;
   }
   .heading{
     text-align: center;
-    font-size: 40px;
+    font-size: 36px;
     font-weight: 600;
   }
   .copy-button{
@@ -113,7 +113,7 @@ flex-direction: column;
 background-color: var(--purple-color);
 border:none;
 border-radius: 10px;
-padding:4px 24px;
+padding:4px 30px;
 color: rgb(255, 255, 255);
 }
 .buttons-playlist{
@@ -121,4 +121,32 @@ margin:18px 0 0px 0;
 display: flex;
 justify-content: space-evenly;
 flex-direction: row;
+}
+.img-playlist{
+  height:150px;
+  width:150px;
+  border-radius: 20px;
+  margin: 10px auto;
+}
+.form-control {
+  transition: outline 0.3s ease, box-shadow 0.3s ease !important; 
+  outline: 5px solid transparent !important; 
+  border: 1px solid rgba(79, 15, 255, 0.527)!important;
+}
+.form-control:focus {
+  outline: 1px solid rgba(79, 15, 255, 0.37) !important; 
+  box-shadow: 0 0 5px var(--purple-color) !important; 
+}
+.add-songs-form{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap:10px;
+}
+.photo-name-playlist{
+  display: flex;
+  flex-direction: column;
+}
+.added-songs-list{
+  margin: 0 0 10px 0;
 }
