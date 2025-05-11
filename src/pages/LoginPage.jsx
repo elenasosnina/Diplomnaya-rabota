@@ -23,7 +23,6 @@ const LoginPage = ({ users }) => {
   const handleEnterence = () => {
     users.map((user) => {
       if (user.login === login && user.password === password) {
-        alert("заебок");
         handleNavigation("/main");
       } else {
         inputLoginRef.current.style.border = "1px solid red";
@@ -37,24 +36,35 @@ const LoginPage = ({ users }) => {
       <div className="card-log-in">
         <img className="card-image" src={loginLogo} alt="logo"></img>
         <div className="card-log-in-form">
-          <h1 className="card-title" color="white">
-            Авторизация
-          </h1>
-          {message && (
-            <p
-              style={{
-                backgroundColor: "red",
-                borderRadius: "20px",
-                color: "white",
-              }}
-            >
-              {message}
-            </p>
-          )}
+          <div>
+            <h1 className="card-title" color="white">
+              Авторизация
+            </h1>
+            {message ? (
+              <p
+                style={{
+                  backgroundColor: "red",
+                  borderRadius: "20px",
+                  color: "white",
+                  fontSize: "14px",
+                  padding: "5px 8px",
+                }}
+              >
+                {message}
+              </p>
+            ) : (
+              <div
+                style={{
+                  height: "47px",
+                }}
+              />
+            )}{" "}
+          </div>
+
           <label className="lables">Логин</label>
 
           <input
-            className="card-textbox-login"
+            className="card-textbox-input"
             type="text"
             placeholder="Введите логин"
             value={login}
@@ -64,7 +74,7 @@ const LoginPage = ({ users }) => {
 
           <label className="lables">Пароль</label>
           <input
-            className="card-textbox-password"
+            className="card-textbox-input"
             type="text"
             placeholder="Введите пароль"
             value={password}
@@ -74,7 +84,10 @@ const LoginPage = ({ users }) => {
           <button className="card-btn" onClick={handleEnterence}>
             Войти
           </button>
-          <label className="hyperlink">
+          <label
+            className="hyperlink"
+            onClick={() => handleNavigation("/recoveryPassword")}
+          >
             Забыли пароль? Восстановите пароль
           </label>
           <label

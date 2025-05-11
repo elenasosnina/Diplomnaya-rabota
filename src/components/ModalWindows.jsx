@@ -504,7 +504,7 @@ const ModalWindowInformation = ({
           ✕
         </button>
         <p className="heading">Внимание!</p>
-        <div>{message}</div>
+        <div className="modal-message">{message}</div>
         <br />
         <div className="buttons-playlist">
           {showCancelButton && (

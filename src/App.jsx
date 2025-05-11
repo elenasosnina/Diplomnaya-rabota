@@ -24,6 +24,7 @@ import AlbumSongs from "./pages/AlbumPage";
 import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
+import RecoveryPasswordPage from "./pages/RecoveryPasswordPage";
 
 const App = () => {
   const location = useLocation();
@@ -138,6 +139,7 @@ const App = () => {
   return (
     <div style={appStyle}>
       {location.pathname !== "/login" &&
+        location.pathname !== "/recoveryPassword" &&
         location.pathname !== "/registration" && (
           <Header
             onSearchChange={handleSearchChange}
@@ -149,6 +151,7 @@ const App = () => {
         <Route path="/" element={<Main />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/recoveryPassword" element={<RecoveryPasswordPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route
           path="/userAccount"
@@ -270,8 +273,10 @@ const App = () => {
         />
       </Routes>
       {location.pathname !== "/login" &&
+        location.pathname !== "/recoveryPassword" &&
         location.pathname !== "/registration" && <Footer />}
       {location.pathname !== "/login" &&
+        location.pathname !== "/recoveryPassword" &&
         location.pathname !== "/registration" &&
         location.pathname !== "/" && (
           <Player

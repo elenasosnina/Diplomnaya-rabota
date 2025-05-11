@@ -19,6 +19,11 @@
     height:80px ;
     width: 80px;
 }
+.modal-message{
+  min-width:100px;
+  max-width:300px;
+  text-align: center;
+}
 .credits-info{
 font-weight: 300;
 display: flex;
