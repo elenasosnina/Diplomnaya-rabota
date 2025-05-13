@@ -3,8 +3,8 @@ html {
     height: 100%;
     margin: 0;
     position: relative;
-    font-family: 'Nunito', sans-serif; /* Добавил шрифт ко всему приложению */
-    background-color: #f8f8f8; /* Светлый фон для всего приложения */
+    font-family: 'Nunito', sans-serif; 
+    background-color: #f8f8f8;
     min-height: 100vh;
 }
 
@@ -17,13 +17,28 @@ html {
 
 .search-process {
     display: flex;
-    flex-direction: column; /* Changed to column */
-    flex: 1; /* Занимает оставшееся пространство */
-    align-items: center; /* Center items horizontally */
+    flex-direction: column; 
+    flex: 1; 
+    align-items: center; 
     padding: 20px;
 }
 
 .main-content {
-    flex: 1; /*  Основной контент занимает оставшееся место */
+    flex: 1; 
     padding: 20px;
+}
+.search-results{
+    margin: 20px 30px;
+    display: flex;
+    flex-direction: column; 
+}
+.media-artist, .media-albums{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.search-results h3{
+    font-size: 30px;
+    font-weight: 300;
+    margin-left: 50px;
 }

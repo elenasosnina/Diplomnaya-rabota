@@ -21,10 +21,11 @@ import "./App.css";
 import SingerPage from "./pages/SingerPage";
 import ManageMusic from "./components/ManageMusic";
 import AlbumSongs from "./pages/AlbumPage";
-import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
 import RecoveryPasswordPage from "./pages/RecoveryPasswordPage";
+import Media from "./components/Media";
+import CoverImg from "./assets/bibi.jpg";
 
 const App = () => {
   const location = useLocation();
@@ -69,7 +70,7 @@ const App = () => {
       password: "12345",
       email: "ojafi@gmail.com",
       dateRegistration: "12.03.2024",
-      photo: vkPicture,
+      photo: CoverImg,
     },
     {
       id: 2,
@@ -78,7 +79,59 @@ const App = () => {
       password: "54321",
       email: "uzu@gmail.com",
       dateRegistration: "02.05.2024",
-      photo: vkPicture,
+      photo: CoverImg,
+    },
+  ]);
+
+  const [albums, setAlbums] = useState([
+    {
+      id: 1,
+      title: "After Hours",
+      artist: "The Weeknd",
+      releaseDate: "20.03.2020",
+      genre: "R&B",
+      cover: CoverImg,
+    },
+    {
+      id: 2,
+      title: "Happier Than Ever",
+      artist: "Billie Eilish",
+      releaseDate: "30.07.2021",
+      genre: "Pop",
+      cover: CoverImg,
+    },
+    {
+      id: 3,
+      title: "Starboy",
+      artist: "The Weeknd",
+      releaseDate: "25.11.2016",
+      genre: "R&B",
+      cover: CoverImg,
+    },
+    {
+      id: 4,
+      title: "When We All Fall Asleep, Where Do We Go?",
+      artist: "Billie Eilish",
+      releaseDate: "29.03.2019",
+      genre: "Pop",
+      cover: CoverImg,
+    },
+  ]);
+
+  const [artists, setArtists] = useState([
+    {
+      id: 1,
+      nickname: "The Weeknd",
+      genre: "R&B",
+      albums: ["After Hours", "Starboy"],
+      photo: CoverImg,
+    },
+    {
+      id: 2,
+      nickname: "Billie Eilish",
+      genre: "Pop",
+      albums: ["When We All Fall Asleep, Where Do We Go?", "Happier Than Ever"],
+      photo: CoverImg,
     },
   ]);
 
@@ -92,16 +145,19 @@ const App = () => {
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState({
+    songs: [],
+    albums: [],
+    artists: [],
+  });
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef(null);
-  const [previousLocation, setPreviousLocation] = useState(null); // Store the location before searching
 
   useEffect(() => {
-    if (location.pathname !== "/search" && searchQuery === "") {
-      setPreviousLocation(location.pathname);
+    if (location.pathname !== "/search") {
+      setSearchQuery("");
     }
-  }, [location.pathname, searchQuery]);
+  }, [location.pathname]);
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
@@ -113,27 +169,116 @@ const App = () => {
 
     searchTimeout.current = setTimeout(() => {
       if (query) {
-        const results = songs.filter((song) =>
-          song.title.toLowerCase().includes(query.toLowerCase())
+        const songResults = songs.filter((song) =>
+          song.title?.toLowerCase().includes(query.toLowerCase())
         );
-        setSearchResults(results);
-        navigate("/search");
+        const albumResults = albums.filter((album) =>
+          album.title?.toLowerCase().includes(query.toLowerCase())
+        );
+        const artistResults = artists.filter((artist) =>
+          artist.nickname?.toLowerCase().includes(query.toLowerCase())
+        );
+
+        const combinedResults = {
+          songs: songResults,
+          albums: albumResults,
+          artists: artistResults,
+        };
+
+        setSearchResults(combinedResults);
       } else {
-        setSearchResults([]);
+        setSearchResults({ songs: [], albums: [], artists: [] });
         setIsSearching(false);
+
         if (location.pathname === "/search") {
-          if (previousLocation) {
-            navigate(previousLocation);
-          } else {
-            navigate("/main");
-          }
+          navigate(-1);
         }
       }
-    }, 2000);
+    }, 1000);
   };
 
   const handleLikeChangeInternal = (songId) => {
     handleLikeChange(songId);
+  };
+
+  const renderSearchResults = () => {
+    if (isSearching) {
+      if (
+        searchResults.songs?.length > 0 ||
+        searchResults.albums?.length > 0 ||
+        searchResults.artists?.length > 0
+      ) {
+        return (
+          <div className="search-results">
+            {searchResults.songs?.length > 0 && (
+              <>
+                <h3>Треки</h3>
+                <SongsList
+                  songs={searchResults.songs}
+                  isPlaying={isPlaying}
+                  currentSong={currentSong}
+                  currentTime={currentTime}
+                  duration={duration}
+                  toggleSongPlay={toggleSongPlay}
+                  onLikeChange={handleLikeChange}
+                  onSongSelect={handleSongSelect}
+                />
+              </>
+            )}
+            {searchResults.albums?.length > 0 && (
+              <>
+                <h3>Альбомы</h3>
+                <div className="media-albums">
+                  {searchResults.albums.map((album) => (
+                    <Media
+                      key={album.id}
+                      item={album}
+                      type="album"
+                      onClick={() => {
+                        navigate("/album", { state: { album } });
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+            {searchResults.artists?.length > 0 && (
+              <>
+                <h3>Артисты</h3>
+                <div className="media-artist">
+                  {searchResults.artists.map((artist) => (
+                    <Media
+                      key={artist.id}
+                      item={artist}
+                      type="artist"
+                      onClick={() => {
+                        navigate("/singer", { state: { artist } });
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        );
+      } else {
+        return (
+          <div className="search-process">
+            <p>
+              Ничего с названием <b>{searchQuery}</b> не найдено{" "}
+            </p>
+          </div>
+        );
+      }
+    } else {
+      return (
+        <div className="search-process">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -184,6 +329,9 @@ const App = () => {
               setSongs={setSongs}
               songs={songs}
               onSongSelect={handleSongSelect}
+              searchQuery={searchQuery}
+              searchResults={searchResults}
+              isSearching={isSearching}
             />
           }
         />
@@ -239,38 +387,7 @@ const App = () => {
             />
           }
         />
-
-        <Route
-          path="/search"
-          element={
-            isSearching ? (
-              searchResults.length > 0 ? (
-                <SongsList
-                  songs={searchResults}
-                  isPlaying={isPlaying}
-                  currentSong={currentSong}
-                  currentTime={currentTime}
-                  duration={duration}
-                  toggleSongPlay={toggleSongPlay}
-                  onLikeChange={handleLikeChange}
-                  onSongSelect={handleSongSelect}
-                />
-              ) : (
-                <div class="search-process">
-                  <p>
-                    Ничего с названием <b>{searchQuery}</b> не найдено
-                  </p>
-                </div>
-              )
-            ) : (
-              <div class="search-process">
-                <div className="spinner-border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            )
-          }
-        />
+        <Route path="/search" element={renderSearchResults()} />
       </Routes>
       {location.pathname !== "/login" &&
         location.pathname !== "/recoveryPassword" &&

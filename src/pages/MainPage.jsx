@@ -4,7 +4,7 @@ import Genre from "../components/Genres";
 import playlistDay from "../assets/party.webp";
 import playlistDay2 from "../assets/login.jpg";
 import { useNavigate } from "react-router-dom";
-
+import singerBack from "../assets/bibi_back.jpg";
 const MainPage = () => {
   const navigate = useNavigate();
   const playlists = [
@@ -21,12 +21,19 @@ const MainPage = () => {
     navigate("/album", { state: { album } });
   };
   const singers = [
-    { id: 1, title: "Singer 1", cover: playlistDay },
-    { id: 2, title: "Singer 2", cover: playlistDay2 },
-    { id: 3, title: "Singer 3", cover: playlistDay },
-    { id: 4, title: "Singer 4", cover: playlistDay2 },
-    { id: 5, title: "Singer 5", cover: playlistDay },
-    { id: 6, title: "Singer 6", cover: playlistDay2 },
+    {
+      id: 1,
+      nickname: "Singer 1",
+      photo: playlistDay,
+      biography:
+        "jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk ",
+      backgroundPhoto: singerBack,
+    },
+    { id: 2, nickname: "Singer 2", photo: playlistDay2 },
+    { id: 3, nickname: "Singer 3", photo: playlistDay },
+    { id: 4, nickname: "Singer 4", photo: playlistDay2 },
+    { id: 5, nickname: "Singer 5", photo: playlistDay },
+    { id: 6, nickname: "Singer 6", photo: playlistDay2 },
   ];
 
   const navigateToSinger = (singer) => {
@@ -79,9 +86,9 @@ const MainPage = () => {
               <img
                 key={singer.id}
                 className={`image${index + 1}`}
-                src={singer.cover}
+                src={singer.photo}
                 onClick={() => navigateToSinger(singer)}
-                alt={singer.title}
+                alt={singer.nickname}
               />
             ))}
           </div>

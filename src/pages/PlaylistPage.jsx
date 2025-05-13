@@ -12,6 +12,7 @@ import {
   ShareModalWindow,
   ModalWindowInformation,
 } from "../components/ModalWindows";
+
 const PlaylistPage = ({
   isPlaying,
   currentSong,
@@ -23,9 +24,11 @@ const PlaylistPage = ({
   setSongs,
   songs,
   onSongSelect,
+  searchQuery, // Получаем searchQuery из App.js
+  searchResults, // Получаем searchResults из App.js
+  isSearching, // Получаем isSearching из App.js
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-
   const [initialSongs, setInitialSongs] = useState([
     {
       id: 1,
@@ -90,17 +93,21 @@ const PlaylistPage = ({
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
+
   useEffect(() => {
     setSongs(initialSongs);
   }, []);
+
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setCurrentModal(null);
   };
+
   const options = [
     {
       label: "Поделиться",
@@ -131,76 +138,157 @@ const PlaylistPage = ({
     setSongs(updatedSongs);
     setSongs(updatedSongs);
   };
+
   const location = useLocation();
-  const playlist = location.state?.playlist;
-  return (
-    <main className="tracklist-page">
-      <div className="card-tracklist">
-        <div className="card-info">
-          <div
-            className="block-menu-playlist"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <div className="menu-playlist"></div>
+  const { playlist } = location.state || {};
+  const navigate = useNavigate();
+
+  const renderContent = () => {
+    if (isSearching && searchQuery) {
+      if (
+        searchResults.songs?.length > 0 ||
+        searchResults.albums?.length > 0 ||
+        searchResults.artists?.length > 0
+      ) {
+        return (
+          <div className="search-results">
+            {searchResults.songs?.length > 0 && (
+              <>
+                <h3>Треки</h3>
+                {searchResults.songs.map((song) => (
+                  <Songs
+                    key={song.id}
+                    song={song}
+                    isPlaying={isPlaying}
+                    currentSong={currentSong}
+                    currentTime={currentTime}
+                    toggleSongPlay={toggleSongPlay}
+                    onLikeChange={handleLikeChangeInternal}
+                    onSongSelect={onSongSelect}
+                  />
+                ))}
+              </>
+            )}
+            {searchResults.albums?.length > 0 && (
+              <>
+                <h3>Альбомы</h3>
+                <div className="media-albums">
+                  {searchResults.albums.map((album) => (
+                    <div
+                      key={album.id}
+                      className="media-item"
+                      onClick={() => {
+                        navigate("/album");
+                      }}
+                    >
+                      {album.title}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {searchResults.artists?.length > 0 && (
+              <>
+                <h3>Артисты</h3>
+                <div className="media-artist">
+                  {searchResults.artists.map((artist) => (
+                    <div
+                      key={artist.id}
+                      className="media-item"
+                      onClick={() => {
+                        navigate("/singer");
+                      }}
+                    >
+                      {artist.nickname}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
-          {isHovered && (
-            <div
-              className="dropdown-container"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <Dropdown options={options} />
-            </div>
-          )}
-          {isModalOpen && (
-            <div className="modal-overlay">
-              {currentModal === "share" && (
-                <ShareModalWindow
-                  onClose={handleCloseModal}
-                  link={playlist.url}
-                />
-              )}
-              {currentModal === "addToFav" && (
-                <ModalWindowInformation
-                  onClose={handleCloseModal}
-                  showCancelButton={false}
-                  confirmButtonText={"Ок"}
-                  onConfirm={handleCloseModal}
-                  message={"Выбранный плейлист добавлен в Избранное"}
-                />
-              )}
-            </div>
-          )}
-          <div className="playlist-cover">
-            <img src={playlist.cover} alt="Cover" />
-            <div className="listen-counter">204</div>
-          </div>
-          <div className="playlist-info">
+        );
+      } else {
+        return (
+          <div className="search-process">
             <p>
-              <b>{playlist.title}</b>
+              Ничего с названием <b>{searchQuery}</b> не найдено
             </p>
-            <p style={{ fontSize: "18px", marginTop: "30px" }}>4 ч 32 м</p>
-            <p style={{ fontSize: "25px", marginTop: "0px" }}>user1</p>
           </div>
-        </div>
-        <div className="tracklist">
-          {songs.map((song) => (
-            <Songs
-              key={song.id}
-              song={song}
-              isPlaying={isPlaying}
-              currentSong={currentSong}
-              currentTime={currentTime}
-              toggleSongPlay={toggleSongPlay}
-              onLikeChange={handleLikeChangeInternal}
-              onSongSelect={onSongSelect}
-            />
-          ))}
-        </div>
-      </div>
-    </main>
-  );
+        );
+      }
+    } else {
+      return (
+        <>
+          <div className="card-tracklist">
+            <div className="card-info">
+              <div
+                className="block-menu-playlist"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="menu-playlist"></div>
+              </div>
+              {isHovered && (
+                <div
+                  className="dropdown-container"
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <Dropdown options={options} />
+                </div>
+              )}
+              {isModalOpen && (
+                <div className="modal-overlay">
+                  {currentModal === "share" && (
+                    <ShareModalWindow
+                      onClose={handleCloseModal}
+                      link={playlist?.url}
+                    />
+                  )}
+                  {currentModal === "addToFav" && (
+                    <ModalWindowInformation
+                      onClose={handleCloseModal}
+                      showCancelButton={false}
+                      confirmButtonText={"Ок"}
+                      onConfirm={handleCloseModal}
+                      message={"Выбранный плейлист добавлен в Избранное"}
+                    />
+                  )}
+                </div>
+              )}
+              <div className="playlist-cover">
+                <img src={playlist?.cover} alt="Cover" />
+                <div className="listen-counter">204</div>
+              </div>
+              <div className="playlist-info">
+                <p>
+                  <b>{playlist?.title}</b>
+                </p>
+                <p style={{ fontSize: "18px", marginTop: "30px" }}>4 ч 32 м</p>
+                <p style={{ fontSize: "25px", marginTop: "0px" }}>user1</p>
+              </div>
+            </div>
+            <div className="tracklist">
+              {songs.map((song) => (
+                <Songs
+                  key={song.id}
+                  song={song}
+                  isPlaying={isPlaying}
+                  currentSong={currentSong}
+                  currentTime={currentTime}
+                  toggleSongPlay={toggleSongPlay}
+                  onLikeChange={handleLikeChangeInternal}
+                  onSongSelect={onSongSelect}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      );
+    }
+  };
+
+  return <main className="tracklist-page">{renderContent()}</main>;
 };
 
 export default PlaylistPage;

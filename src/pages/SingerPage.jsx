@@ -10,7 +10,7 @@ import Songs from "../components/Songs";
 import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 import Media from "../components/Media";
-import { useNavigate, useParams, useLocation } from "react-router-dom"; // Import useParams and useLocation
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 const SingerPage = ({
   isPlaying,
@@ -31,17 +31,7 @@ const SingerPage = ({
 
   const { artistName } = useParams();
   const location = useLocation();
-
-  const [singer, setSinger] = useState({
-    id: 10,
-    biography:
-      "jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk ",
-    nickname: "BIBI",
-    photo: singerCover,
-    subcribers: 98,
-    country: "South Korea",
-    backgroundPhoto: singerBack,
-  });
+  const singer = location.state?.singer;
   const [collaboration, setCollaboration] = useState([
     {
       id: 21,
