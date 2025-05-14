@@ -26,6 +26,7 @@ import SettingsPage from "./pages/SettingsPage";
 import RecoveryPasswordPage from "./pages/RecoveryPasswordPage";
 import Media from "./components/Media";
 import CoverImg from "./assets/bibi.jpg";
+import GenresPage from "./pages/GenresPage";
 
 const App = () => {
   const location = useLocation();
@@ -189,16 +190,11 @@ const App = () => {
       } else {
         setSearchResults({ songs: [], albums: [], artists: [] });
         setIsSearching(false);
-
         if (location.pathname === "/search") {
           navigate(-1);
         }
       }
     }, 1000);
-  };
-
-  const handleLikeChangeInternal = (songId) => {
-    handleLikeChange(songId);
   };
 
   const renderSearchResults = () => {
@@ -297,6 +293,21 @@ const App = () => {
         <Route path="/main" element={<MainPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/recoveryPassword" element={<RecoveryPasswordPage />} />
+        <Route
+          path="/songs-genres"
+          element={
+            <GenresPage
+              isPlaying={isPlaying}
+              currentSong={currentSong}
+              currentTime={currentTime}
+              duration={duration}
+              toggleSongPlay={toggleSongPlay}
+              onLikeChange={handleLikeChange}
+              songs={songs}
+              onSongSelect={handleSongSelect}
+            />
+          }
+        />
         <Route path="/help" element={<HelpPage />} />
         <Route
           path="/userAccount"

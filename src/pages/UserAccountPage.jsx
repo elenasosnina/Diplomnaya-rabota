@@ -168,7 +168,7 @@ const UserAccountPage = ({
 
   const [activeTab, setActiveTab] = useState("ИЗБРАННОЕ");
   const [activeCategory, setActiveCategory] = useState("Исполнители");
-  const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false); // State for modal visibility
+  const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
 
   const handleCategoryClick = (category) => {

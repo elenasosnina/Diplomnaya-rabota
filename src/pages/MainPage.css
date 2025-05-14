@@ -106,3 +106,17 @@ padding-top: 25px;
 .genres{
     margin: 30px ;
 }
+.main-genre-card{
+    background-color: rgb(210, 209, 209);
+    border-radius: 30px;
+    width: 280px;
+    display: flex;
+    align-items: center;
+    color:rgb(0, 0, 0);
+}
+.image-genre{
+    height:70px;
+    width: 70px;
+    border-radius: 50px;
+    margin: 10px 20px;
+}

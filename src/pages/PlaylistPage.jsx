@@ -24,9 +24,9 @@ const PlaylistPage = ({
   setSongs,
   songs,
   onSongSelect,
-  searchQuery, // Получаем searchQuery из App.js
-  searchResults, // Получаем searchResults из App.js
-  isSearching, // Получаем isSearching из App.js
+  searchQuery,
+  searchResults,
+  isSearching,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [initialSongs, setInitialSongs] = useState([

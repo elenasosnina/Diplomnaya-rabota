@@ -1,25 +1,41 @@
 import React from "react";
 import "./MainPage.css";
-import Genre from "../components/Genres";
 import playlistDay from "../assets/party.webp";
 import playlistDay2 from "../assets/login.jpg";
 import { useNavigate } from "react-router-dom";
 import singerBack from "../assets/bibi_back.jpg";
+
 const MainPage = () => {
   const navigate = useNavigate();
+
+  const GenreCard = ({ genreItem }) => {
+    return (
+      <div
+        className="main-genre-card"
+        onClick={() => navigate("/songs-genres", { state: { genreItem } })}
+      >
+        <img
+          className="image-genre"
+          src={genreItem.image}
+          alt={genreItem.title}
+        />
+        <h4 style={{ marginTop: "10px" }}>{genreItem.title}</h4>
+      </div>
+    );
+  };
+
   const playlists = [
     { id: 1, title: "34647", cover: playlistDay, url: "wuiryew78r" },
     { id: 2, title: "uhfd", cover: playlistDay2, url: "f.knhdusf7" },
   ];
+
   const albums = [
     { id: 1, title: "Album 1", cover: playlistDay, url: "98gfdg" },
     { id: 2, title: "Album 2", cover: playlistDay, url: "ok4r" },
     { id: 3, title: "Album 3", cover: playlistDay, url: "vgfd" },
     { id: 4, title: "Album 4", cover: playlistDay2, url: "543" },
   ];
-  const navigateToAlbum = (album) => {
-    navigate("/album", { state: { album } });
-  };
+
   const singers = [
     {
       id: 1,
@@ -36,6 +52,19 @@ const MainPage = () => {
     { id: 6, nickname: "Singer 6", photo: playlistDay2 },
   ];
 
+  const genres = [
+    { id: 1, title: "Экшн", image: singerBack },
+    { id: 2, title: "Комедия", image: singerBack },
+    { id: 3, title: "Драма", image: singerBack },
+    { id: 4, title: "Ужасы", image: singerBack },
+    { id: 5, title: "Научная фантастика", image: singerBack },
+    { id: 6, title: "Романтика", image: singerBack },
+  ];
+
+  const navigateToAlbum = (album) => {
+    navigate("/album", { state: { album } });
+  };
+
   const navigateToSinger = (singer) => {
     navigate("/singer", { state: { singer } });
   };
@@ -48,9 +77,7 @@ const MainPage = () => {
     <div className="main-page">
       <div className="playlist-of-the-day">
         <h1 style={{ fontSize: "50px" }}>
-          Плейлисты
-          <br />
-          Дня
+          Плейлисты <br /> Дня
         </h1>
         <div className="image-playlists">
           {playlists.map((playlist) => (
@@ -63,6 +90,7 @@ const MainPage = () => {
           ))}
         </div>
       </div>
+
       <div className="top">
         <div className="main-albums">
           <h2>
@@ -79,6 +107,7 @@ const MainPage = () => {
             ))}
           </div>
         </div>
+
         <div className="best-singers">
           <h1>Исполнители</h1>
           <div className="image-singers">
@@ -94,13 +123,13 @@ const MainPage = () => {
           </div>
         </div>
       </div>
+
       <div className="genres">
         <h1 style={{ margin: "0px 0px 15px 20px " }}>Жанры</h1>
         <div className="collection">
-          <Genre />
-          <Genre />
-          <Genre />
-          <Genre />
+          {genres.map((item) => (
+            <GenreCard key={item.id} genreItem={item} />
+          ))}
         </div>
       </div>
     </div>

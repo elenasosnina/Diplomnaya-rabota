@@ -1,0 +1,31 @@
+.genre-cover{
+    height: 250px;
+    width:100%;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+.songs-genre-list{
+    display: flex;
+    top:0px;
+    flex-direction: column;
+    margin: 0px 0px 20px 0px;
+    flex: 1;
+}
+.genre-song-list{
+    background-color: rgb(233, 233, 233);
+    padding: 20px 15px;
+    border-radius: 20px;
+    margin: 20px;
+}
+.title-genre{
+    position: absolute;
+    color: rgb(255, 255, 255);
+    z-index: index 2;
+    text-align: center;
+}
+.genre-container{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
