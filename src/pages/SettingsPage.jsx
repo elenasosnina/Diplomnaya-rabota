@@ -100,12 +100,6 @@ const SettingsPage = () => {
   };
 
   const modalConfig = {
-    delInfo: {
-      component: ModalWindowInformation,
-      props: {
-        message: "Если вы удалите аккаунт то все данные потеряются",
-      },
-    },
     saveInfo: {
       component: ModalWindowInformation,
       props: {

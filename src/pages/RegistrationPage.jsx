@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./RegistrationPage.css";
 import { useNavigate } from "react-router-dom";
-import emailPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/email.png";
-import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
+import emailPicture from "../assets/email.png";
+import vkPicture from "../assets/icon2.png";
 import styled from "styled-components";
 import Main from "./MainPage";
 

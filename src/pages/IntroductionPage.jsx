@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./IntroductionPage.css";
-import PartyImage from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/party.webp";
+import PartyImage from "../assets/party.webp";
 const advantagesList = [
   "Вы получите доступ к миллионам треков из различных жанров и эпох",
   "Наши умные алгоритмы анализируют ваши предпочтения и предлагают музыку, которая вам действительно понравится",

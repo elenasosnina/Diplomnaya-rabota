@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
-import loginLogo from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/login.jpg";
-import emailPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/email.png";
-import vkPicture from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
+import loginLogo from "../assets/login.jpg";
+import emailPicture from "../assets/email.png";
+import vkPicture from "../assets/icon2.png";
 const LoginPage = ({ users }) => {
   const navigate = useNavigate();
   const [login, setLogin] = useState("");

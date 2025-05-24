@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "./Footer.css";
-import icon1 from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon1.png";
-import icon2 from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon2.png";
-import icon3 from "C:/Users/user/Desktop/Diplomnaya-rabota/src/assets/icon3.png";
-import companyLogo from "C:/Users/user/diplomnaya-rabota/src/assets/sound-wave.png";
+import icon1 from "../assets/icon1.png";
+import icon2 from "../assets/icon2.png";
+import icon3 from "../assets/icon3.png";
+import companyLogo from "../assets/sound-wave.png";
 const icons = [icon1, icon2, icon3];
 const Footer = () => {
   return (
