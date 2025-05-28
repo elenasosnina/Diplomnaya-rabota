@@ -1,33 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
-*{
-    font-family: Nunito;
-}
-.page-sign-up{
+.registationPage{
     background-color: rgb(50, 0, 249); 
     display: flex; 
     flex-direction: column; 
     height: 720px;   
 }
-.card-sign-up, .registration {
+.registationCard, .registrationBlock {
     height: 450px; 
-    width: 400px; 
     background-color: rgb(255, 255, 255); 
     display: flex; 
     flex-direction: column; 
     border-radius: 10%; 
     text-align: center; 
     justify-content: flex-start;
+    
 }
-.card-sign-up {
+ .registrationBlock{
+    padding: 5px;
+ }
+.registationCard {
+    width: 400px; 
     align-self: center; 
     justify-items: center;
     margin-top: 100px;
     margin-bottom: 100px;
 }
 input::placeholder{
-    color: #ffffff;
+   color: rgba(0, 0, 0, 0.4);
+    font-size: 15px;
 }
-.step{
+input:focus {
+    outline: none;
+    box-shadow: rgb(79, 15, 255) 0px 0px 10px;
+}
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+button:active{
+   background-color: #4f0fff9c;
+}
+button:disabled{
+   background-color: #4f0fff67;
+}
+hr{
+    margin: 0;
+    margin-bottom: 10px;
+    border: 2px solid #4f0fff;
+}
+.registrationBlock__step{
     color:black;
     font-size: 12px;
     display: flex;
@@ -35,31 +56,31 @@ input::placeholder{
     margin-left: 30px;
     text-decoration: solid #4f0fff;
 }
-.sign-up-with img{
+.socialMediaRegistration img{
     height: 70px;
     width: 70px;
     margin:10px;
 }
-.progressbar{
-    background-color:#4f0fff;
-    border-radius: 20px;
-    border: none;
-    margin-left:20px;
-    margin-right:20px;
-    height: 5px;
+.socialMediaRegistration img:active{
+   opacity: 0.5;
 }
-.verification, .bd{
+.socialMediaRegistration img:hover{
+   transform: scale(1.1);
+}
+
+.verification, .dateOfBirth{
     display: flex;
     font-size: 12px;
     text-align: justify;
     margin: 16px 32px;
     gap:20px;
 }
-.bd{
+.dateOfBirth{
     gap:24px;
     margin: 8px 0px;
 }
-.photo-profile {
+
+.profilePhoto__image--adding {
     border-radius: 50%;
     font-size: 24px;
     margin: 10px;
@@ -67,7 +88,7 @@ input::placeholder{
     height: 100px;
     object-fit: cover;
 }
-.add-photo{
+.profilePhoto__button--adding{
     position: absolute;
     bottom: 5px;
     right: 150px;
@@ -78,6 +99,7 @@ input::placeholder{
     display: flex;
     align-items: center;
     justify-content: center;
+    border:none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 

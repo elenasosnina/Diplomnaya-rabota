@@ -21,8 +21,12 @@ const Footer = () => {
         <p>г.Кострома, ул. Ленина, д.89</p>
       </div>
       <div className="footer-logo-name">
-        <img className="logo-img" src={companyLogo} alt="MyMusic. logo"></img>
-        <h1 className="name" style={{ fontSize: 40 }}>
+        <img
+          className="logoName__image"
+          src={companyLogo}
+          alt="MyMusic. logo"
+        ></img>
+        <h1 className="logoName__heading" style={{ fontSize: 40 }}>
           impulse
         </h1>
       </div>

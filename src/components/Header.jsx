@@ -44,7 +44,10 @@ const Header = ({ onSearchChange, searchQuery }) => {
   ];
 
   useEffect(() => {
-    if (location.pathname === "/" || location.pathname === "/main") {
+    if (
+      location.pathname === "/Diplomnaya-rabota/" ||
+      location.pathname === "/main"
+    ) {
       setVisible(true);
     } else {
       setVisible(false);
@@ -61,14 +64,14 @@ const Header = ({ onSearchChange, searchQuery }) => {
 
   return (
     <header className="header">
-      <div className="logo-name" onClick={() => handleNavigation("/main")}>
-        <img className="logo-img" src={companyLogo} alt="MyMusic logo" />
-        <h1 className="name">impulse</h1>
+      <div className="logoName" onClick={() => handleNavigation("/main")}>
+        <img className="logoName__image" src={companyLogo} alt="MyMusic logo" />
+        <h1 className="logoName__heading">impulse</h1>
       </div>
       {isVisible ? (
         <></>
       ) : (
-        <div className="search-container">
+        <div className="searchContainer">
           <input
             className="form-control"
             type="search"
@@ -79,17 +82,17 @@ const Header = ({ onSearchChange, searchQuery }) => {
           />
         </div>
       )}
-      <div className="buttons">
+      <div className="interanceButtons">
         {isVisible ? (
           <>
             <button
-              className="header-sign-up"
+              className="interanceButtons__registration"
               onClick={() => handleNavigation("/registration")}
             >
               Зарегистрироваться
             </button>
             <button
-              className="header-log-in"
+              className="interanceButtons__login"
               onClick={() => handleNavigation("/login")}
             >
               Войти
@@ -98,15 +101,15 @@ const Header = ({ onSearchChange, searchQuery }) => {
         ) : (
           <>
             <div
-              className="user-account"
+              className="userAccount"
               onClick={() => handleNavigation("/userAccount")}
             >
-              <img className="user-profile-photo" src={userFace} />
+              <img className="userAccount__image--profile" src={userFace} />
               <p>fghjgfyjkgujk</p>
             </div>
             <div className="menu" onClick={handleOpenMenu}></div>
             {isOpenMenu && (
-              <div className="header-menu-dropdown">
+              <div className="menu__item">
                 <Dropdown options={options} />
               </div>
             )}

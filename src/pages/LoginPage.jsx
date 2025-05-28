@@ -1,108 +1,128 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
-import loginLogo from "../assets/login.jpg";
+import loginPicture from "../assets/login.jpg";
 import emailPicture from "../assets/email.png";
 import vkPicture from "../assets/icon2.png";
+import "./RegistrationPage.css";
+import * as RegistrationComponents from "./RegistrationPage.jsx";
+const { ErrorText, TextBox, Label, Button } = RegistrationComponents;
+
 const LoginPage = ({ users }) => {
   const navigate = useNavigate();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loginError, setLoginError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
   const handleNavigation = (path) => {
     navigate(path);
   };
-  const inputLoginRef = useRef(null);
-  const inputPasswordRef = useRef(null);
+
   const handleLoginChange = (event) => {
     setLogin(event.target.value);
+    setLoginError(false);
+    setMessage("");
   };
+
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
+    setPasswordError(false);
+    setMessage("");
   };
+
   const handleEnterence = () => {
-    users.map((user) => {
+    if (!login || !password) {
+      setLoginError(true);
+      setPasswordError(true);
+      setMessage("Поля логина и пароля обязательны для заполнения");
+      return;
+    }
+
+    let found = false;
+    for (const user of users) {
       if (user.login === login && user.password === password) {
+        found = true;
         handleNavigation("/main");
-      } else {
-        inputLoginRef.current.style.border = "1px solid red";
-        inputPasswordRef.current.style.border = "1px solid red";
-        setMessage("Неправильный логин или пароль. Повторите попытку!");
+        break;
       }
-    });
+    }
+
+    if (!found) {
+      setMessage("Неправильный логин или пароль. Повторите попытку!");
+      setLoginError(true);
+      setPasswordError(true);
+    }
   };
+
   return (
-    <div className="page-log-in">
-      <div className="card-log-in">
-        <img className="card-image" src={loginLogo} alt="logo"></img>
-        <div className="card-log-in-form">
+    <div className="loginPage">
+      <div className="loginCard">
+        <img
+          className="loginCard__image--cover"
+          src={loginPicture}
+          alt="Обложка страницы авторизации"
+        />
+        <div className="loginForm">
           <div>
-            <h1 className="card-title" color="white">
+            <h1 className="loginForm__title" color="white">
               Авторизация
             </h1>
             {message ? (
-              <p
-                style={{
-                  backgroundColor: "red",
-                  borderRadius: "20px",
-                  color: "white",
-                  fontSize: "14px",
-                  padding: "5px 8px",
-                }}
-              >
-                {message}
-              </p>
+              <ErrorText>{message}</ErrorText>
             ) : (
               <div
                 style={{
-                  height: "47px",
+                  height: "7px",
                 }}
               />
-            )}{" "}
+            )}
           </div>
 
-          <label className="lables">Логин</label>
+          <Label>Логин</Label>
 
-          <input
-            className="card-textbox-input"
+          <TextBox
             type="text"
             placeholder="Введите логин"
             value={login}
             onChange={handleLoginChange}
-            ref={inputLoginRef}
+            error={loginError}
           />
 
-          <label className="lables">Пароль</label>
-          <input
-            className="card-textbox-input"
-            type="text"
+          <Label>Пароль</Label>
+          <TextBox
+            className="loginForm__input"
+            type="password"
             placeholder="Введите пароль"
             value={password}
             onChange={handlePasswordChange}
-            ref={inputPasswordRef}
+            error={passwordError}
           />
-          <button className="card-btn" onClick={handleEnterence}>
-            Войти
-          </button>
+          <Button onClick={handleEnterence}>Войти</Button>
           <label
-            className="hyperlink"
+            className="loginForm__label--hyperlink"
             onClick={() => handleNavigation("/recoveryPassword")}
           >
             Забыли пароль? Восстановите пароль
           </label>
           <label
-            className="hyperlink"
+            className="loginForm__label--hyperlink"
             onClick={() => handleNavigation("/registration")}
           >
             Нет аккаунта? Создайте его
           </label>
-          <div className="login-with">
+          <div className="socialMediaLogin">
             <img
-              arc="Войти через почту"
-              className="emailPicture"
               src={emailPicture}
+              alt="Войти через почту"
+              className="socialMediaLogin__image"
             />
-            <img arc="Войти через VK" className="vkPicture" src={vkPicture} />
+            <img
+              src={vkPicture}
+              alt="Войти через VK"
+              className="socialMediaLogin__image"
+            />
           </div>
         </div>
       </div>

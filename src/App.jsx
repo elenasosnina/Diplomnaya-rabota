@@ -406,7 +406,7 @@ const App = () => {
       {location.pathname !== "/login" &&
         location.pathname !== "/recoveryPassword" &&
         location.pathname !== "/registration" &&
-        location.pathname !== "/" && (
+        location.pathname !== "/Diplomnaya-rabota/" && (
           <Player
             key={currentSong ? currentSong.id : "no-song"}
             currentSong={currentSong}

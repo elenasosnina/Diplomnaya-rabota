@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
 
-.page-log-in{
+.loginPage{
     display: flex; 
     flex-direction: column; 
     height: 900px;
@@ -8,26 +8,28 @@
     text-align: center;
     font-family: Nunito;
 }
-.card-image{
+.loginCard__image--cover{
     height:550px ;
     width: 50%;
     border-radius: 30px 0px 0px 28px; 
 }
-.login-with{
+.socialMediaLogin{
     display: flex;
     justify-content: center;
     margin: 10px 0px 0px 10px;
     gap: 50px;
 }
-.emailPicture{
+.socialMediaLogin__image{
     height: 70px;
     width: 70px;
 }
-.vkPicture{
-    height: 70px;
-    width: 70px;
+.socialMediaLogin__image:hover{
+    transform: scale(1.1);
 }
-.card-log-in-form {
+.socialMediaLogin__image:active{
+    opacity: 0.8;
+}
+.loginForm {
     height: 600px; 
     width: 1000px; 
     display: flex; 
@@ -35,7 +37,7 @@
     border-radius: 30px;  
     margin: 50px 10px 0px 10px                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ; 
 }
-.card-log-in {
+.loginCard {
     height: 550px; 
     width: 800px; 
     background-color: rgb(255, 255, 255); 
@@ -44,38 +46,18 @@
     justify-content: flex-end; 
     border-radius: 30px;   
 }
-.card-textbox-input{
-    border-radius: 20px;
-    border: none;
-    background-color: rgb(197, 197, 197);
-    font-size:16px;
-    padding: 8px 16px;
-    margin: 5px 8px 15px 8px;
-}
-.lables{
-    font-size: 14px;
-    display: flex;
-    justify-self: left;
-    margin-left: 24px;
-}
-input::placeholder, input::placeholder {
-    color: #4f0fff;
-  }
-.card-btn{
-    height: 40px;
-    font-size: 16px;
-    color:#ffffff;
-    background-color: #4f0fff;
-    border-radius: 20px;
-    border: none;
-    margin: 8px 8px 24px 8px;
-}
-.card-btn:focus{
+.loginForm__button{
     background-color: #30079f;
 }
-.hyperlink{
+.loginForm__label--hyperlink{
     font-size: 12px;
-    color: black;
+    color: rgba(0, 0, 0, 0.54);
 }
-
-  
+.loginForm__label--hyperlink:hover{
+    font-size: 12px;
+    color: rgb(0, 0, 0);
+}
+.loginForm__label--hyperlink:active{
+    font-size: 12px;
+    color: #4f0fff;
+}

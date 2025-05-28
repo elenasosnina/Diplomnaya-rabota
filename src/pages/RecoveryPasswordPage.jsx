@@ -2,6 +2,9 @@ import { React, useState } from "react";
 import "./RecoveryPasswordPage.css";
 import { ModalWindowInformation } from "../components/ModalWindows";
 import { useNavigate } from "react-router-dom";
+import * as RegistrationComponents from "./RegistrationPage.jsx";
+
+const { ErrorText, TextBox, Label, Button } = RegistrationComponents;
 
 const RecoveryPasswordPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -23,8 +26,8 @@ const RecoveryPasswordPage = () => {
   };
 
   return (
-    <div className="page-recovery">
-      <div className="card-recovery">
+    <div className="recoveryPage">
+      <div className="recoveryCard">
         <h1 style={{ fontSize: "36px" }}>Восстановление пароля</h1>
         <CurrentComponent
           onNext={handleNextStep}
@@ -36,46 +39,68 @@ const RecoveryPasswordPage = () => {
 };
 
 const EnterUserData = ({ onNext, email, setEmail, userName, setUserName }) => {
-  const handleUserNameChange = (event) => {
-    setUserName(event.target.value);
+  const [emailError, setEmailError] = useState("");
+  const [error, setError] = useState("");
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailError("");
+    setError("");
   };
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+  const isValidEmail = (email) => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i;
+    return emailRegex.test(email);
+  };
+
+  const handleUserNameChange = (event) => {
+    setUserName(event.target.value);
+    setError("");
   };
 
   const handleSubmit = () => {
-    if (userName && email) {
-      onNext();
-    } else {
-      alert("Пожалуйста, заполните все поля.");
+    setEmailError("");
+    setError("");
+    if (email.trim() === "" || userName.trim() === "") {
+      setError("Поля ввода обязательны для заполнения");
+      return;
     }
+    if (!isValidEmail(email)) {
+      setEmailError("Пожалуйста, введите корректный адрес электронной почты");
+      return;
+    }
+    onNext();
   };
 
   return (
-    <div className="card-recovery-component">
+    <div className="recoveryComponent">
       <p style={{ fontSize: "12px" }}>
         Для восстановления пароля необходимо ввести данные аккаунта ниже
       </p>
-      <label className="lables">Имя пользователя</label>
-      <input
-        className="card-textbox-input"
+
+      {error && <ErrorText>{error}</ErrorText>}
+
+      <Label>Имя пользователя</Label>
+      <TextBox
         type="text"
         placeholder="Введите имя пользователя"
         value={userName}
         onChange={handleUserNameChange}
+        error={!!error}
       />
-      <label className="lables">Электронная почта</label>
-      <input
-        className="card-textbox-input"
+
+      <Label className="lables">Электронная почта</Label>
+      <TextBox
         type="email"
         placeholder="Введите электронную почту"
         value={email}
         onChange={handleEmailChange}
+        error={!!emailError || !!error}
       />
-      <button className="card-btn" onClick={handleSubmit}>
-        Подтвердить
-      </button>
+
+      {emailError && <ErrorText>{emailError}</ErrorText>}
+
+      <Button onClick={handleSubmit}>Подтвердить</Button>
     </div>
   );
 };
@@ -85,20 +110,26 @@ const ConfirmCode = ({ email }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleCodeChange = (event) => {
     setCode(event.target.value);
+    setError("");
   };
 
   const handleSubmit = () => {
+    if (code.trim() === "") {
+      setError("Поле кода подтверждения обязательно для заполнения");
+      return;
+    }
     if (code === "11111") {
       setModalMessage(
-        "Вы успешно вошли в аккаунт. Однако, для обеспечения безопасностиваших данных, вам следует сменить пароль в Настройках в разделе Безопасность"
+        "Вы успешно вошли в аккаунт. Однако, для обеспечения безопасности ваших данных, вам следует сменить пароль в Настройках в разделе Безопасность"
       );
       setShowModal(true);
     } else {
       setModalMessage(
-        "Войти в аккаунт не удалось. Проблема может заключаться в неправильно набранном Имени пользователя или не верно введеном коде проверки. Попробуйте еще раз!"
+        "Войти в аккаунт не удалось. Проблема может заключаться в неправильно набранном Имени пользователя или неверно введенном коде проверки. Попробуйте еще раз!"
       );
       setShowModal(true);
     }
@@ -106,44 +137,38 @@ const ConfirmCode = ({ email }) => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    if (
-      modalMessage ===
-      "Вы успешно вошли в аккаунт. Однако, для обеспечения безопасностиваших данных, вам следует сменить пароль в Настройках в разделе Безопасность"
-    ) {
+    if (modalMessage.includes("Вы успешно вошли в аккаунт")) {
       navigate("/main");
-    } else if (
-      modalMessage ===
-      "Войти в аккаунт не удалось. Проблема может заключаться в неправильно набранном Имени пользователя или не верно введеном коде проверки. Попробуйте еще раз!"
-    ) {
-      window.location.href = window.location.href;
     }
   };
 
   return (
-    <div className="card-recovery-component">
+    <div className="recoveryComponent">
       <p style={{ fontSize: "12px" }}>
         Проверьте ваш почтовый ящик и введите код подтверждения для входа в
         аккаунт
       </p>
 
-      <label className="lables">Электронная почта</label>
-      <input
-        className="card-textbox-input"
+      <Label>Электронная почта</Label>
+      <TextBox
         type="email"
         value={email}
         readOnly
+        style={{ backgroundColor: "rgba(199, 199, 204, 0.64)" }}
       />
-      <label className="lables">Код подтверждения</label>
-      <input
-        className="card-textbox-input"
+
+      <Label>Код подтверждения</Label>
+      <TextBox
         type="text"
         placeholder="Введите код подтверждения"
         value={code}
         onChange={handleCodeChange}
+        error={!!error}
       />
-      <button className="card-btn" onClick={handleSubmit}>
-        Подтвердить
-      </button>
+
+      {error && <ErrorText>{error}</ErrorText>}
+
+      <Button onClick={handleSubmit}>Подтвердить</Button>
 
       {showModal && (
         <ModalWindowInformation
