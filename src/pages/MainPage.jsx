@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./MainPage.css";
 import playlistDay from "../assets/party.webp";
 import playlistDay2 from "../assets/login.jpg";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import singerBack from "../assets/bibi_back.jpg";
 
 const MainPage = () => {
+  const [genres, setGenres] = useState([]);
   const navigate = useNavigate();
 
   const GenreCard = ({ genreItem }) => {
@@ -14,12 +15,12 @@ const MainPage = () => {
         className="main-genre-card"
         onClick={() => navigate("/songs-genres", { state: { genreItem } })}
       >
-        <img
+        {/* <img
           className="image-genre"
           src={genreItem.image}
           alt={genreItem.title}
-        />
-        <h4 style={{ marginTop: "10px" }}>{genreItem.title}</h4>
+        /> */}
+        <h4 style={{ marginTop: "10px" }}>{genreItem.Title}</h4>
       </div>
     );
   };
@@ -52,15 +53,22 @@ const MainPage = () => {
     { id: 6, nickname: "Singer 6", photo: playlistDay2 },
   ];
 
-  const genres = [
-    { id: 1, title: "Экшн", image: singerBack },
-    { id: 2, title: "Комедия", image: singerBack },
-    { id: 3, title: "Драма", image: singerBack },
-    { id: 4, title: "Ужасы", image: singerBack },
-    { id: 5, title: "Научная фантастика", image: singerBack },
-    { id: 6, title: "Романтика", image: singerBack },
-  ];
+  const url = "http://localhost:5000/api/genres";
+  const getData = async () => {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        let json = await res.json();
+        setGenres(json.recordset);
+      } else {
+        console.log("Ошибка" + response.status);
+      }
+    } catch (error) {}
+  };
 
+  useEffect(() => {
+    getData();
+  }, []);
   const navigateToAlbum = (album) => {
     navigate("/album", { state: { album } });
   };
@@ -127,8 +135,8 @@ const MainPage = () => {
       <div className="genres">
         <h1 style={{ margin: "0px 0px 15px 20px " }}>Жанры</h1>
         <div className="collection">
-          {genres.map((item) => (
-            <GenreCard key={item.id} genreItem={item} />
+          {genres.map((item, index) => (
+            <GenreCard key={index} genreItem={item} />
           ))}
         </div>
       </div>

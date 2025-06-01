@@ -94,7 +94,7 @@ const GenresPage = ({
     <div className="songs-genre-list">
       <div className="genre-container">
         <img className="genre-cover" src={coverSong} alt="Genre Cover" />
-        <h1 className="title-genre">{genre.title}</h1>
+        <h1 className="title-genre">{genre.Title}</h1>
       </div>
       <div className="genre-song-list">
         {songs &&

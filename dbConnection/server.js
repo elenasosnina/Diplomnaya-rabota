@@ -6,12 +6,14 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
+const bodyParser = require("body-parser");
 require("dotenv").config();
 const app = express();
 const PORT = 5000;
 app.use(cors());
 app.use(express.json());
-
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 const dbConfig = {
   server: "SElena",
   database: "impulse",
@@ -26,9 +28,21 @@ sql
   .then(() => console.log("✅ Подключено к MS SQL"))
   .catch((err) => console.error("❌ Ошибка подключения:", err));
 
-// Загрузка файлов в папку
 const upload = multer({ dest: "uploads" });
 app.use(express.static(__dirname));
+//Список жанров на главной странице
+app.get("/api/genres", async (req, res) => {
+  try {
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().query("SELECT * FROM Genres");
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ error: "Жанры не найдены" });
+    }
+    res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 //Авторизация пользователя
 app.post("/api/user/login", async (req, res) => {
@@ -57,12 +71,10 @@ app.post("/api/user/login", async (req, res) => {
   }
 });
 
-//Регистрация нового пользователя
-app.post(
-  "/api/user/registration",
-  upload.single("filedata"),
-  async function (req, res) {
-    const { email, login, password, nickname, dateOfBirth } = req.body;
+//Проверка почты в БД
+app.post("/api/user/registration/email", async function (req, res) {
+  try {
+    const { email } = req.body;
     const pool = await sql.connect(dbConfig);
     const verification = await pool
       .request()
@@ -73,6 +85,15 @@ app.post(
         .status(409)
         .json({ error: "Пользователь с введенной почтой уже есть в системе" });
     }
+  } catch (error) {
+    res.status(500).send(`Ошибка ${error} `);
+  }
+});
+//Проверка пользователя в системе
+app.post("/api/user/registration/login", async function (req, res) {
+  try {
+    const { login } = req.body;
+    const pool = await sql.connect(dbConfig);
     const verificationLogin = await pool
       .request()
       .input("login", sql.VarChar, login)
@@ -82,12 +103,21 @@ app.post(
         .status(409)
         .json({ error: "Пользователь уже зарегистрирован в системе" });
     }
+  } catch (error) {
+    res.status(500).send(`Ошибка ${error} `);
+  }
+});
+//Регистрация нового пользователя
+app.post(
+  "/api/user/registration/user",
+  upload.single("filedata"),
+  async function (req, res) {
+    const { email, login, password, nickname, dateOfBirth } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     let filedata = req.file;
     const filePath = filedata.path;
     const fileName = filedata.originalname;
     const yandexPath = `impulse/Image/UserPhoto/${fileName}`;
-
     try {
       const uploadUrlResponse = await axios.get(
         "https://cloud-api.yandex.net/v1/disk/resources/upload",
@@ -132,7 +162,6 @@ app.post(
       publicUrl = publicUrlResponse.data.public_url;
       fs.unlink(filePath, (err) => {
         if (err) {
-          console.error("Ошибка при удалении файла:", err);
           return res.status(500).send("Ошибка при удалении файла");
         }
       });
@@ -152,13 +181,10 @@ app.post(
         .status(201)
         .json({ message: "Пользователь успешно зарегистрирован" });
     } catch (error) {
-      console.error("Ошибка при загрузке на Яндекс.Диск:", error);
-      res.status(500).send("Ошибка при загрузке на Яндекс.Диск");
+      res.status(500).send("Ошибка");
     }
   }
 );
-
-// Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });

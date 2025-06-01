@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import loginPicture from "../assets/login.jpg";
@@ -15,6 +15,31 @@ const LoginPage = ({ users }) => {
   const [message, setMessage] = useState("");
   const [loginError, setLoginError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+
+  const sendData = async () => {
+    const url = "http://localhost:5000/api/user/login";
+    const data = {
+      login: login,
+      password: password,
+    };
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        setMessage("Неправильный логин или пароль. Повторите попытку!");
+        setLoginError(true);
+        setPasswordError(true);
+      } else {
+        handleNavigation("/main");
+      }
+    } catch (error) {
+      console.error("Ошибка:", error);
+    }
+  };
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -38,21 +63,8 @@ const LoginPage = ({ users }) => {
       setPasswordError(true);
       setMessage("Поля логина и пароля обязательны для заполнения");
       return;
-    }
-
-    let found = false;
-    for (const user of users) {
-      if (user.login === login && user.password === password) {
-        found = true;
-        handleNavigation("/main");
-        break;
-      }
-    }
-
-    if (!found) {
-      setMessage("Неправильный логин или пароль. Повторите попытку!");
-      setLoginError(true);
-      setPasswordError(true);
+    } else {
+      sendData();
     }
   };
 

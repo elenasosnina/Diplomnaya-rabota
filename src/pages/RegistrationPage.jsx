@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import emailPicture from "../assets/email.png";
 import vkPicture from "../assets/icon2.png";
 import styled from "styled-components";
-import Main from "./MainPage";
 import defaultImage from "../assets/profile.webp";
 
 const Button = styled.button`
@@ -49,6 +48,7 @@ const ErrorText = styled.div`
 
 const RegistrationPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [userData, setUserData] = useState({});
   const steps = [
     { component: RegistrationEmail },
     { component: RegistrationLoginPassword },
@@ -56,17 +56,16 @@ const RegistrationPage = () => {
   ];
   const CurrentBlock = steps[currentStep].component;
 
-  const handleNextStep = () => {
+  const handleNextStep = (items) => {
+    setUserData({ ...userData, ...items });
     setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length - 1));
   };
 
   return (
     <div className="registationPage">
       <div className="registationCard">
-        <h1 color="white" style={{ marginTop: "50px" }}>
-          Регистрация
-        </h1>
-        <CurrentBlock onNext={handleNextStep} />
+        <h1 style={{ marginTop: "50px" }}>Регистрация</h1>
+        <CurrentBlock onNext={handleNextStep} userData={userData} />
       </div>
     </div>
   );
@@ -78,10 +77,11 @@ const RegistrationEmail = ({ onNext }) => {
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
+    setEmailError(""); // Clear error on input change
   };
 
   const isValidEmail = (email) => {
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i;
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i; // Corrected regex
     return emailRegex.test(email);
   };
 
@@ -94,14 +94,14 @@ const RegistrationEmail = ({ onNext }) => {
       setEmailError("Пожалуйста, введите корректный адрес электронной почты");
       return;
     }
-    onNext();
+    onNext({ email });
   };
 
   return (
     <div className="registrationBlock">
       <Label>Почта</Label>
       <TextBox
-        type="text"
+        type="email" // Use email type for better validation
         placeholder="Введите адрес электронной почты"
         value={email}
         onChange={handleEmailChange}
@@ -112,11 +112,15 @@ const RegistrationEmail = ({ onNext }) => {
       <label style={{ fontSize: "12px" }}>Зарегистрируйтесь через почту</label>
       <div className="socialMediaRegistration">
         <img
-          arc="Зарегистрироваться через почту"
           src={emailPicture}
-          alt="email"
+          alt="Зарегистрироваться через почту"
+          aria-label="Зарегистрироваться через почту"
         />
-        <img arc="Зарегистрироваться через VK" src={vkPicture} alt="vk" />
+        <img
+          src={vkPicture}
+          alt="Зарегистрироваться через VK"
+          aria-label="Зарегистрироваться через VK"
+        />
       </div>
     </div>
   );
@@ -130,24 +134,31 @@ const RegistrationLoginPassword = ({ onNext }) => {
 
   const handleLoginChange = (e) => {
     setLogin(e.target.value);
+    setLoginError(""); // Clear error on input change
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
+    setPasswordError(""); // Clear error on input change
   };
 
   const handleNext = () => {
     let hasErrors = false;
 
-    if (login.trim() === "" || password.trim() === "") {
-      setLoginError("Поля логина и пароля обязательны для заполнения");
+    if (login.trim() === "") {
+      setLoginError("Поле логина обязательно для заполнения");
+      hasErrors = true;
+    }
+
+    if (password.trim() === "") {
+      setPasswordError("Поле пароля обязательно для заполнения");
       hasErrors = true;
     }
 
     if (hasErrors) {
       return;
     }
-    onNext();
+    onNext({ login, password });
   };
 
   return (
@@ -191,17 +202,22 @@ const DateInput = styled.input`
   `}
 `;
 
-const RegistrationProfile = () => {
+const RegistrationProfile = ({ userData }) => {
+  // Receive userData as prop
   const [selectedImage, setSelectedImage] = useState(defaultImage);
+  const [imageData, setImageData] = useState(null); // Changed to null
   const [checked, setChecked] = useState(false);
   const [username, setUsername] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [birthdateError, setBirthdateError] = useState("");
   const [generalError, setGeneralError] = useState("");
+  const navigate = useNavigate();
+  const [message, setMessage] = useState("");
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
+    setImageData(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -223,9 +239,11 @@ const RegistrationProfile = () => {
     setGeneralError("");
   };
 
-  const navigate = useNavigate();
-
   const handleNavigation = (path) => {
+    navigate(path);
+  };
+
+  const handleSubmit = async () => {
     let hasErrors = false;
     setGeneralError("");
 
@@ -235,6 +253,7 @@ const RegistrationProfile = () => {
     }
 
     if (birthdate.trim() === "") {
+      setBirthdateError("Поле даты рождения обязательно для заполнения");
       hasErrors = true;
     }
 
@@ -254,14 +273,37 @@ const RegistrationProfile = () => {
       setBirthdateError("Невозможная дата рождения");
       return;
     }
-    setTimeout(() => {
-      if (username === "existingUser") {
-        setUsernameError("Это имя пользователя уже занято");
-        return;
-      }
 
-      navigate(path);
-    }, 500);
+    if (!checked) {
+      setGeneralError("Необходимо принять условия пользования");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("email", userData.email);
+    formData.append("login", userData.login);
+    formData.append("password", userData.password);
+    formData.append("nickname", username);
+    formData.append("dateOfBirth", birthdate);
+    if (imageData) {
+      formData.append("filedata", imageData);
+    }
+    const sendData = async () => {
+      const url = "http://localhost:5000/api/registration/user";
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          setMessage("Ошибка!");
+        } else {
+          handleNavigation("/login");
+        }
+      } catch (error) {
+        console.error("Ошибка:", error);
+        setMessage("Произошла ошибка при отправке данных.");
+      }
+    };
   };
 
   return (
@@ -272,6 +314,9 @@ const RegistrationProfile = () => {
         className="profilePhoto"
         style={{ position: "relative", display: "inline-block" }}
       >
+        <label htmlFor="file-input" className="profilePhoto__button--adding">
+          +
+        </label>
         <input
           type="file"
           accept="image/*"
@@ -279,9 +324,6 @@ const RegistrationProfile = () => {
           style={{ display: "none" }}
           id="file-input"
         />
-        <button className="profilePhoto__button--adding" htmlFor="file-input">
-          +
-        </button>
         {selectedImage && (
           <div>
             <img
@@ -310,25 +352,23 @@ const RegistrationProfile = () => {
           error={!!birthdateError}
         />
       </div>
+      {birthdateError && <ErrorText>{birthdateError}</ErrorText>}
       <div className="verification">
         <input
           type="checkbox"
           onChange={(e) => setChecked(e.target.checked)}
           checked={checked}
+          id="agreement"
         />
-        <label>
+        <label htmlFor="agreement">
           Вы подтверждаете, что согласны со всеми правилами данного сайта
         </label>
       </div>
       {generalError && (
         <ErrorText style={{ marginLeft: "32px" }}>{generalError}</ErrorText>
       )}
-      <Button
-        onClick={() => handleNavigation("/main")}
-        disabled={!checked && !generalError}
-      >
-        Создать
-      </Button>
+      <Button onClick={handleSubmit}>Создать</Button>
+      {message && <p>{message}</p>}
     </div>
   );
 };
