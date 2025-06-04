@@ -22,13 +22,9 @@ const ManageMusic = () => {
   const toggleShuffle = useCallback(() => {
     setIsShuffle((prevIsShuffle) => {
       const newShuffleState = !prevIsShuffle;
-
       if (newShuffleState) {
-        // If shuffle is turned on, shuffle the songs and store in shuffledSongs
         setShuffledSongs(shuffleArray(songs));
       } else {
-        // If shuffle is turned off, clear shuffledSongs. The logic in playNextSong
-        // will then use the original 'songs' array.
         setShuffledSongs([]);
       }
       return newShuffleState;
@@ -42,20 +38,20 @@ const ManageMusic = () => {
   const handleLikeChange = useCallback((songId, newLiked) => {
     setSongs((prevSongs) =>
       prevSongs.map((song) =>
-        song.id === songId ? { ...song, liked: newLiked } : song
+        song.SongID === songId ? { ...song, liked: newLiked } : song
       )
     );
 
     setShuffledSongs((prevShuffledSongs) =>
       prevShuffledSongs.map((song) =>
-        song.id === songId ? { ...song, liked: newLiked } : song
+        song.SongID === songId ? { ...song, liked: newLiked } : song
       )
     );
   }, []);
 
   const handleSongSelect = useCallback((song) => {
     setCurrentSong(song);
-    audioRef.current.src = song.audio;
+    audioRef.current.src = song.AudioFile;
     audioRef.current
       .play()
       .then(() => setIsPlaying(true))
@@ -75,7 +71,7 @@ const ManageMusic = () => {
 
   const toggleSongPlay = useCallback(
     (song) => {
-      if (currentSong && currentSong.id === song.id) {
+      if (currentSong && currentSong.SongID === song.SongID) {
         togglePlay();
       } else {
         handleSongSelect(song);
@@ -95,12 +91,10 @@ const ManageMusic = () => {
     const songListToUse = isShuffle ? shuffledSongs : songs;
 
     let currentIndex = songListToUse.findIndex(
-      (song) => song.id === currentSong.id
+      (song) => song.SongID === currentSong.SongID
     );
-
-    // Handle case where the current song is not found in the list
     if (currentIndex === -1) {
-      currentIndex = 0; // Start from the beginning
+      currentIndex = 0;
     }
 
     let nextIndex = (currentIndex + 1) % songListToUse.length;
@@ -113,12 +107,11 @@ const ManageMusic = () => {
     const songListToUse = isShuffle ? shuffledSongs : songs;
 
     let currentIndex = songListToUse.findIndex(
-      (song) => song.id === currentSong.id
+      (song) => song.SongID === currentSong.SongID
     );
 
-    // Handle case where the current song is not found in the list
     if (currentIndex === -1) {
-      currentIndex = 0; // Start from the beginning
+      currentIndex = 0;
     }
     let previousIndex =
       (currentIndex - 1 + songListToUse.length) % songListToUse.length;
@@ -151,7 +144,7 @@ const ManageMusic = () => {
       if (isRepeat) {
         audioRef.current
           .play()
-          .catch((error) => console.error("Ошибка воспроизведения:", error)); // Replay current song
+          .catch((error) => console.error("Ошибка воспроизведения:", error));
       } else {
         playNextSong();
       }

@@ -5,11 +5,7 @@ import play from "../assets/play.png";
 import pause from "../assets/pause.png";
 import { useNavigate } from "react-router-dom";
 
-import {
-  ShareModalWindow,
-  CreditsModalWindow,
-  AddToPlaylistModalWindow,
-} from "./ModalWindows";
+import { ShareModalWindow, AddToPlaylistModalWindow } from "./ModalWindows";
 
 const Songs = ({
   song,
@@ -73,7 +69,7 @@ const Songs = ({
   ];
 
   const likeClick = () => {
-    onLikeChange(song.id, !song.liked);
+    onLikeChange(song.SongID, !song.liked);
   };
 
   const handleMouseEnter = () => {
@@ -84,7 +80,7 @@ const Songs = ({
     setIsHovered(false);
   };
 
-  const isThisSongPlaying = currentSong && currentSong.id === song.id;
+  const isThisSongPlaying = currentSong && currentSong.SongID === song.SongID;
 
   const handleArtistClick = (artistName) => {
     const formattedArtistName = artistName.toLowerCase().replace(/\s+/g, "-");
@@ -99,12 +95,12 @@ const Songs = ({
         <div className="cover-container" onClick={() => toggleSongPlay(song)}>
           <img
             className="cover"
-            src={song.cover}
+            src={song.PhotoCover}
             height={"50px"}
             width={"50px"}
             alt="Cover"
           />
-          {isPlaying && currentSong.id === song.id ? (
+          {isPlaying && currentSong.SongID === song.SongID ? (
             <img
               className="play-pause-icon"
               src={pause}
@@ -127,12 +123,12 @@ const Songs = ({
           )}
         </div>
         <div className="title-singer">
-          <p>{song.title}</p>
+          <p>{song.Title}</p>
           <p
             style={{ cursor: "pointer" }}
-            onClick={() => handleArtistClick(song.artist)}
+            onClick={() => handleArtistClick(song.Nickname)}
           >
-            {song.artist}
+            {song.Nickname}
           </p>
         </div>
       </div>
@@ -166,7 +162,7 @@ const Songs = ({
             <circle cx="40" cy="10" r="5" fill="black" />
           </svg>
 
-          <p>{isThisSongPlaying ? formatTime(currentTime) : song.duration}</p>
+          <p>{isThisSongPlaying ? formatTime(currentTime) : song.Duration}</p>
 
           {isHovered && (
             <div
@@ -181,9 +177,6 @@ const Songs = ({
             <div className="modal-overlay">
               {currentModal === "share" && (
                 <ShareModalWindow onClose={handleCloseModal} link={song.url} />
-              )}
-              {currentModal === "credits" && (
-                <CreditsModalWindow onClose={handleCloseModal} song={song} />
               )}
               {currentModal === "addToPlaylist" && (
                 <AddToPlaylistModalWindow

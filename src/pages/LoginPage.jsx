@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import loginPicture from "../assets/login.jpg";
-import emailPicture from "../assets/email.png";
-import vkPicture from "../assets/icon2.png";
+// import emailPicture from "../assets/email.png";
+// import vkPicture from "../assets/icon2.png";
 import "./RegistrationPage.css";
 import * as RegistrationComponents from "./RegistrationPage.jsx";
 const { ErrorText, TextBox, Label, Button } = RegistrationComponents;
@@ -124,7 +124,7 @@ const LoginPage = ({ users }) => {
           >
             Нет аккаунта? Создайте его
           </label>
-          <div className="socialMediaLogin">
+          {/* <div className="socialMediaLogin">
             <img
               src={emailPicture}
               alt="Войти через почту"
@@ -135,7 +135,7 @@ const LoginPage = ({ users }) => {
               alt="Войти через VK"
               className="socialMediaLogin__image"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

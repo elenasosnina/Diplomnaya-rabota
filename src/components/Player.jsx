@@ -60,24 +60,6 @@ const Player = ({
     }
   }, [currentSong]);
 
-  useEffect(() => {
-    const fetchLyrics = async () => {
-      if (currentSong && currentSong.lyricsUrl) {
-        try {
-          setSongText(
-            `Lyrics for ${currentSong.title} - ${currentSong.artist} would be here.\n(Simulated)`
-          );
-        } catch (error) {
-          console.error("Error fetching lyrics:", error);
-          setSongText("Error loading lyrics.");
-        }
-      } else {
-        setSongText("");
-      }
-    };
-    fetchLyrics();
-  }, [currentSong]);
-
   const handleMouseEnter = () => {
     if (!currentSong) return;
     setIsHovered(true);
@@ -316,7 +298,7 @@ const Player = ({
             paddingLeft: "30px",
             position: "absolute",
             bottom: "170px",
-            right: "-18px",
+            right: "-50px",
             transform: "rotate(-90deg)",
             color: "black",
           }}
@@ -340,22 +322,6 @@ const Player = ({
         </div>
       )}
     </>
-  );
-
-  const toggleLyricsVisibility = () => {
-    setIsLyricsVisible((prev) => !prev);
-  };
-
-  const LyricsButton = () => (
-    <img
-      src={lyrics}
-      alt="Lyrics"
-      style={{ width: "30px", height: "30px" }}
-      onClick={isDisabled ? null : toggleLyricsVisibility}
-      className={isDisabled ? "disabled" : ""}
-      role="button"
-      aria-label="View Lyrics"
-    />
   );
 
   const LikeButton = () => {
@@ -405,43 +371,34 @@ const Player = ({
       style={cardStyle}
       ref={playerCardRef}
     >
-      {!isLyricsVisible && (
-        <>
-          <div className="main-part">
-            <div className="cover-artist-title">
-              {currentSong && (
-                <>
-                  <img
-                    className="cover"
-                    src={currentSong.cover}
-                    height={"50px"}
-                    width={"50px"}
-                    alt="Cover"
-                  />
-                  <div className="song-information">
-                    <p>{currentSong.title}</p>
-                    <p>{currentSong.artist}</p>
-                  </div>
-                  <LikeButton />
-                </>
-              )}
-            </div>
-            <PlayerControls />
-            <div className="other-icons">
-              <VolumeControl />
-              <LyricsButton />
-              <MaxPlayer />
-            </div>
+      <>
+        <div className="main-part">
+          <div className="cover-artist-title">
+            {currentSong && (
+              <>
+                <img
+                  className="cover"
+                  src={currentSong.PhotoCover}
+                  height={"50px"}
+                  width={"50px"}
+                  alt="Cover"
+                />
+                <div className="song-information">
+                  <p>{currentSong.Title}</p>
+                  <p>{currentSong.Nickname}</p>
+                </div>
+                <LikeButton />
+              </>
+            )}
           </div>
-          <AudioSlider />
-        </>
-      )}
-      {isLyricsVisible && (
-        <div className="text-songs">
-          <div onClick={toggleLyricsVisibility}>✕</div>
-          <p>{songText}</p>
+          <PlayerControls />
+          <div className="other-icons">
+            <VolumeControl />
+            <MaxPlayer />
+          </div>
         </div>
-      )}
+        <AudioSlider />
+      </>
     </div>
   );
 };

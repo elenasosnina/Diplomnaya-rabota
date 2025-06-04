@@ -38,7 +38,30 @@ app.get("/api/genres", async (req, res) => {
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Жанры не найдены" });
     }
-    res.json(result);
+    const genresWithDirectLinks = await Promise.all(
+      result.recordset.map(async (genre) => {
+        if (!genre.PhotoCover) return genre;
+
+        try {
+          const publicKey = genre.PhotoCover;
+          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+
+          const response = await fetch(directUrl);
+          const data = await response.json();
+          return {
+            ...genre,
+            PhotoCover: data.href || genre.PhotoCover,
+          };
+        } catch (error) {
+          console.error(
+            `Ошибка при обработке обложки для жанра ${genre.GenreID}:`,
+            error
+          );
+          return genre;
+        }
+      })
+    );
+    res.json(genresWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -71,26 +94,8 @@ app.post("/api/user/login", async (req, res) => {
   }
 });
 
-//Проверка почты в БД
-app.post("/api/user/registration/email", async function (req, res) {
-  try {
-    const { email } = req.body;
-    const pool = await sql.connect(dbConfig);
-    const verification = await pool
-      .request()
-      .input("email", sql.VarChar, email)
-      .query("SELECT * FROM Users WHERE Email = @email ");
-    if (verification.recordset.length !== 0) {
-      return res
-        .status(409)
-        .json({ error: "Пользователь с введенной почтой уже есть в системе" });
-    }
-  } catch (error) {
-    res.status(500).send(`Ошибка ${error} `);
-  }
-});
 //Проверка пользователя в системе
-app.post("/api/user/registration/login", async function (req, res) {
+app.post("/api/user/registration/login", async (req, res) => {
   try {
     const { login } = req.body;
     const pool = await sql.connect(dbConfig);
@@ -98,75 +103,90 @@ app.post("/api/user/registration/login", async function (req, res) {
       .request()
       .input("login", sql.VarChar, login)
       .query("SELECT * FROM Users WHERE Login = @login ");
+
     if (verificationLogin.recordset.length !== 0) {
       return res
         .status(409)
         .json({ error: "Пользователь уже зарегистрирован в системе" });
     }
+    res.json({ message: "Пользователь не найден" });
   } catch (error) {
-    res.status(500).send(`Ошибка ${error} `);
+    console.error(error);
+    res.status(500).json({ error: "Ошибка сервера" });
   }
 });
 //Регистрация нового пользователя
 app.post(
-  "/api/user/registration/user",
+  "/api/registration/user",
   upload.single("filedata"),
   async function (req, res) {
     const { email, login, password, nickname, dateOfBirth } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    let filedata = req.file;
-    const filePath = filedata.path;
-    const fileName = filedata.originalname;
-    const yandexPath = `impulse/Image/UserPhoto/${fileName}`;
+
     try {
-      const uploadUrlResponse = await axios.get(
-        "https://cloud-api.yandex.net/v1/disk/resources/upload",
-        {
-          params: { path: yandexPath, overwrite: true },
-          headers: {
-            Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      const hashedPassword = await bcrypt.hash(password, 10);
+      let publicUrl = null;
 
-      const uploadUrl = uploadUrlResponse.data.href;
-      const fileStream = fs.createReadStream(filePath);
-      await axios.put(uploadUrl, fileStream, {
-        headers: { "Content-Type": "application/octet-stream" },
-      });
-      await axios.put(
-        "https://cloud-api.yandex.net/v1/disk/resources/publish",
-        null,
-        {
-          params: { path: yandexPath },
-          headers: {
-            Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
-            Accept: "application/json",
-          },
-        }
-      );
-      const publicUrlResponse = await axios.get(
-        "https://cloud-api.yandex.net/v1/disk/resources",
-        {
-          params: {
-            path: yandexPath,
-            fields: "public_url",
-          },
-          headers: {
-            Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
-            Accept: "application/json",
-          },
-        }
-      );
-      publicUrl = publicUrlResponse.data.public_url;
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          return res.status(500).send("Ошибка при удалении файла");
-        }
-      });
+      if (req.file) {
+        const filePath = req.file.path;
+        const fileName = req.file.originalname;
+        const yandexPath = `impulse/Image/UserPhoto/${fileName}`;
 
-      const result = await pool
+        const uploadUrlResponse = await axios.get(
+          "https://cloud-api.yandex.net/v1/disk/resources/upload",
+          {
+            params: { path: yandexPath, overwrite: true },
+            headers: {
+              Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        const uploadUrl = uploadUrlResponse.data.href;
+        const fileStream = fs.createReadStream(filePath);
+        await axios.put(uploadUrl, fileStream, {
+          headers: { "Content-Type": "application/octet-stream" },
+        });
+
+        await axios.put(
+          "https://cloud-api.yandex.net/v1/disk/resources/publish",
+          null,
+          {
+            params: { path: yandexPath },
+            headers: {
+              Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        const publicUrlResponse = await axios.get(
+          "https://cloud-api.yandex.net/v1/disk/resources",
+          {
+            params: {
+              path: yandexPath,
+              fields: "public_url",
+            },
+            headers: {
+              Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        publicUrl = publicUrlResponse.data.public_url;
+
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Ошибка при удалении файла:", err);
+          }
+        });
+      } else {
+        publicUrl = "https://disk.yandex.ru/i/yu55Hf_0PHlMeA";
+      }
+
+      const pool = await sql.connect(dbConfig);
+      await pool
         .request()
         .input("email", sql.VarChar, email)
         .input("login", sql.VarChar, login)
@@ -177,14 +197,72 @@ app.post(
         .query(
           "INSERT INTO Users (Login, Password, Email, PhotoProfile, DateOfBirth, Nickname) VALUES (@login, @password, @email, @photoProfile, @dateOfBirth, @nickname)"
         );
+
       return res
         .status(201)
         .json({ message: "Пользователь успешно зарегистрирован" });
     } catch (error) {
-      res.status(500).send("Ошибка");
+      console.error(error);
+      res.status(500).json({ error: "Ошибка сервера" });
     }
   }
 );
+//Вывод песен для жанра
+app.get("/api/genres/songs/:GenreID", async (req, res) => {
+  try {
+    const { GenreID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool
+      .request()
+      .input("GenreID", sql.Int, GenreID)
+      .query(
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+         INNER JOIN SongGenres ON Songs.SongID = SongGenres.SongID
+         INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
+         INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
+         INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
+         WHERE SongGenres.GenreID = @GenreID`
+      );
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Песни не найдены" });
+    }
+
+    const songsWithDirectLinks = await Promise.all(
+      result.recordset.map(async (song) => {
+        if (!song.PhotoCover) return song;
+
+        try {
+          const publicKey = song.PhotoCover;
+          const audiopublicKey = song.AudioFile;
+          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
+
+          const response = await fetch(directUrl);
+          const data = await response.json();
+          const response2 = await fetch(directUrlaudio);
+          const data2 = await response2.json();
+          return {
+            ...song,
+            PhotoCover: data.href || song.PhotoCover,
+            AudioFile: data2.href || songAudioFile,
+          };
+        } catch (error) {
+          console.error(
+            `Ошибка при обработке обложки для песни ${song.SongID}:`,
+            error
+          );
+          return song;
+        }
+      })
+    );
+
+    res.json(songsWithDirectLinks);
+  } catch (err) {
+    console.log("Ошибка при выполнении запроса:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });

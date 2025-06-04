@@ -136,14 +136,6 @@ const App = () => {
     },
   ]);
 
-  const ScrollToTop = () => {
-    const { pathname } = useLocation();
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, [pathname]);
-    return null;
-  };
-
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState({
@@ -287,7 +279,6 @@ const App = () => {
             searchQuery={searchQuery}
           />
         )}
-      <ScrollToTop />
       <Routes>
         <Route path="/Diplomnaya-rabota/" element={<Main />} />
         <Route path="/main" element={<MainPage />} />
@@ -408,7 +399,7 @@ const App = () => {
         location.pathname !== "/registration" &&
         location.pathname !== "/Diplomnaya-rabota/" && (
           <Player
-            key={currentSong ? currentSong.id : "no-song"}
+            key={currentSong ? currentSong.SongID : "no-song"}
             currentSong={currentSong}
             isPlaying={isPlaying}
             onTogglePlay={togglePlay}

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./RegistrationPage.css";
 import { useNavigate } from "react-router-dom";
-import emailPicture from "../assets/email.png";
-import vkPicture from "../assets/icon2.png";
+// import emailPicture from "../assets/email.png";
+// import vkPicture from "../assets/icon2.png";
 import styled from "styled-components";
 import defaultImage from "../assets/profile.webp";
 
@@ -15,6 +15,11 @@ const Button = styled.button`
   border: none;
   font-size: 18px;
   cursor: pointer;
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
 
 const TextBox = styled.input`
@@ -77,11 +82,11 @@ const RegistrationEmail = ({ onNext }) => {
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    setEmailError(""); // Clear error on input change
+    setEmailError("");
   };
 
   const isValidEmail = (email) => {
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i; // Corrected regex
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     return emailRegex.test(email);
   };
 
@@ -101,7 +106,7 @@ const RegistrationEmail = ({ onNext }) => {
     <div className="registrationBlock">
       <Label>Почта</Label>
       <TextBox
-        type="email" // Use email type for better validation
+        type="email"
         placeholder="Введите адрес электронной почты"
         value={email}
         onChange={handleEmailChange}
@@ -109,7 +114,7 @@ const RegistrationEmail = ({ onNext }) => {
       />
       {emailError && <ErrorText>{emailError}</ErrorText>}
       <Button onClick={handleNext}>Далее</Button>
-      <label style={{ fontSize: "12px" }}>Зарегистрируйтесь через почту</label>
+      {/* <label style={{ fontSize: "12px" }}>Зарегистрируйтесь через почту</label>
       <div className="socialMediaRegistration">
         <img
           src={emailPicture}
@@ -121,7 +126,7 @@ const RegistrationEmail = ({ onNext }) => {
           alt="Зарегистрироваться через VK"
           aria-label="Зарегистрироваться через VK"
         />
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -132,33 +137,45 @@ const RegistrationLoginPassword = ({ onNext }) => {
   const [loginError, setLoginError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  const loginCheck = async () => {
+    const url = "http://localhost:5000/api/user/registration/login";
+    const loginData = { login: login };
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setLoginError(data.error || "Логин уже занят");
+      } else {
+        onNext({ login, password });
+      }
+    } catch (error) {
+      setLoginError(error.message);
+    }
+  };
   const handleLoginChange = (e) => {
     setLogin(e.target.value);
-    setLoginError(""); // Clear error on input change
+    setLoginError("");
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    setPasswordError(""); // Clear error on input change
+    setPasswordError("");
   };
 
   const handleNext = () => {
-    let hasErrors = false;
-
     if (login.trim() === "") {
       setLoginError("Поле логина обязательно для заполнения");
-      hasErrors = true;
-    }
-
-    if (password.trim() === "") {
+    } else if (password.trim() === "") {
       setPasswordError("Поле пароля обязательно для заполнения");
-      hasErrors = true;
+    } else {
+      loginCheck();
     }
-
-    if (hasErrors) {
-      return;
-    }
-    onNext({ login, password });
   };
 
   return (
@@ -203,9 +220,8 @@ const DateInput = styled.input`
 `;
 
 const RegistrationProfile = ({ userData }) => {
-  // Receive userData as prop
   const [selectedImage, setSelectedImage] = useState(defaultImage);
-  const [imageData, setImageData] = useState(null); // Changed to null
+  const [imageData, setImageData] = useState(null);
   const [checked, setChecked] = useState(false);
   const [username, setUsername] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -264,46 +280,47 @@ const RegistrationProfile = ({ userData }) => {
     const birthDateObj = new Date(birthdate);
     const currentDate = new Date();
     const age = currentDate.getFullYear() - birthDateObj.getFullYear();
-
-    if (age < 14) {
-      setBirthdateError("Вам должно быть не менее 14 лет для регистрации");
-      return;
-    }
-    if (birthDateObj > currentDate) {
+    if (age < 0) {
       setBirthdateError("Невозможная дата рождения");
       return;
-    }
-
-    if (!checked) {
-      setGeneralError("Необходимо принять условия пользования");
+    } else if (age < 12) {
+      setBirthdateError("Вам должно быть не менее 12 лет для регистрации");
       return;
     }
+    sendData();
+  };
+
+  const sendData = async () => {
+    setMessage("");
     const formData = new FormData();
     formData.append("email", userData.email);
     formData.append("login", userData.login);
     formData.append("password", userData.password);
     formData.append("nickname", username);
     formData.append("dateOfBirth", birthdate);
+
     if (imageData) {
       formData.append("filedata", imageData);
     }
-    const sendData = async () => {
-      const url = "http://localhost:5000/api/registration/user";
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          body: formData,
-        });
-        if (!res.ok) {
-          setMessage("Ошибка!");
-        } else {
-          handleNavigation("/login");
-        }
-      } catch (error) {
-        console.error("Ошибка:", error);
-        setMessage("Произошла ошибка при отправке данных.");
+
+    const url = "http://localhost:5000/api/registration/user";
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.error || "Ошибка при регистрации.");
+      } else {
+        handleNavigation("/login");
       }
-    };
+    } catch (error) {
+      console.error("Ошибка:", error);
+      setMessage("Произошла ошибка при отправке данных.");
+    }
   };
 
   return (
@@ -367,8 +384,10 @@ const RegistrationProfile = ({ userData }) => {
       {generalError && (
         <ErrorText style={{ marginLeft: "32px" }}>{generalError}</ErrorText>
       )}
-      <Button onClick={handleSubmit}>Создать</Button>
-      {message && <p>{message}</p>}
+      <Button onClick={handleSubmit} disabled={!checked}>
+        Создать
+      </Button>
+      {message && <p style={{ color: "red" }}>{message}</p>}
     </div>
   );
 };

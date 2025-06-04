@@ -15,11 +15,11 @@ const MainPage = () => {
         className="main-genre-card"
         onClick={() => navigate("/songs-genres", { state: { genreItem } })}
       >
-        {/* <img
+        <img
           className="image-genre"
-          src={genreItem.image}
-          alt={genreItem.title}
-        /> */}
+          src={genreItem?.PhotoCover}
+          alt={genreItem?.Title}
+        />
         <h4 style={{ marginTop: "10px" }}>{genreItem.Title}</h4>
       </div>
     );
@@ -59,16 +59,19 @@ const MainPage = () => {
       const res = await fetch(url);
       if (res.ok) {
         let json = await res.json();
-        setGenres(json.recordset);
+        setGenres(json);
       } else {
-        console.log("Ошибка" + response.status);
+        console.log("Ошибка" + res.status);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error fetching genres:", error);
+    }
   };
 
   useEffect(() => {
     getData();
   }, []);
+
   const navigateToAlbum = (album) => {
     navigate("/album", { state: { album } });
   };

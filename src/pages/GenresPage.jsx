@@ -2,105 +2,76 @@ import React, { useState, useEffect } from "react";
 import "./GenresPage.css";
 import { useLocation } from "react-router-dom";
 import coverSong from "../assets/party.webp";
-import coverSong2 from "../assets/login.jpg";
 import Songs from "../components/Songs";
-import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
-import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 
 const GenresPage = ({
   isPlaying,
   currentSong,
   currentTime,
-  duration,
   toggleSongPlay,
   onLikeChange,
   onSongSelect,
 }) => {
   const location = useLocation();
-  const genre = location.state?.genreItem;
+  const genreItem = location.state?.genreItem;
   const [songs, setSongs] = useState([]);
-  const [initialSongs, setInitialSongs] = useState([
-    {
-      id: 1,
-      title: "All Around The World",
-      artist: "Justin Bieber",
-      audio: audioCover,
-      cover: coverSong,
-      liked: true,
-      lyrics: "cklfadsfdfdsfdfdgf",
-      producer: "ufgsdufk",
-      authorLyrics: "41324",
-      composer: "ewreq",
-      rights: "142343",
-      duration: "01:02",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 2,
-      title: "change",
-      artist: "XXXTENTACION",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: true,
-      producer: "htfshfjh",
-      authorLyrics: "24321413243",
-      composer: "4321532413",
-      rights: "324",
-      lyrics: "32414",
-      duration: "02:02",
-      url: "https://jfgdhufdg.ru/playlist/fdgs41",
-    },
-    {
-      id: 3,
-      title: "Another Song",
-      artist: "Some Artist",
-      audio: audioCover,
-      cover: coverSong,
-      liked: false,
-      producer: "jkj",
-      authorLyrics: "hjh",
-      composer: "jikj",
-      rights: "khj",
-      lyrics: "cklgf",
-      duration: "02:22",
-      url: "https://jfgdhufdg.ru/playlist/000hkjf",
-    },
-    {
-      id: 4,
-      title: "Yet Another Song",
-      artist: "Different Artist",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: false,
-      producer: "jk32421j",
-      authorLyrics: "h32421jh",
-      composer: "j3241ikj",
-      rights: "k343hj",
-      lyrics: "ckl3432gf",
-      duration: "02:32",
-      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
-    },
-  ]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setSongs(initialSongs);
-  }, [initialSongs]);
+    const fetchData = async () => {
+      if (!genreItem || !genreItem.GenreID) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
 
-  if (!genre) {
-    return <div>No genre selected.</div>;
+      try {
+        const url = `http://localhost:5000/api/genres/songs/${genreItem.GenreID}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setSongs(data);
+      } catch (e) {
+        console.error("Ошибка при загрузке песен:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [genreItem]);
+
+  const LoadingIndicator = () => (
+    <div className="search-process">
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return <LoadingIndicator />;
   }
 
   return (
     <div className="songs-genre-list">
       <div className="genre-container">
-        <img className="genre-cover" src={coverSong} alt="Genre Cover" />
-        <h1 className="title-genre">{genre.Title}</h1>
+        <img
+          className="genre-cover"
+          src={genreItem?.PhotoCover}
+          alt="Genre Cover"
+        />
+        <h1 className="title-genre">{genreItem?.Title}</h1>
       </div>
       <div className="genre-song-list">
-        {songs &&
+        {songs && songs.length > 0 ? (
           songs.map((song) => (
             <Songs
-              key={song.id}
+              key={song.SongID}
               song={song}
               isPlaying={isPlaying}
               currentSong={currentSong}
@@ -109,7 +80,10 @@ const GenresPage = ({
               onLikeChange={onLikeChange}
               onSongSelect={onSongSelect}
             />
-          ))}
+          ))
+        ) : (
+          <div>Пока песен в этом жанре нет на сайте</div>
+        )}
       </div>
     </div>
   );
