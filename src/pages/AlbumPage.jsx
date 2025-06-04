@@ -2,11 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./AlbumPage.css";
 import Dropdown from "../components/MenuSong";
 import Songs from "../components/Songs";
-import covercover from "../assets/login.jpg";
-import coverSong from "../assets/party.webp";
-import coverSong2 from "../assets/login.jpg";
-import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
-import audioCover2 from "../assets/Xxxtentacion_John_Cunningham_-_changes_54571393.mp3";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ShareModalWindow,
@@ -29,6 +24,7 @@ const AlbumPage = ({
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
+  const [loading, setLoading] = useState(true);
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);
@@ -51,122 +47,11 @@ const AlbumPage = ({
       },
     },
   ];
-  const [initialSongs, setInitialSongs] = useState([
-    {
-      id: 1,
-      title: "All Around The World",
-      artist: "Justin Bieber",
-      audio: audioCover,
-      cover: coverSong,
-      liked: true,
-      lyrics: "cklfadsfdfdsfdfdgf",
-      producer: "ufgsdufk",
-      authorLyrics: "41324",
-      composer: "ewreq",
-      rights: "142343",
-      duration: "01:02",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 2,
-      title: "change",
-      artist: "XXXTENTACION",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: true,
-      producer: "htfshfjh",
-      authorLyrics: "24321413243",
-      composer: "4321532413",
-      rights: "324",
-      lyrics: "32414",
-      duration: "02:02",
-      url: "https://jfgdhufdg.ru/playlist/fdgs41",
-    },
-    {
-      id: 3,
-      title: "Diver",
-      artist: "Nico",
-      audio: audioCover,
-      cover: coverSong,
-      liked: false,
-      producer: "jkj",
-      authorLyrics: "hjh",
-      composer: "jikj",
-      rights: "khj",
-      lyrics: "cklgf",
-      duration: "02:22",
-      url: "https://jfgdhufdg.ru/playlist/000hkjf",
-    },
-    {
-      id: 4,
-      title: "Yet 5657 Song",
-      artist: "Different Artist",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: false,
-      producer: "jk32421j",
-      authorLyrics: "h32421jh",
-      composer: "j3241ikj",
-      rights: "k343hj",
-      lyrics: "ckl3432gf",
-      duration: "02:32",
-      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
-    },
-    {
-      id: 5,
-      title: "change",
-      artist: "XXXTENTACION",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: true,
-      producer: "htfshfjh",
-      authorLyrics: "24321413243",
-      composer: "4321532413",
-      rights: "324",
-      lyrics: "32414",
-      duration: "02:02",
-      url: "https://jfgdhufdg.ru/playlist/fdgs41",
-    },
-    {
-      id: 6,
-      title: "Another Song",
-      artist: "Some Artist",
-      audio: audioCover,
-      cover: coverSong,
-      liked: false,
-      producer: "jkj",
-      authorLyrics: "hjh",
-      composer: "jikj",
-      rights: "khj",
-      lyrics: "cklgf",
-      duration: "02:22",
-      url: "https://jfgdhufdg.ru/playlist/000hkjf",
-    },
-    {
-      id: 7,
-      title: "Yet 5657 Song",
-      artist: "Different Artist",
-      audio: audioCover2,
-      cover: coverSong2,
-      liked: false,
-      producer: "jk32421j",
-      authorLyrics: "h32421jh",
-      composer: "j3241ikj",
-      rights: "k343hj",
-      lyrics: "ckl3432gf",
-      duration: "02:32",
-      url: "https://jfgdhufdg.ru/playlist/ewkhrueige4",
-    },
-  ]);
-
-  useEffect(() => {
-    setSongs(initialSongs);
-  }, [setSongs, initialSongs]);
 
   const handleLikeChangeInternal = (songId) => {
     setSongs((prevSongs) =>
       prevSongs.map((song) =>
-        song.id === songId ? { ...song, liked: !song.liked } : song
+        song.SongID === songId ? { ...song, liked: !song.liked } : song
       )
     );
   };
@@ -181,15 +66,43 @@ const AlbumPage = ({
 
   const location = useLocation();
   const album = location.state?.album;
-
   useEffect(() => {
-    if (!album) {
-      console.error("Album data is missing in location.state");
-      navigate("/");
-    }
-  }, [album, navigate]);
-  if (!album) {
-    return <div>Loading...</div>;
+    const fetchData = async () => {
+      if (!album || !album.AlbumID) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+
+      try {
+        const url = `http://localhost:5000/api/albums/songs/${album.AlbumID}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setSongs(data);
+      } catch (e) {
+        console.error("Ошибка при загрузке песен:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [album]);
+  const LoadingIndicator = () => (
+    <div className="search-process">
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return <LoadingIndicator />;
   }
   return (
     <div className="main-al">
@@ -197,7 +110,7 @@ const AlbumPage = ({
         <div className="album-cover">
           <img
             className="main-cover-album"
-            src={album.cover}
+            src={album.PhotoCover}
             alt="Album Cover"
           />
           <div
@@ -232,10 +145,10 @@ const AlbumPage = ({
         </div>
         <div className="album-page-info">
           <div className="album-page-tracklist">
-            <h1>{album.title}</h1>
+            <h1>{album.Title}</h1>
             {songs.map((song) => (
               <Songs
-                key={song.id}
+                key={song.SongID}
                 song={song}
                 isPlaying={isPlaying}
                 currentSong={currentSong}

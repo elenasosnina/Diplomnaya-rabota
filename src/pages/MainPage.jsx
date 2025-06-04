@@ -7,6 +7,8 @@ import singerBack from "../assets/bibi_back.jpg";
 
 const MainPage = () => {
   const [genres, setGenres] = useState([]);
+  const [albums, setAlbums] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
   const navigate = useNavigate();
 
   const GenreCard = ({ genreItem }) => {
@@ -24,18 +26,6 @@ const MainPage = () => {
       </div>
     );
   };
-
-  const playlists = [
-    { id: 1, title: "34647", cover: playlistDay, url: "wuiryew78r" },
-    { id: 2, title: "uhfd", cover: playlistDay2, url: "f.knhdusf7" },
-  ];
-
-  const albums = [
-    { id: 1, title: "Album 1", cover: playlistDay, url: "98gfdg" },
-    { id: 2, title: "Album 2", cover: playlistDay, url: "ok4r" },
-    { id: 3, title: "Album 3", cover: playlistDay, url: "vgfd" },
-    { id: 4, title: "Album 4", cover: playlistDay2, url: "543" },
-  ];
 
   const singers = [
     {
@@ -67,9 +57,38 @@ const MainPage = () => {
       console.error("Error fetching genres:", error);
     }
   };
-
+  const urlAlbums = "http://localhost:5000/api/albums";
+  const getDataAlbums = async () => {
+    try {
+      const res = await fetch(urlAlbums);
+      if (res.ok) {
+        let json = await res.json();
+        setAlbums(json);
+      } else {
+        console.log("Ошибка" + res.status);
+      }
+    } catch (error) {
+      console.error("Error fetching albums:", error);
+    }
+  };
+  const urlPlaylists = "http://localhost:5000/api/playlists";
+  const getDataPlaylists = async () => {
+    try {
+      const res = await fetch(urlPlaylists);
+      if (res.ok) {
+        let json = await res.json();
+        setPlaylists(json);
+      } else {
+        console.log("Ошибка" + res.status);
+      }
+    } catch (error) {
+      console.error("Error fetching albums:", error);
+    }
+  };
   useEffect(() => {
     getData();
+    getDataAlbums();
+    getDataPlaylists();
   }, []);
 
   const navigateToAlbum = (album) => {
@@ -91,12 +110,12 @@ const MainPage = () => {
           Плейлисты <br /> Дня
         </h1>
         <div className="image-playlists">
-          {playlists.map((playlist) => (
+          {playlists.slice(0, 2).map((playlist) => (
             <img
-              key={playlist.id}
-              src={playlist.cover}
+              key={playlist.PlaylistID}
+              src={playlist.PhotoCover}
               onClick={() => navigateToPlaylist(playlist)}
-              alt={playlist.title}
+              alt={playlist.Title}
             />
           ))}
         </div>
@@ -108,12 +127,12 @@ const MainPage = () => {
             <b>Альбомы Сибири*</b>
           </h2>
           <div className="image-albums">
-            {albums.map((album) => (
+            {albums.slice(0, 4).map((album) => (
               <img
-                key={album.id}
-                src={album.cover}
+                key={album.AlbumID}
+                src={album.PhotoCover}
                 onClick={() => navigateToAlbum(album)}
-                alt={album.title}
+                alt={album.Title}
               />
             ))}
           </div>

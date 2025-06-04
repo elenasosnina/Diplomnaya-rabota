@@ -263,6 +263,192 @@ app.get("/api/genres/songs/:GenreID", async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 });
+//Список альбомов на главной странице
+app.get("/api/albums", async (req, res) => {
+  try {
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().query("SELECT * FROM Albums");
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ error: "Альбомы не найдены" });
+    }
+    const albumsWithDirectLinks = await Promise.all(
+      result.recordset.map(async (album) => {
+        if (!album.PhotoCover) return album;
+
+        try {
+          const publicKey = album.PhotoCover;
+          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+
+          const response = await fetch(directUrl);
+          const data = await response.json();
+          return {
+            ...album,
+            PhotoCover: data.href || album.PhotoCover,
+          };
+        } catch (error) {
+          console.error(
+            `Ошибка при обработке обложки для альбома ${album.AlbumID}:`,
+            error
+          );
+          return album;
+        }
+      })
+    );
+    res.json(albumsWithDirectLinks);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+//Вывод песен для альбома
+app.get("/api/albums/songs/:AlbumID", async (req, res) => {
+  try {
+    const { AlbumID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool
+      .request()
+      .input("AlbumID", sql.Int, AlbumID)
+      .query(
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+         INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
+         INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
+         INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
+         WHERE Songs.AlbumID = @AlbumID`
+      );
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Песни не найдены" });
+    }
+
+    const songsWithDirectLinks = await Promise.all(
+      result.recordset.map(async (song) => {
+        if (!song.PhotoCover) return song;
+
+        try {
+          const publicKey = song.PhotoCover;
+          const audiopublicKey = song.AudioFile;
+          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
+
+          const response = await fetch(directUrl);
+          const data = await response.json();
+          const response2 = await fetch(directUrlaudio);
+          const data2 = await response2.json();
+          return {
+            ...song,
+            PhotoCover: data.href || song.PhotoCover,
+            AudioFile: data2.href || songAudioFile,
+          };
+        } catch (error) {
+          console.error(
+            `Ошибка при обработке обложки для песни ${song.SongID}:`,
+            error
+          );
+          return song;
+        }
+      })
+    );
+
+    res.json(songsWithDirectLinks);
+  } catch (err) {
+    console.log("Ошибка при выполнении запроса:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+//Список плейлистов на главной странице
+app.get("/api/playlists", async (req, res) => {
+  try {
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request()
+      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover, Playlists.Duration, Playlists.FavoriteCounter, Users.Nickname FROM Playlists
+INNER JOIN Users ON Playlists.UserID = Users.UserID`);
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ error: "Плейлисты не найдены" });
+    }
+    const playlistsWithDirectLinks = await Promise.all(
+      result.recordset.map(async (playlist) => {
+        if (!playlist.PhotoCover) return playlist;
+
+        try {
+          const publicKey = playlist.PhotoCover;
+          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+
+          const response = await fetch(directUrl);
+          const data = await response.json();
+          return {
+            ...playlist,
+            PhotoCover: data.href || playlist.PhotoCover,
+          };
+        } catch (error) {
+          console.error(
+            `Ошибка при обработке обложки для плейлиста ${playlist.PlaylistID}:`,
+            error
+          );
+          return playlist;
+        }
+      })
+    );
+    res.json(playlistsWithDirectLinks);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+//Вывод песен для альбома
+app.get("/api/playlists/songs/:PlaylistID", async (req, res) => {
+  try {
+    const { PlaylistID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool
+      .request()
+      .input("PlaylistID", sql.Int, PlaylistID)
+      .query(
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+         INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
+         INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
+         INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
+		     INNER JOIN PlaylistSongs ON Songs.SongID = PlaylistSongs.SongID
+         INNER JOIN Playlists ON PlaylistSongs.PlaylistID = Playlists.PlaylistID
+         WHERE Playlists.PlaylistID = @PlaylistID`
+      );
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Песни не найдены" });
+    }
+
+    const songsWithDirectLinks = await Promise.all(
+      result.recordset.map(async (song) => {
+        if (!song.PhotoCover) return song;
+
+        try {
+          const publicKey = song.PhotoCover;
+          const audiopublicKey = song.AudioFile;
+          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
+
+          const response = await fetch(directUrl);
+          const data = await response.json();
+          const response2 = await fetch(directUrlaudio);
+          const data2 = await response2.json();
+          return {
+            ...song,
+            PhotoCover: data.href || song.PhotoCover,
+            AudioFile: data2.href || songAudioFile,
+          };
+        } catch (error) {
+          console.error(
+            `Ошибка при обработке обложки для песни ${song.SongID}:`,
+            error
+          );
+          return song;
+        }
+      })
+    );
+
+    res.json(songsWithDirectLinks);
+  } catch (err) {
+    console.log("Ошибка при выполнении запроса:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
