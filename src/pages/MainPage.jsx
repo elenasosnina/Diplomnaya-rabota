@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./MainPage.css";
-import playlistDay from "../assets/party.webp";
-import playlistDay2 from "../assets/login.jpg";
 import { useNavigate } from "react-router-dom";
-import singerBack from "../assets/bibi_back.jpg";
 
 const MainPage = () => {
   const [genres, setGenres] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [playlists, setPlaylists] = useState([]);
+  const [artists, setArtists] = useState([]);
   const navigate = useNavigate();
 
   const GenreCard = ({ genreItem }) => {
@@ -27,22 +25,6 @@ const MainPage = () => {
     );
   };
 
-  const singers = [
-    {
-      id: 1,
-      nickname: "Singer 1",
-      photo: playlistDay,
-      biography:
-        "jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk jgk gfbyi ftyif gkgnkgyuk gy ukgyukgyugyu gi kyug yukgyugk ",
-      backgroundPhoto: singerBack,
-    },
-    { id: 2, nickname: "Singer 2", photo: playlistDay2 },
-    { id: 3, nickname: "Singer 3", photo: playlistDay },
-    { id: 4, nickname: "Singer 4", photo: playlistDay2 },
-    { id: 5, nickname: "Singer 5", photo: playlistDay },
-    { id: 6, nickname: "Singer 6", photo: playlistDay2 },
-  ];
-
   const url = "http://localhost:5000/api/genres";
   const getData = async () => {
     try {
@@ -54,7 +36,7 @@ const MainPage = () => {
         console.log("Ошибка" + res.status);
       }
     } catch (error) {
-      console.error("Error fetching genres:", error);
+      console.error("Ошибка ", error);
     }
   };
   const urlAlbums = "http://localhost:5000/api/albums";
@@ -68,7 +50,7 @@ const MainPage = () => {
         console.log("Ошибка" + res.status);
       }
     } catch (error) {
-      console.error("Error fetching albums:", error);
+      console.error("Ошибка ", error);
     }
   };
   const urlPlaylists = "http://localhost:5000/api/playlists";
@@ -82,21 +64,36 @@ const MainPage = () => {
         console.log("Ошибка" + res.status);
       }
     } catch (error) {
-      console.error("Error fetching albums:", error);
+      console.error("Ошибка", error);
+    }
+  };
+  const urlArtists = "http://localhost:5000/api/artists";
+  const getDataArtists = async () => {
+    try {
+      const res = await fetch(urlArtists);
+      if (res.ok) {
+        let json = await res.json();
+        setArtists(json);
+      } else {
+        console.log("Ошибка" + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка", error);
     }
   };
   useEffect(() => {
     getData();
     getDataAlbums();
     getDataPlaylists();
+    getDataArtists();
   }, []);
 
   const navigateToAlbum = (album) => {
     navigate("/album", { state: { album } });
   };
 
-  const navigateToSinger = (singer) => {
-    navigate("/singer", { state: { singer } });
+  const navigateToSinger = (artist) => {
+    navigate("/singer", { state: { artist } });
   };
 
   const navigateToPlaylist = (playlist) => {
@@ -141,14 +138,16 @@ const MainPage = () => {
         <div className="best-singers">
           <h1>Исполнители</h1>
           <div className="image-singers">
-            {singers.map((singer, index) => (
-              <img
-                key={singer.id}
-                className={`image${index + 1}`}
-                src={singer.photo}
-                onClick={() => navigateToSinger(singer)}
-                alt={singer.nickname}
-              />
+            {artists.slice(0, 5).map((artist, index) => (
+              <div key={artist.ArtistID}>
+                <img
+                  className={`image${index + 1}`}
+                  src={artist.PhotoProfile}
+                  onClick={() => navigateToSinger(artist)}
+                  alt={artist.Nickname}
+                />
+                <p className="artist-nickname">{artist.Nickname}</p>
+              </div>
             ))}
           </div>
         </div>

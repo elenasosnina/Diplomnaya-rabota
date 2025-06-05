@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import "./PlaylistPage.css";
 import Songs from "../components/Songs";
 import Dropdown from "../components/MenuSong";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   ShareModalWindow,
   ModalWindowInformation,
@@ -146,7 +146,7 @@ const PlaylistPage = ({
           )}
           <div className="playlist-cover">
             <img src={playlist?.PhotoCover} alt="Cover" />
-            <div className="listen-counter">{playlist?.FavouriteCounter}</div>
+            <div className="listen-counter">{playlist?.FavoriteCounter}</div>
           </div>
           <div className="playlist-info">
             <p>

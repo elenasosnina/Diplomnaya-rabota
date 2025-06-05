@@ -17,7 +17,7 @@ const SongsList = ({
       <div className="every-song-in-list">
         {songs.map((song) => (
           <Songs
-            key={song.id}
+            key={song.SongID}
             song={song}
             isPlaying={isPlaying}
             currentSong={currentSong}

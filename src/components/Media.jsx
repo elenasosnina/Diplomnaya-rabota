@@ -8,11 +8,11 @@ const Media = ({ item, type, onClick, showEditIcon, onClickEdit }) => {
       <div className="media-container media-container--artist">
         <img
           className="media-image media-image--artist"
-          src={item.photo}
-          alt={item.nickname}
+          src={item.PhotoCover}
+          alt={item.Nickname}
           onClick={onClick}
         />
-        <h1 className="media-title media-title--artist">{item.nickname}</h1>
+        <h1 className="media-title media-title--artist">{item.Nickname}</h1>
       </div>
     );
   } else if (type === "album") {
@@ -21,8 +21,8 @@ const Media = ({ item, type, onClick, showEditIcon, onClickEdit }) => {
         <div className="media-wrapper" onClick={onClick}>
           <img
             className="media-image media-image--album"
-            src={item.cover}
-            alt={item.title}
+            src={item.PhotoCover}
+            alt={item.Title}
           />
           <div className="media-overlay" />
           {showEditIcon && (
@@ -37,7 +37,7 @@ const Media = ({ item, type, onClick, showEditIcon, onClickEdit }) => {
             />
           )}
         </div>
-        <h1 className="media-title media-title--album">{item.title}</h1>
+        <h1 className="media-title media-title--album">{item.Title}</h1>
       </div>
     );
   } else {

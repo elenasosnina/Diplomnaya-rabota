@@ -16,9 +16,13 @@ const Album = ({ album }) => {
         })
       }
     >
-      <img className="card-album-cover" src={album.cover} alt={album.title} />
+      <img
+        className="card-album-cover"
+        src={album.PhotoCover}
+        alt={album.Title}
+      />
       <div className="info-album-Oncover">
-        <h2>{album.title}</h2>
+        <h2>{album.Title}</h2>
       </div>
     </div>
   );

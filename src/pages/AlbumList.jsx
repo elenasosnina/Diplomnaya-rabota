@@ -5,14 +5,14 @@ import { useLocation } from "react-router-dom";
 
 const AlbumList = () => {
   const location = useLocation();
-  const { albums, name } = location.state;
+  const { albums } = location.state;
 
   return (
     <div className="album-list">
-      <h1 className="album-list__title"> {name} </h1>
+      <h1 className="album-list__title"> Альбомы </h1>
       <div className="palitra-albums">
         {albums.map((album) => (
-          <Album key={album.id} album={album} />
+          <Album key={album.AlbumID} album={album} />
         ))}
       </div>
     </div>

@@ -1,7 +1,7 @@
 .songs-list{
     display: flex;
     justify-content: center;
-    margin: 0px 0px 20px 0px;
+    margin: 20px 0px 20px 0px;
     flex: 1;
 }
 .every-song-in-list{
