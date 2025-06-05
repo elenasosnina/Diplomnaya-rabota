@@ -37,7 +37,9 @@ const App = () => {
     display: "flex",
     flexDirection: "column",
     backgroundColor:
-      location.pathname === "/login" || location.pathname === "/registration"
+      location.pathname === "/login" ||
+      location.pathname === "/registration" ||
+      location.pathname === "/recoveryPassword"
         ? "rgb(50, 0, 249)"
         : "rgb(255, 255, 255)",
   };
@@ -63,81 +65,9 @@ const App = () => {
     toggleSongPlay,
   } = ManageMusic();
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      nickname: "hope",
-      login: "admin",
-      password: "12345",
-      email: "ojafi@gmail.com",
-      dateRegistration: "12.03.2024",
-      photo: CoverImg,
-    },
-    {
-      id: 2,
-      nickname: "ole",
-      login: "naruto",
-      password: "54321",
-      email: "uzu@gmail.com",
-      dateRegistration: "02.05.2024",
-      photo: CoverImg,
-    },
-  ]);
-
-  const [albums, setAlbums] = useState([
-    {
-      id: 1,
-      title: "After Hours",
-      artist: "The Weeknd",
-      releaseDate: "20.03.2020",
-      genre: "R&B",
-      cover: CoverImg,
-    },
-    {
-      id: 2,
-      title: "Happier Than Ever",
-      artist: "Billie Eilish",
-      releaseDate: "30.07.2021",
-      genre: "Pop",
-      cover: CoverImg,
-    },
-    {
-      id: 3,
-      title: "Starboy",
-      artist: "The Weeknd",
-      releaseDate: "25.11.2016",
-      genre: "R&B",
-      cover: CoverImg,
-    },
-    {
-      id: 4,
-      title: "When We All Fall Asleep, Where Do We Go?",
-      artist: "Billie Eilish",
-      releaseDate: "29.03.2019",
-      genre: "Pop",
-      cover: CoverImg,
-    },
-  ]);
-
-  const [artists, setArtists] = useState([
-    {
-      id: 1,
-      nickname: "The Weeknd",
-      genre: "R&B",
-      albums: ["After Hours", "Starboy"],
-      photo: CoverImg,
-    },
-    {
-      id: 2,
-      nickname: "Billie Eilish",
-      genre: "Pop",
-      albums: ["When We All Fall Asleep, Where Do We Go?", "Happier Than Ever"],
-      photo: CoverImg,
-    },
-  ]);
-
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState(null);
   const [searchResults, setSearchResults] = useState({
     songs: [],
     albums: [],
@@ -275,6 +205,8 @@ const App = () => {
         location.pathname !== "/recoveryPassword" &&
         location.pathname !== "/registration" && (
           <Header
+            user={user}
+            setUser={setUser}
             onSearchChange={handleSearchChange}
             searchQuery={searchQuery}
           />
@@ -372,7 +304,7 @@ const App = () => {
           }
         />
         <Route path="/albumList" element={<AlbumList />} />
-        <Route path="/login" element={<Login users={users} />} />
+        <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/registration" element={<Registration />} />
         <Route
           path="/songsList"

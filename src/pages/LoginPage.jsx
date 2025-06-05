@@ -8,7 +8,7 @@ import "./RegistrationPage.css";
 import * as RegistrationComponents from "./RegistrationPage.jsx";
 const { ErrorText, TextBox, Label, Button } = RegistrationComponents;
 
-const LoginPage = ({ users }) => {
+const LoginPage = ({ setUser }) => {
   const navigate = useNavigate();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +34,8 @@ const LoginPage = ({ users }) => {
         setLoginError(true);
         setPasswordError(true);
       } else {
+        const userData = await res.json();
+        setUser(userData);
         handleNavigation("/main");
       }
     } catch (error) {

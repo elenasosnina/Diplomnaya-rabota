@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./UserAccountPage.css";
-import userCover from "../assets/bibi.jpg";
-import userBack from "../assets/bibi_back.jpg";
+import UserBackgroundDefault from "../assets/UserBackgroundDefault.jpg";
 import Artist from "../components/Media";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Songs from "../components/Songs";
-import coverSong from "../assets/party.webp";
-import audioCover from "../assets/Justin Bieber - All Around The World.mp3";
 import Album from "../components/Album";
 import { AddToPlaylistModalWindow } from "../components/ModalWindows";
 
@@ -21,148 +18,91 @@ const UserAccountPage = ({
   songs,
   onSongSelect,
 }) => {
-  const [users, setUser] = useState([
-    {
-      id: 1,
-      nickname: "Holly",
-      photo: userCover,
-      backgroundPhoto: userBack,
-      login: "naruto",
-      password: "123456",
-      email: "hoLy0_0@gmail.com",
-      dayofbirth: "10.02.2000",
-      dayofregistration: "09.01.2025",
-    },
-  ]);
-  const user = users[0];
-
-  const [playlists, setPlaylists] = useState([
-    { id: 121, title: "All Around The World", cover: coverSong },
-  ]);
-  const [initialSongs, setInitialSongs] = useState([
-    {
-      id: 11,
-      title: "All Around The World",
-      artist: "Justin Bieber",
-      audio: audioCover,
-      cover: coverSong,
-      liked: true,
-      lyrics: "cklfadsfdfdsfdfdgf",
-      producer: "ufgsdufk",
-      authorLyrics: "41324",
-      composer: "ewreq",
-      rights: "142343",
-      duration: "01:02",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-  ]);
-  const [albums, setAlbums] = useState([
-    {
-      id: 1,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 2,
-      title: "hoho",
-      artist: "GH",
-      cover: coverSong,
-      producer: "в21312аы",
-      authorLyrics: "ав#а",
-      composer: "ф2eq",
-      rights: "ла3вы",
-      duration: "5 ч 12 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 3,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 4,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 5,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 6,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 7,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-    {
-      id: 8,
-      title: "BoyHeart",
-      artist: "Kiko",
-      cover: coverSong,
-      producer: "ваы",
-      authorLyrics: "ава",
-      composer: "ewrуаф2eq",
-      rights: "лавы",
-      duration: "4 ч 32 м",
-      url: "https://jfgdhufdg.ru/playlist/244124",
-    },
-  ]);
+  const [favoriteArtists, setFavoriteArtists] = useState([]);
+  const [favoriteSongs, setFavoriteSongs] = useState([]);
+  const [favoriteAlbums, setFavoriteAlbums] = useState([]);
+  const [favoritePlaylists, setFavoritePlaylists] = useState([]);
+  const [makePlaylists, setMakePlaylists] = useState([]);
+  const location = useLocation();
+  const user = location.state?.user;
 
   useEffect(() => {
-    setSongs(initialSongs);
-  }, [setSongs, initialSongs]);
-
-  const [artists, setArtists] = useState([
-    { id: 10, nickname: "kddsfdsfsfsfsdfdfdsfsfljk", photo: userCover },
-    { id: 2, nickname: "55sads", photo: userCover },
-  ]);
+    const urlFavoriteArtists = `http://localhost:5000/api/favouriteArtists/${user.UserID}`;
+    const getDataFavoriteArtists = async () => {
+      try {
+        const res = await fetch(urlFavoriteArtists);
+        if (res.ok) {
+          let json = await res.json();
+          setFavoriteArtists(json);
+        } else {
+          console.log("Ошибка" + res.status);
+        }
+      } catch (error) {
+        console.error("Ошибка", error);
+      }
+    };
+    getDataFavoriteArtists();
+    const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${user.UserID}`;
+    const getDataFavoriteSongs = async () => {
+      try {
+        const res = await fetch(urlFavoriteSongs);
+        if (res.ok) {
+          let json = await res.json();
+          setFavoriteSongs(json);
+        } else {
+          console.log("Ошибка" + res.status);
+        }
+      } catch (error) {
+        console.error("Ошибка", error);
+      }
+    };
+    getDataFavoriteSongs();
+    const urlFavoriteAlbums = `http://localhost:5000/api/favouriteAlbums/${user.UserID}`;
+    const getDataFavoriteAlbums = async () => {
+      try {
+        const res = await fetch(urlFavoriteAlbums);
+        if (res.ok) {
+          let json = await res.json();
+          setFavoriteAlbums(json);
+        } else {
+          console.log("Ошибка" + res.status);
+        }
+      } catch (error) {
+        console.error("Ошибка", error);
+      }
+    };
+    getDataFavoriteAlbums();
+    const urlFavoritePlaylists = `http://localhost:5000/api/favouritePlaylists/${user.UserID}`;
+    const getDataFavoritePlaylists = async () => {
+      try {
+        const res = await fetch(urlFavoritePlaylists);
+        if (res.ok) {
+          let json = await res.json();
+          setFavoritePlaylists(json);
+        } else {
+          console.log("Ошибка" + res.status);
+        }
+      } catch (error) {
+        console.error("Ошибка", error);
+      }
+    };
+    getDataFavoritePlaylists();
+    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user.UserID}`;
+    const getDataMakePlaylists = async () => {
+      try {
+        const res = await fetch(urlMakePlaylists);
+        if (res.ok) {
+          let json = await res.json();
+          setMakePlaylists(json);
+        } else {
+          console.log("Ошибка" + res.status);
+        }
+      } catch (error) {
+        console.error("Ошибка", error);
+      }
+    };
+    getDataMakePlaylists();
+  }, []);
 
   const navigate = useNavigate();
 
@@ -212,9 +152,9 @@ const UserAccountPage = ({
   const renderCreatedContent = () => {
     return (
       <div className="favourites-playlists">
-        {playlists.map((playlist) => (
+        {makePlaylists.map((playlist) => (
           <Artist
-            key={playlist.id}
+            key={playlist.PlaylistID}
             item={playlist}
             type="album"
             onClick={() =>
@@ -243,54 +183,16 @@ const UserAccountPage = ({
     );
   };
 
-  const renderStatisticsContent = () => {
-    return (
-      <div className="component-statistics">
-        <h3 className="statistics-title">ВЫ ПРОСЛУШАЛИ</h3>
-        <div className="listened">
-          <div className="listened-days">
-            <p className="listened-value">154</p>
-            <p className="listened-label">дней</p>
-          </div>
-          <div className="listened-hour">
-            <p className="listened-value">20 457</p>
-            <p className="listened-label">часов</p>
-          </div>
-        </div>
-        <div className="fav">
-          <div className="fav-item">
-            <h3 className="fav-item-title">ЛЮБИМАЯ ПЕСНЯ</h3>
-            <img
-              className="fav-item-cover"
-              src={songs[0].cover}
-              alt="Song Cover"
-            />
-            <p className="fav-item-name">{songs[0].title}</p>
-          </div>
-          <div className="fav-item">
-            <h3 className="fav-item-title">ЛЮБИМЫЙ ИСПОЛНИТЕЛЬ</h3>
-            <img
-              className="fav-item-cover"
-              src={artists[0].photo}
-              alt="Artist Photo"
-            />
-            <p className="fav-item-name">{artists[0].nickname}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="userPage">
       <div className="cover-userPage">
         <img
           className="background-userPage"
-          src={user.backgroundPhoto}
+          src={user.PhotoBackground || UserBackgroundDefault}
           alt="Background"
         />
         <div className="photoes-user">
-          <img src={user.photo} alt="user cover" />
+          <img src={user.PhotoProfile} alt="user cover" />
           <h1
             style={{
               marginLeft: "30px",
@@ -299,7 +201,7 @@ const UserAccountPage = ({
               fontWeight: "bolder",
             }}
           >
-            {user.nickname}
+            {user.Nickname}
           </h1>
         </div>
       </div>
@@ -316,12 +218,6 @@ const UserAccountPage = ({
           onClick={() => handleTabClick("СОЗДАННОЕ")}
         >
           СОЗДАННОЕ
-        </h1>
-        <h1
-          style={getTabStyle("СТАТИСТИКА")}
-          onClick={() => handleTabClick("СТАТИСТИКА")}
-        >
-          СТАТИСТИКА
         </h1>
       </div>
 
@@ -365,14 +261,14 @@ const UserAccountPage = ({
           >
             {activeCategory === "Исполнители" && (
               <div className="favourites-artists">
-                {artists.map((artist) => (
+                {favoriteArtists.map((artist) => (
                   <Artist
-                    key={artist.id}
+                    key={artist.ArtistID}
                     item={artist}
                     type="artist"
                     onClick={() =>
                       navigate("/singer", {
-                        state: { singer: artist },
+                        state: { artist: artist },
                       })
                     }
                   />
@@ -382,9 +278,9 @@ const UserAccountPage = ({
 
             {activeCategory === "Треки" && (
               <div className="songs-list-fav">
-                {songs.map((song) => (
+                {favoriteSongs.map((song) => (
                   <Songs
-                    key={song.id}
+                    key={song.SongID}
                     song={song}
                     isPlaying={isPlaying}
                     currentSong={currentSong}
@@ -399,9 +295,9 @@ const UserAccountPage = ({
 
             {activeCategory === "Плейлисты" && (
               <div className="favourites-playlists">
-                {playlists.map((playlist) => (
+                {favoritePlaylists.map((playlist) => (
                   <Artist
-                    key={playlist.id}
+                    key={playlist.PlaylistID}
                     item={playlist}
                     type="album"
                     onClick={() =>
@@ -416,8 +312,8 @@ const UserAccountPage = ({
 
             {activeCategory === "Альбомы" && (
               <div className="favourites-albums">
-                {albums.map((album) => (
-                  <Album key={album.id} album={album} />
+                {favoriteAlbums.map((album) => (
+                  <Album key={album.AlbumID} album={album} />
                 ))}
               </div>
             )}
@@ -431,15 +327,6 @@ const UserAccountPage = ({
           style={{ backgroundColor: "rgb(233, 233, 233)" }}
         >
           {renderCreatedContent()}
-        </div>
-      )}
-
-      {activeTab === "СТАТИСТИКА" && (
-        <div
-          className="array-favourites"
-          style={{ backgroundColor: "rgb(233, 233, 233)" }}
-        >
-          {renderStatisticsContent()}
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./MainPage.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const MainPage = () => {
   const [genres, setGenres] = useState([]);
@@ -9,6 +9,7 @@ const MainPage = () => {
   const [artists, setArtists] = useState([]);
   const navigate = useNavigate();
 
+  const location = useLocation();
   const GenreCard = ({ genreItem }) => {
     return (
       <div

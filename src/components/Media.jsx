@@ -8,7 +8,7 @@ const Media = ({ item, type, onClick, showEditIcon, onClickEdit }) => {
       <div className="media-container media-container--artist">
         <img
           className="media-image media-image--artist"
-          src={item.PhotoCover}
+          src={item.PhotoProfile}
           alt={item.Nickname}
           onClick={onClick}
         />

@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Header.css";
 import companyLogo from "../assets/sound-wave.png";
-import userFace from "../assets/bibi.jpg";
 import Dropdown from "./MenuSong";
 
-const Header = ({ onSearchChange, searchQuery }) => {
+const Header = ({ user, setUser, onSearchChange, searchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const handleNavigation = (path) => {
@@ -14,6 +13,7 @@ const Header = ({ onSearchChange, searchQuery }) => {
 
   const [isVisible, setVisible] = useState(false);
   const [isOpenMenu, setOpenMenu] = useState(false);
+
   const handleOpenMenu = () => {
     setOpenMenu(!isOpenMenu);
   };
@@ -38,21 +38,16 @@ const Header = ({ onSearchChange, searchQuery }) => {
     {
       label: "Выйти",
       action: () => {
+        setUser(null);
+        // window.location.reload();
         handleNavigation("/main");
       },
     },
   ];
 
   useEffect(() => {
-    if (
-      location.pathname === "/Diplomnaya-rabota/" ||
-      location.pathname === "/main"
-    ) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-    }
-  }, [location.pathname]);
+    setVisible(!user);
+  }, [location.pathname, user]);
 
   const handleChange = (e) => {
     const query = e.target.value;
@@ -61,16 +56,17 @@ const Header = ({ onSearchChange, searchQuery }) => {
       navigate("/search");
     }
   };
-
+  const handleUserAccount = () => {
+    navigate("/userAccount", { state: { user } });
+  };
   return (
     <header className="header">
       <div className="logoName" onClick={() => handleNavigation("/main")}>
         <img className="logoName__image" src={companyLogo} alt="MyMusic logo" />
         <h1 className="logoName__heading">impulse</h1>
       </div>
-      {isVisible ? (
-        <></>
-      ) : (
+
+      {!isVisible && (
         <div className="searchContainer">
           <input
             className="form-control"
@@ -82,6 +78,7 @@ const Header = ({ onSearchChange, searchQuery }) => {
           />
         </div>
       )}
+
       <div className="interanceButtons">
         {isVisible ? (
           <>
@@ -100,13 +97,16 @@ const Header = ({ onSearchChange, searchQuery }) => {
           </>
         ) : (
           <>
-            <div
-              className="userAccount"
-              onClick={() => handleNavigation("/userAccount")}
-            >
-              <img className="userAccount__image--profile" src={userFace} />
-              <p>fghjgfyjkgujk</p>
-            </div>
+            {user && (
+              <div className="userAccount" onClick={handleUserAccount}>
+                <img
+                  className="userAccount__image--profile"
+                  src={user.PhotoProfile}
+                  alt="Profile"
+                />
+                <p>{user.Nickname || "Пользователь"}</p>
+              </div>
+            )}
             <div className="menu" onClick={handleOpenMenu}></div>
             {isOpenMenu && (
               <div className="menu__item">
