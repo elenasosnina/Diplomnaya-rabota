@@ -87,6 +87,8 @@ const UserAccountPage = ({
       }
     };
     getDataFavoritePlaylists();
+  }, []);
+  useEffect(() => {
     const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user.UserID}`;
     const getDataMakePlaylists = async () => {
       try {
@@ -102,8 +104,7 @@ const UserAccountPage = ({
       }
     };
     getDataMakePlaylists();
-  }, []);
-
+  }, [makePlaylists]);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("ИЗБРАННОЕ");

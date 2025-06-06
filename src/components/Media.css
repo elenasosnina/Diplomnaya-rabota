@@ -65,10 +65,10 @@
     transition: opacity 0.3s ease-in-out;
   }
   
-  .media-edit-icon {
+  .media-edit-icon, .media-delete-icon {
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 30%;
     transform: translate(-50%, -50%);
     width: 30px; 
     height: auto;
@@ -76,8 +76,11 @@
     transition: opacity 0.3s ease-in-out;
     cursor: pointer;
   }
-  
+  .media-delete-icon{
+    left: 70%;
+  }
   .media-wrapper:hover .media-overlay,
-  .media-wrapper:hover .media-edit-icon {
+  .media-wrapper:hover .media-edit-icon, .media-wrapper:hover .media-delete-icon
+   {
     opacity: 1;
   }

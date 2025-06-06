@@ -551,9 +551,7 @@ INNER JOIN FavoritePlaylists ON Playlists.PlaylistID= FavoritePlaylists.Playlist
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
     const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
     res.json(playlistsWithDirectLinks);
   } catch (err) {
@@ -573,10 +571,9 @@ WHERE Playlists.UserID = @UserID`);
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
     const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
+
     res.json(playlistsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -600,6 +597,67 @@ DELETE FROM Users WHERE UserID = @UserID;`);
       return res.status(401).json({ error: "Пользователь не найден" });
     }
     res.status(200).json({ message: "Пользователь успешно удален" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/stream/song/:SongID", async (req, res) => {
+  try {
+    const { SongID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().input("SongID", sql.Int, SongID).query(`
+        SELECT AudioFile FROM Songs WHERE SongID = @SongID
+      `);
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Песня не найдена" });
+    }
+    const item = result.recordset[0];
+
+    if (!item.AudioFile) {
+      return res
+        .status(400)
+        .json({ error: "AudioFile не найден для этой песни" });
+    }
+
+    const publicKey = encodeURIComponent(item.AudioFile);
+    const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+
+    try {
+      const response = await axios.get(directUrl);
+      const audioFileUrl = response.data.href;
+      await axios
+        .get(audioFileUrl, {
+          responseType: "stream",
+        })
+        .then((axiosResponse) => {
+          const stream = axiosResponse.data;
+          res.setHeader("Content-Type", "audio/mpeg");
+          res.setHeader("Accept-Ranges", "bytes");
+          stream.pipe(res);
+        });
+    } catch (yandexError) {
+      return res
+        .status(500)
+        .json({ error: "Ошибка при получении файла с Yandex Disk" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Ошибка сервера" });
+  }
+});
+
+app.delete("/api/user/playlists/:PlaylistID", async (req, res) => {
+  try {
+    const { PlaylistID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().input("PlaylistID", sql.Int, PlaylistID)
+      .query(`DELETE FROM FavoritePlaylists WHERE PlaylistID = @PlaylistID;
+DELETE FROM PlaylistSongs WHERE PlaylistID = @PlaylistID;
+DELETE FROM Playlists WHERE PlaylistID = @PlaylistID;`);
+    if (result.rowsAffected[0] === 0) {
+      return res.status(401).json({ error: "Плейлист не найден" });
+    }
+    res.status(200).json({ message: "Плейлист успешно удален" });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

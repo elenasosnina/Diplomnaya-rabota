@@ -21,6 +21,15 @@ const Songs = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const navigate = useNavigate();
+  const formatDuration = (duration) => {
+    const [minutes, seconds] = duration.split(":");
+    const time = `${String(minutes).padStart(2, "0")}:${String(
+      seconds
+    ).padStart(2, "0")}`;
+    return time.split("T")[1];
+  };
+
+  const [duration, setDuration] = useState(formatDuration(song.Duration));
 
   const formatTime = (time) => {
     if (isNaN(time)) {
@@ -82,12 +91,12 @@ const Songs = ({
 
   const isThisSongPlaying = currentSong && currentSong.SongID === song.SongID;
 
-  const handleArtistClick = (artistName) => {
-    const formattedArtistName = artistName.toLowerCase().replace(/\s+/g, "-");
-    navigate(`/singer/${formattedArtistName}`, {
-      state: { artistName: artistName },
-    });
-  };
+  // const handleArtistClick = (artistName) => {
+  //   const formattedArtistName = artistName.toLowerCase().replace(/\s+/g, "-");
+  //   navigate(`/singer/${formattedArtistName}`, {
+  //     state: { artistName: artistName },
+  //   });
+  // };
 
   return (
     <div className="card-song">
@@ -162,7 +171,7 @@ const Songs = ({
             <circle cx="40" cy="10" r="5" fill="black" />
           </svg>
 
-          <p>{isThisSongPlaying ? formatTime(currentTime) : song.Duration}</p>
+          <p>{isThisSongPlaying ? formatTime(currentTime) : duration}</p>
 
           {isHovered && (
             <div

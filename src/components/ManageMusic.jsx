@@ -49,13 +49,36 @@ const ManageMusic = () => {
     );
   }, []);
 
-  const handleSongSelect = useCallback((song) => {
+  const handleSongSelect = useCallback(async (song) => {
+    if (!song) return;
     setCurrentSong(song);
-    audioRef.current.src = song.AudioFile;
-    audioRef.current
-      .play()
-      .then(() => setIsPlaying(true))
-      .catch((error) => console.error("Ошибка воспроизведения:", error));
+
+    try {
+      const audio = audioRef.current;
+      audio.src = `http://localhost:5000/api/stream/song/${song.SongID}`;
+      const playAudio = () => {
+        audio
+          .play()
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((error) => {
+            console.error("Playback error:", error);
+          });
+      };
+
+      if (audio.readyState > 2) {
+        playAudio();
+      } else {
+        const onCanPlay = () => {
+          playAudio();
+          audio.removeEventListener("canplay", onCanPlay);
+        };
+        audio.addEventListener("canplay", onCanPlay);
+      }
+    } catch (error) {
+      console.error("Error loading song:", error);
+    }
   }, []);
 
   const togglePlay = useCallback(() => {
@@ -67,7 +90,7 @@ const ManageMusic = () => {
         .catch((error) => console.error("Ошибка воспроизведения:", error));
     }
     setIsPlaying(!isPlaying);
-  }, [isPlaying]);
+  }, [isPlaying, currentSong]);
 
   const toggleSongPlay = useCallback(
     (song) => {
