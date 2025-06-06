@@ -214,7 +214,7 @@ const App = () => {
       <Routes>
         <Route path="/Diplomnaya-rabota/" element={<Main />} />
         <Route path="/main" element={<MainPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<SettingsPage setUser={setUser} />} />
         <Route path="/recoveryPassword" element={<RecoveryPasswordPage />} />
         <Route
           path="/songs-genres"

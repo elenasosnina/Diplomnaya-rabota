@@ -26,7 +26,7 @@ const Header = ({ user, setUser, onSearchChange, searchQuery }) => {
     {
       label: "Настройки",
       action: () => {
-        handleNavigation("/settings");
+        navigate("/settings", { state: { user } });
       },
     },
     {

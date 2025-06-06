@@ -4,13 +4,15 @@ import userCover from "../assets/bibi.jpg";
 import userBack from "../assets/bibi_back.jpg";
 import loginIcon from "../assets/login.png";
 import passwordIcon from "../assets/password.png";
+import UserBackgroundDefault from "../assets/UserBackgroundDefault.jpg";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ModalWindowInformation,
   ChangeLoginModal,
   ChangePasswordModal,
 } from "../components/ModalWindows";
 
-const SettingsPage = () => {
+const SettingsPage = ({ setUser }) => {
   const [profilePicture, setProfilePicture] = useState(userCover);
   const [backgroundPicture, setBackgroundPicture] = useState(userBack);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,10 +21,15 @@ const SettingsPage = () => {
   const [passwordChangeInitiated, setPasswordChangeInitiated] = useState(false);
   const [loginChangeSuccess, setLoginChangeSuccess] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
-
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = location.state?.user;
+  const [email, setEmail] = useState(user.Email);
+  const [username, setUsername] = useState(user.Nickname);
+  const userdb = new Date(user.DateOfBirth);
+  const [birthDate, setBirthDate] = useState(
+    userdb.toISOString().split("T")[0]
+  );
 
   const handleImageChange = (setter) => (event) => {
     const file = event.target.files[0];
@@ -61,7 +68,7 @@ const SettingsPage = () => {
     setPasswordChangeSuccess(false);
   };
 
-  const handleChangeFlow = (setter, modalType, infoModalType) => () => {
+  const handleChangeFlow = (setter, infoModalType) => () => {
     setter(true);
     handleOpenModal(infoModalType);
   };
@@ -97,6 +104,24 @@ const SettingsPage = () => {
   };
   const handleRefreshPage = () => {
     window.location.reload();
+  };
+
+  const deleteUser = async () => {
+    try {
+      const urlDeleteUser = `http://localhost:5000/api/user/settings/${user.UserID}`;
+      const res = await fetch(urlDeleteUser, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setUser(null);
+        navigate("/main");
+        handleCloseModal();
+      } else {
+        console.log("Ошибка" + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка", error);
+    }
   };
 
   const modalConfig = {
@@ -172,6 +197,8 @@ const SettingsPage = () => {
         message: "Если вы удалите аккаунт то все данные потеряются",
         showCancelButton: true,
         confirmButtonText: "Подтвердить",
+        onConfirm: deleteUser,
+        onCancel: handleCloseModal,
       },
     },
   };
@@ -224,7 +251,7 @@ const SettingsPage = () => {
                   <div className="image-upload-wrapper">
                     <img
                       className="set-profile-photo"
-                      src={profilePicture}
+                      src={user.PhotoProfile}
                       alt="Profile"
                       onClick={handleProfilePictureClick}
                     />
@@ -243,7 +270,7 @@ const SettingsPage = () => {
                   <div className="image-upload-wrapper">
                     <img
                       className="set-background-photo"
-                      src={backgroundPicture}
+                      src={user.PhotoBackground || UserBackgroundDefault}
                       alt="Background"
                       onClick={handleBackgroundPictureClick}
                     />

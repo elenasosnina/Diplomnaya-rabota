@@ -30,7 +30,31 @@ sql
 
 const upload = multer({ dest: "uploads" });
 app.use(express.static(__dirname));
-//Список жанров на главной странице
+
+// Обработка ссылок на картинки из Яндекс Диска
+async function processYandexLinks(item, fields) {
+  const result = { ...item };
+
+  for (const field of fields) {
+    if (!item[field]) continue;
+
+    try {
+      const publicKey = encodeURIComponent(item[field]);
+      const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+      const response = await fetch(directUrl);
+
+      if (response.ok) {
+        const data = await response.json();
+        result[field] = data.href || item[field];
+      }
+    } catch (error) {
+      console.error(`Ошибка при обработке ${field} для ${item}:`, error);
+    }
+  }
+
+  return result;
+}
+//Получение жанров для главной страницы
 app.get("/api/genres", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
@@ -39,41 +63,19 @@ app.get("/api/genres", async (req, res) => {
       return res.status(401).json({ error: "Жанры не найдены" });
     }
     const genresWithDirectLinks = await Promise.all(
-      result.recordset.map(async (genre) => {
-        if (!genre.PhotoCover) return genre;
-
-        try {
-          const publicKey = genre.PhotoCover;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          return {
-            ...genre,
-            PhotoCover: data.href || genre.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для жанра ${genre.GenreID}:`,
-            error
-          );
-          return genre;
-        }
-      })
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
     res.json(genresWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
-
 //Авторизация пользователя
 app.post("/api/user/login", async (req, res) => {
   try {
     const { login, password } = req.body;
     const pool = await sql.connect(dbConfig);
 
-    // Сначала находим пользователя по логину
     const result = await pool
       .request()
       .input("login", sql.VarChar, login)
@@ -85,50 +87,24 @@ app.post("/api/user/login", async (req, res) => {
 
     const user = result.recordset[0];
 
-    // Проверяем пароль
     const hashCheck = await bcrypt.compare(password, user.Password);
     if (!hashCheck) {
       return res.status(401).json({ error: "Неправильный логин или пароль" });
     }
 
-    // Получаем прямые ссылки на фото (если они есть)
-    let updatedUser = { ...user };
+    const updatedUser = await processYandexLinks(user, [
+      "PhotoProfile",
+      "PhotoBackground",
+    ]);
 
-    if (user.PhotoProfile) {
-      try {
-        const publicKeyProfile = encodeURIComponent(user.PhotoProfile);
-        const directUrlProfile = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyProfile}`;
-        const response = await fetch(directUrlProfile);
-        const data = await response.json();
-        updatedUser.PhotoProfile = data.href || user.PhotoProfile;
-      } catch (error) {
-        console.error(`Ошибка при обработке фото профиля:`, error);
-      }
-    }
-
-    if (user.PhotoBackground) {
-      try {
-        const publicKeyBackground = encodeURIComponent(user.PhotoBackground);
-        const directUrlBackground = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyBackground}`;
-        const response = await fetch(directUrlBackground);
-        const data = await response.json();
-        updatedUser.PhotoBackground = data.href || user.PhotoBackground;
-      } catch (error) {
-        console.error(`Ошибка при обработке фонового фото:`, error);
-      }
-    }
-
-    // Удаляем пароль перед отправкой
     delete updatedUser.Password;
-
     res.json(updatedUser);
   } catch (err) {
     console.error("Ошибка при входе:", err);
     return res.status(500).json({ error: "Ошибка сервера" });
   }
 });
-
-//Проверка пользователя в системе
+//Проверка пользователя в системе по логину
 app.post("/api/user/registration/login", async (req, res) => {
   try {
     const { login } = req.body;
@@ -149,6 +125,69 @@ app.post("/api/user/registration/login", async (req, res) => {
     res.status(500).json({ error: "Ошибка сервера" });
   }
 });
+// Загрузка файла на Яндекс Диска
+async function uploadToYandexDisk(
+  file,
+  folderPath = "impulse/Image/UserPhoto"
+) {
+  try {
+    const filePath = file.path;
+    const fileName = file.originalname;
+    const yandexPath = `${folderPath}/${fileName}`;
+
+    const uploadUrlResponse = await axios.get(
+      "https://cloud-api.yandex.net/v1/disk/resources/upload",
+      {
+        params: { path: yandexPath, overwrite: true },
+        headers: {
+          Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const uploadUrl = uploadUrlResponse.data.href;
+    const fileStream = fs.createReadStream(filePath);
+    await axios.put(uploadUrl, fileStream, {
+      headers: { "Content-Type": "application/octet-stream" },
+    });
+
+    await axios.put(
+      "https://cloud-api.yandex.net/v1/disk/resources/publish",
+      null,
+      {
+        params: { path: yandexPath },
+        headers: {
+          Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const publicUrlResponse = await axios.get(
+      "https://cloud-api.yandex.net/v1/disk/resources",
+      {
+        params: {
+          path: yandexPath,
+          fields: "public_url",
+        },
+        headers: {
+          Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Ошибка при удалении файла ", err);
+    });
+
+    return publicUrlResponse.data.public_url;
+  } catch (error) {
+    console.error("Ошибка при загрузке на Яндекс Диск", error);
+    throw error;
+  }
+}
 //Регистрация нового пользователя
 app.post(
   "/api/registration/user",
@@ -158,66 +197,10 @@ app.post(
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      let publicUrl = null;
 
-      if (req.file) {
-        const filePath = req.file.path;
-        const fileName = req.file.originalname;
-        const yandexPath = `impulse/Image/UserPhoto/${fileName}`;
-
-        const uploadUrlResponse = await axios.get(
-          "https://cloud-api.yandex.net/v1/disk/resources/upload",
-          {
-            params: { path: yandexPath, overwrite: true },
-            headers: {
-              Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
-              Accept: "application/json",
-            },
-          }
-        );
-
-        const uploadUrl = uploadUrlResponse.data.href;
-        const fileStream = fs.createReadStream(filePath);
-        await axios.put(uploadUrl, fileStream, {
-          headers: { "Content-Type": "application/octet-stream" },
-        });
-
-        await axios.put(
-          "https://cloud-api.yandex.net/v1/disk/resources/publish",
-          null,
-          {
-            params: { path: yandexPath },
-            headers: {
-              Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
-              Accept: "application/json",
-            },
-          }
-        );
-
-        const publicUrlResponse = await axios.get(
-          "https://cloud-api.yandex.net/v1/disk/resources",
-          {
-            params: {
-              path: yandexPath,
-              fields: "public_url",
-            },
-            headers: {
-              Authorization: `OAuth ${process.env.YANDEX_DISK_TOKEN}`,
-              Accept: "application/json",
-            },
-          }
-        );
-
-        publicUrl = publicUrlResponse.data.public_url;
-
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.error("Ошибка при удалении файла:", err);
-          }
-        });
-      } else {
-        publicUrl = "https://disk.yandex.ru/i/yu55Hf_0PHlMeA";
-      }
+      const publicUrl = req.file
+        ? await uploadToYandexDisk(req.file)
+        : "https://disk.yandex.ru/i/yu55Hf_0PHlMeA";
 
       const pool = await sql.connect(dbConfig);
       await pool
@@ -241,63 +224,42 @@ app.post(
     }
   }
 );
-//Вывод песен для жанра
+//Получение песен для страницы жанра
 app.get("/api/genres/songs/:GenreID", async (req, res) => {
   try {
     const { GenreID } = req.params;
     const pool = await sql.connect(dbConfig);
-    const result = await pool
-      .request()
-      .input("GenreID", sql.Int, GenreID)
-      .query(
-        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
-         INNER JOIN SongGenres ON Songs.SongID = SongGenres.SongID
-         INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
-         INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
-         INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
-         WHERE SongGenres.GenreID = @GenreID`
-      );
+
+    const result = await pool.request().input("GenreID", sql.Int, GenreID)
+      .query(`
+        SELECT 
+          Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, 
+          Albums.PhotoCover, Artists.Nickname 
+        FROM Songs 
+        INNER JOIN SongGenres ON Songs.SongID = SongGenres.SongID 
+        INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID 
+        INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID 
+        INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID 
+        WHERE SongGenres.GenreID = @GenreID
+      `);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: "Песни не найдены" });
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (song) => {
-        if (!song.PhotoCover) return song;
-
-        try {
-          const publicKey = song.PhotoCover;
-          const audiopublicKey = song.AudioFile;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          const response2 = await fetch(directUrlaudio);
-          const data2 = await response2.json();
-          return {
-            ...song,
-            PhotoCover: data.href || song.PhotoCover,
-            AudioFile: data2.href || songAudioFile,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для песни ${song.SongID}:`,
-            error
-          );
-          return song;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
 
     res.json(songsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
-    return res.status(500).json({ error: err.message });
+    console.error("Ошибка при выполнении запроса", err);
+    res.status(500).json({ error: "Ошибка" });
   }
 });
-//Список альбомов на главной странице
+//Получение альбомов для главной страницы
 app.get("/api/albums", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
@@ -306,34 +268,15 @@ app.get("/api/albums", async (req, res) => {
       return res.status(401).json({ error: "Альбомы не найдены" });
     }
     const albumsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (album) => {
-        if (!album.PhotoCover) return album;
-
-        try {
-          const publicKey = album.PhotoCover;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          return {
-            ...album,
-            PhotoCover: data.href || album.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для альбома ${album.AlbumID}:`,
-            error
-          );
-          return album;
-        }
-      })
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
+
     res.json(albumsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
-//Вывод песен для альбома
+//Получение песен для страницы альбома
 app.get("/api/albums/songs/:AlbumID", async (req, res) => {
   try {
     const { AlbumID } = req.params;
@@ -354,41 +297,18 @@ app.get("/api/albums/songs/:AlbumID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (song) => {
-        if (!song.PhotoCover) return song;
-
-        try {
-          const publicKey = song.PhotoCover;
-          const audiopublicKey = song.AudioFile;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          const response2 = await fetch(directUrlaudio);
-          const data2 = await response2.json();
-          return {
-            ...song,
-            PhotoCover: data.href || song.PhotoCover,
-            AudioFile: data2.href || songAudioFile,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для песни ${song.SongID}:`,
-            error
-          );
-          return song;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
 
     res.json(songsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
+    console.log("Ошибка ", err);
     return res.status(500).json({ error: err.message });
   }
 });
-//Список плейлистов на главной странице
+//Получение плейлистов для главной страницы
 app.get("/api/playlists", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
@@ -399,34 +319,16 @@ INNER JOIN Users ON Playlists.UserID = Users.UserID`);
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
     const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (playlist) => {
-        if (!playlist.PhotoCover) return playlist;
-
-        try {
-          const publicKey = playlist.PhotoCover;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          return {
-            ...playlist,
-            PhotoCover: data.href || playlist.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для плейлиста ${playlist.PlaylistID}:`,
-            error
-          );
-          return playlist;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
     res.json(playlistsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
-//Вывод песен для альбома
+//Получение песен для страницы плейлиста
 app.get("/api/playlists/songs/:PlaylistID", async (req, res) => {
   try {
     const { PlaylistID } = req.params;
@@ -449,41 +351,17 @@ app.get("/api/playlists/songs/:PlaylistID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (song) => {
-        if (!song.PhotoCover) return song;
-
-        try {
-          const publicKey = song.PhotoCover;
-          const audiopublicKey = song.AudioFile;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          const response2 = await fetch(directUrlaudio);
-          const data2 = await response2.json();
-          return {
-            ...song,
-            PhotoCover: data.href || song.PhotoCover,
-            AudioFile: data2.href || songAudioFile,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для песни ${song.SongID}:`,
-            error
-          );
-          return song;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
-
     res.json(songsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
+    console.log("Ошибка ", err);
     return res.status(500).json({ error: err.message });
   }
 });
-//Вывод артистов на главную страницу
+//Получение артистов для главной страницы
 app.get("/api/artists", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
@@ -492,49 +370,20 @@ app.get("/api/artists", async (req, res) => {
       return res.status(401).json({ error: "Артисты не найдены" });
     }
     const artistsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (artist) => {
-        if (
-          !artist.PhotoProfile ||
-          !artist.BiographyPhoto ||
-          !artist.PhotoBackground
-        )
-          return artist;
-
-        try {
-          const publicKeyProfile = artist.PhotoProfile;
-          const directUrlProfile = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyProfile}`;
-          const publicKeyBackground = artist.PhotoBackground;
-          const directUrlBackground = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyBackground}`;
-          const publicKeyBiography = artist.BiographyPhoto;
-          const directUrlBiography = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyBiography}`;
-
-          const responseProfile = await fetch(directUrlProfile);
-          const dataProfile = await responseProfile.json();
-          const responseBackground = await fetch(directUrlBackground);
-          const dataBackground = await responseBackground.json();
-          const responseBiography = await fetch(directUrlBiography);
-          const dataBiography = await responseBiography.json();
-          return {
-            ...artist,
-            PhotoProfile: dataProfile.href || artist.PhotoProfile,
-            PhotoBackground: dataBackground.href || artist.PhotoBackground,
-            BiographyPhoto: dataBiography.href || artist.BiographyPhoto,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для артиста ${artist.ArtistID}:`,
-            error
-          );
-          return artist;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, [
+          "PhotoProfile",
+          "PhotoBackground",
+          "BiographyPhoto",
+        ])
+      )
     );
     res.json(artistsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
-//Вывод любимых артистов для пользователя
+//Получение пользователем понравившихся артистов
 app.get("/api/favouriteArtists/:UserID", async (req, res) => {
   try {
     const { UserID } = req.params;
@@ -547,48 +396,20 @@ WHERE FavoriteArtists.UserID=@UserID`);
       return res.status(401).json({ error: "Артисты не найдены" });
     }
     const artistsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (artist) => {
-        if (
-          !artist.PhotoProfile ||
-          !artist.BiographyPhoto ||
-          !artist.PhotoBackground
-        )
-          return artist;
-
-        try {
-          const publicKeyProfile = artist.PhotoProfile;
-          const directUrlProfile = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyProfile}`;
-          const publicKeyBackground = artist.PhotoBackground;
-          const directUrlBackground = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyBackground}`;
-          const publicKeyBiography = artist.BiographyPhoto;
-          const directUrlBiography = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKeyBiography}`;
-
-          const responseProfile = await fetch(directUrlProfile);
-          const dataProfile = await responseProfile.json();
-          const responseBackground = await fetch(directUrlBackground);
-          const dataBackground = await responseBackground.json();
-          const responseBiography = await fetch(directUrlBiography);
-          const dataBiography = await responseBiography.json();
-          return {
-            ...artist,
-            PhotoProfile: dataProfile.href || artist.PhotoProfile,
-            PhotoBackground: dataBackground.href || artist.PhotoBackground,
-            BiographyPhoto: dataBiography.href || artist.BiographyPhoto,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для артиста ${artist.ArtistID}:`,
-            error
-          );
-          return artist;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, [
+          "PhotoProfile",
+          "PhotoBackground",
+          "BiographyPhoto",
+        ])
+      )
     );
     res.json(artistsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
+//Получение песен для страницы артиста
 app.get("/api/artists/songs/:ArtistID", async (req, res) => {
   try {
     const { ArtistID } = req.params;
@@ -609,41 +430,18 @@ app.get("/api/artists/songs/:ArtistID", async (req, res) => {
     }
 
     const artistsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (song) => {
-        if (!song.PhotoCover) return song;
-
-        try {
-          const publicKey = song.PhotoCover;
-          const audiopublicKey = song.AudioFile;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          const response2 = await fetch(directUrlaudio);
-          const data2 = await response2.json();
-          return {
-            ...song,
-            PhotoCover: data.href || song.PhotoCover,
-            AudioFile: data2.href || songAudioFile,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для песни ${song.SongID}:`,
-            error
-          );
-          return song;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
 
     res.json(artistsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
+    console.log("Ошибка ", err);
     return res.status(500).json({ error: err.message });
   }
 });
-//Вывод альбомов для артиста
+//Получение альбомов для страницы артиста
 app.get("/api/artists/albums/:ArtistID", async (req, res) => {
   try {
     const { ArtistID } = req.params;
@@ -664,43 +462,16 @@ app.get("/api/artists/albums/:ArtistID", async (req, res) => {
     }
 
     const albumsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (album) => {
-        if (!album.PhotoCover) return album;
-
-        try {
-          const publicKey = encodeURIComponent(album.PhotoCover);
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const response = await fetch(directUrl);
-
-          if (!response.ok) {
-            console.error(
-              `Ошибка при получении URL для альбома ${album.AlbumID}`
-            );
-            return album;
-          }
-
-          const data = await response.json();
-          return {
-            ...album,
-            PhotoCover: data.href || album.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для альбома ${album.AlbumID}:`,
-            error
-          );
-          return album;
-        }
-      })
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
 
     res.json(albumsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
+    console.log("Ошибка ", err);
     return res.status(500).json({ error: err.message });
   }
 });
-// Получение понравившихся артистов для текущего пользователя
+// Получение пользователем понравившихся песен
 app.get("/api/favouriteSongs/:UserID", async (req, res) => {
   try {
     const { UserID } = req.params;
@@ -723,40 +494,18 @@ app.get("/api/favouriteSongs/:UserID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (song) => {
-        if (!song.PhotoCover) return song;
-
-        try {
-          const publicKey = song.PhotoCover;
-          const audiopublicKey = song.AudioFile;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const directUrlaudio = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${audiopublicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          const response2 = await fetch(directUrlaudio);
-          const data2 = await response2.json();
-          return {
-            ...song,
-            PhotoCover: data.href || song.PhotoCover,
-            AudioFile: data2.href || songAudioFile,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для песни ${song.SongID}:`,
-            error
-          );
-          return song;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
 
     res.json(songsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
+    console.log("Ошибка ", err);
     return res.status(500).json({ error: err.message });
   }
 });
+//Получение пользователем понравившихся альбомов
 app.get("/api/favouriteAlbums/:UserID", async (req, res) => {
   try {
     const { UserID } = req.params;
@@ -778,42 +527,16 @@ app.get("/api/favouriteAlbums/:UserID", async (req, res) => {
     }
 
     const albumsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (album) => {
-        if (!album.PhotoCover) return album;
-
-        try {
-          const publicKey = encodeURIComponent(album.PhotoCover);
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-          const response = await fetch(directUrl);
-
-          if (!response.ok) {
-            console.error(
-              `Ошибка при получении URL для альбома ${album.AlbumID}`
-            );
-            return album;
-          }
-
-          const data = await response.json();
-          return {
-            ...album,
-            PhotoCover: data.href || album.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для альбома ${album.AlbumID}:`,
-            error
-          );
-          return album;
-        }
-      })
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
 
     res.json(albumsWithDirectLinks);
   } catch (err) {
-    console.log("Ошибка при выполнении запроса:", err);
+    console.log("Ошибка ", err);
     return res.status(500).json({ error: err.message });
   }
 });
+//Получение пользователем понравившихся плейлистов
 app.get("/api/favouritePlaylists/:UserID", async (req, res) => {
   try {
     const { UserID } = req.params;
@@ -828,33 +551,16 @@ INNER JOIN FavoritePlaylists ON Playlists.PlaylistID= FavoritePlaylists.Playlist
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
     const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (playlist) => {
-        if (!playlist.PhotoCover) return playlist;
-
-        try {
-          const publicKey = playlist.PhotoCover;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          return {
-            ...playlist,
-            PhotoCover: data.href || playlist.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для плейлиста ${playlist.PlaylistID}:`,
-            error
-          );
-          return playlist;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
     res.json(playlistsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
+//Получение пользователем созданных плейлистов
 app.get("/api/makePlaylists/:UserID", async (req, res) => {
   try {
     const { UserID } = req.params;
@@ -867,29 +573,33 @@ WHERE Playlists.UserID = @UserID`);
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
     const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map(async (playlist) => {
-        if (!playlist.PhotoCover) return playlist;
-
-        try {
-          const publicKey = playlist.PhotoCover;
-          const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-
-          const response = await fetch(directUrl);
-          const data = await response.json();
-          return {
-            ...playlist,
-            PhotoCover: data.href || playlist.PhotoCover,
-          };
-        } catch (error) {
-          console.error(
-            `Ошибка при обработке обложки для плейлиста ${playlist.PlaylistID}:`,
-            error
-          );
-          return playlist;
-        }
-      })
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
     );
     res.json(playlistsWithDirectLinks);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+//
+app.delete("/api/user/settings/:UserID", async (req, res) => {
+  try {
+    const { UserID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().input("UserID", sql.Int, UserID)
+      .query(`DELETE FROM FavoriteArtists WHERE UserID = @UserID;
+DELETE FROM FavoriteAlbums WHERE UserID = @UserID;
+DELETE FROM FavoriteSongs WHERE UserID = @UserID;
+DELETE FROM FavoritePlaylists WHERE UserID = @UserID;
+DELETE FROM FavoritePlaylists WHERE PlaylistID IN (SELECT PlaylistID FROM Playlists WHERE UserID = @UserID);
+DELETE FROM PlaylistSongs WHERE PlaylistID IN (SELECT PlaylistID FROM Playlists WHERE UserID = @UserID);
+DELETE FROM Playlists WHERE UserID = @UserID;
+DELETE FROM Users WHERE UserID = @UserID;`);
+    if (result.rowsAffected[0] === 0) {
+      return res.status(401).json({ error: "Пользователь не найден" });
+    }
+    res.status(200).json({ message: "Пользователь успешно удален" });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
