@@ -313,7 +313,7 @@ app.get("/api/playlists", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request()
-      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover, Playlists.Duration, Playlists.FavoriteCounter, Users.Nickname FROM Playlists
+      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover,Playlists.FavoriteCounter, Users.Nickname FROM Playlists
 INNER JOIN Users ON Playlists.UserID = Users.UserID`);
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Плейлисты не найдены" });
@@ -543,7 +543,7 @@ app.get("/api/favouritePlaylists/:UserID", async (req, res) => {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserID", sql.Int, UserID)
       .query(`SELECT Playlists.Title,Playlists.PlaylistID, 
-Playlists.PhotoCover, Playlists.Duration, 
+Playlists.PhotoCover, 
 Playlists.FavoriteCounter, Users.Nickname FROM Playlists 
 INNER JOIN Users ON Playlists.UserID = Users.UserID 
 INNER JOIN FavoritePlaylists ON Playlists.PlaylistID= FavoritePlaylists.PlaylistID WHERE FavoritePlaylists.UserID = @UserID`);
@@ -564,7 +564,7 @@ app.get("/api/makePlaylists/:UserID", async (req, res) => {
     const { UserID } = req.params;
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserID", sql.Int, UserID)
-      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover, Playlists.Duration, Playlists.FavoriteCounter, Users.Nickname FROM Playlists 
+      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover,  Playlists.FavoriteCounter, Users.Nickname FROM Playlists 
 INNER JOIN Users ON Playlists.UserID = Users.UserID 
 WHERE Playlists.UserID = @UserID`);
     if (result.recordset.length === 0) {
@@ -660,6 +660,184 @@ DELETE FROM Playlists WHERE PlaylistID = @PlaylistID;`);
     res.status(200).json({ message: "Плейлист успешно удален" });
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+//Создание собственного плейлиста
+app.post(
+  "/api/createPlaylist",
+  upload.single("filedata"),
+  async function (req, res) {
+    const { Title, UserID } = req.body;
+    let songs = [];
+
+    try {
+      songs = JSON.parse(req.body.songs);
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({ error: "Неверный формат JSON для songs" });
+    }
+
+    try {
+      const publicUrl = req.file
+        ? await uploadToYandexDisk(req.file)
+        : "https://disk.yandex.ru/i/SJ-cSjocgeDXlA";
+
+      const pool = await sql.connect(dbConfig);
+
+      const insertPlaylistResult = await pool
+        .request()
+        .input("Title", sql.VarChar, Title)
+        .input("PhotoCover", sql.NVarChar, publicUrl)
+        .input("UserID", sql.Int, UserID)
+        .query(
+          `INSERT INTO Playlists (Title, PhotoCover, UserID) 
+           OUTPUT INSERTED.PlaylistID
+           VALUES (@Title, @PhotoCover, @UserID)`
+        );
+
+      const playlistID = insertPlaylistResult.recordset[0].PlaylistID;
+
+      if (Array.isArray(songs)) {
+        for (const song of songs) {
+          await pool
+            .request()
+            .input("PlaylistID", sql.Int, playlistID)
+            .input("SongID", sql.Int, song.SongID)
+            .query(
+              `INSERT INTO PlaylistSongs (PlaylistID, SongID) VALUES (@PlaylistID, @SongID)`
+            );
+        }
+      }
+
+      await pool.close();
+
+      return res.json({ message: "Плейлист успешно создан" });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "Ошибка сервера: " + error.message });
+    }
+  }
+);
+//редактирование собственного плейлиста
+app.put(
+  "/api/editPlaylist/:PlaylistID",
+  upload.single("filedata"),
+  async function (req, res) {
+    const playlistID = req.params.PlaylistID;
+    const { Title } = req.body;
+    let songs = [];
+
+    try {
+      songs = JSON.parse(req.body.songs);
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({ error: "Неверный формат JSON для songs" });
+    }
+
+    let publicUrl;
+    try {
+      if (req.file) {
+        publicUrl = await uploadToYandexDisk(req.file);
+      }
+      const pool = await sql.connect(dbConfig);
+
+      let updateQuery = `UPDATE Playlists SET Title = @Title`;
+      if (publicUrl) {
+        updateQuery += `, PhotoCover = @PhotoCover`;
+      }
+      updateQuery += ` WHERE PlaylistID = @PlaylistID`;
+
+      const request = pool
+        .request()
+        .input("Title", sql.VarChar, Title)
+        .input("PlaylistID", sql.Int, playlistID);
+
+      if (publicUrl) {
+        request.input("PhotoCover", sql.NVarChar, publicUrl);
+      }
+
+      await request.query(updateQuery);
+
+      await pool
+        .request()
+        .input("PlaylistID", sql.Int, playlistID)
+        .query(`DELETE FROM PlaylistSongs WHERE PlaylistID = @PlaylistID`);
+
+      if (songs && Array.isArray(songs)) {
+        for (const song of songs) {
+          await pool
+            .request()
+            .input("PlaylistID", sql.Int, playlistID)
+            .input("SongID", sql.Int, song.SongID)
+            .query(
+              `INSERT INTO PlaylistSongs (PlaylistID, SongID) VALUES (@PlaylistID, @SongID)`
+            );
+        }
+      }
+      await pool.close();
+      return res.json({ message: "Плейлист успешно обновлен" });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "Ошибка сервера: " + error.message });
+    }
+  }
+);
+//добавление песни в плейлист
+app.post("/api/playlists/songs/adding", async function (req, res) {
+  let playlists = req.body.playlists;
+  let song = req.body.song;
+
+  if (!playlists || !Array.isArray(playlists)) {
+    return res.status(400).json({ error: "Неверный формат плейлистов" });
+  }
+
+  if (!song || !song.SongID) {
+    return res.status(400).json({ error: "Неверный формат песни" });
+  }
+
+  try {
+    const pool = await sql.connect(dbConfig);
+
+    for (const playlist of playlists) {
+      if (!playlist) {
+        continue;
+      }
+      console.log(playlist);
+      console.log(song.SongID);
+      try {
+        const resultCheck = await pool
+          .request()
+          .input("PlaylistID", sql.Int, playlist)
+          .input("SongID", sql.Int, song.SongID)
+          .query(
+            `SELECT * FROM PlaylistSongs WHERE PlaylistID = @PlaylistID AND SongID = @SongID`
+          );
+        if (resultCheck.recordset.length > 0) {
+          console.log(`Песня ${song.SongID} уже есть в плейлисте ${playlist}`);
+          continue;
+        }
+        await pool
+          .request()
+          .input("PlaylistID", sql.Int, playlist)
+          .input("SongID", sql.Int, song.SongID)
+          .query(
+            `INSERT INTO PlaylistSongs (PlaylistID, SongID) VALUES (@PlaylistID, @SongID)`
+          );
+      } catch (error) {
+        console.error(`Ошибка `, error);
+        continue;
+      }
+    }
+
+    await pool.close();
+    return res.json({ message: "Песни успешно добавлены в плейлист" });
+  } catch (error) {
+    console.error("Ошибка сервера:", error);
+    return res.status(500).json({ error: "Ошибка сервера: " + error.message });
   }
 });
 app.listen(PORT, () => {

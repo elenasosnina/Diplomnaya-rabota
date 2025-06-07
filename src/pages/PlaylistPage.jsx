@@ -153,7 +153,7 @@ const PlaylistPage = ({
               <b>{playlist?.Title}</b>
             </p>
             <p style={{ fontSize: "18px", marginTop: "30px" }}>
-              {playlist?.Duration}
+              {playlist?.Duration || "0"}
             </p>
             <p style={{ fontSize: "25px", marginTop: "0px" }}>
               {playlist?.Nickname}

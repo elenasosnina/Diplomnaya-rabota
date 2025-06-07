@@ -36,6 +36,7 @@ const LoginPage = ({ setUser }) => {
       } else {
         const userData = await res.json();
         setUser(userData);
+        localStorage.setItem("user", userData.UserID);
         handleNavigation("/main");
       }
     } catch (error) {
@@ -126,18 +127,6 @@ const LoginPage = ({ setUser }) => {
           >
             Нет аккаунта? Создайте его
           </label>
-          {/* <div className="socialMediaLogin">
-            <img
-              src={emailPicture}
-              alt="Войти через почту"
-              className="socialMediaLogin__image"
-            />
-            <img
-              src={vkPicture}
-              alt="Войти через VK"
-              className="socialMediaLogin__image"
-            />
-          </div> */}
         </div>
       </div>
     </div>

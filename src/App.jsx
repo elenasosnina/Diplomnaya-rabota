@@ -246,6 +246,7 @@ const App = () => {
               setSongs={setSongs}
               songs={songs}
               onSongSelect={handleSongSelect}
+              userData={user}
             />
           }
         />

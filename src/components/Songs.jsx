@@ -62,13 +62,6 @@ const Songs = ({
       },
     },
     {
-      label: "Посмотреть сведения",
-      action: () => {
-        console.log("Посмотреть сведения нажато");
-        handleOpenModal("credits");
-      },
-    },
-    {
       label: "Добавить в плейлист",
       action: () => {
         console.log("Добавить в плейлист нажато");
@@ -90,13 +83,6 @@ const Songs = ({
   };
 
   const isThisSongPlaying = currentSong && currentSong.SongID === song.SongID;
-
-  // const handleArtistClick = (artistName) => {
-  //   const formattedArtistName = artistName.toLowerCase().replace(/\s+/g, "-");
-  //   navigate(`/singer/${formattedArtistName}`, {
-  //     state: { artistName: artistName },
-  //   });
-  // };
 
   return (
     <div className="card-song">
@@ -196,6 +182,7 @@ const Songs = ({
                   toggleSongPlay={toggleSongPlay}
                   onLikeChange={onLikeChange}
                   onSongSelect={onSongSelect}
+                  song={song}
                 />
               )}
             </div>
