@@ -840,6 +840,45 @@ app.post("/api/playlists/songs/adding", async function (req, res) {
     return res.status(500).json({ error: "Ошибка сервера: " + error.message });
   }
 });
+app.get("/api/help/FAQ", async (req, res) => {
+  try {
+    const pool = await sql.connect(dbConfig);
+    const result = await pool
+      .request()
+      .query(`SELECT * FROM FrequentlyAskedQuestions`);
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ error: "Информация не найдена" });
+    }
+
+    res.json(result.recordset);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+app.get("/api/songs", async (req, res) => {
+  try {
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().query(`SELECT 
+          Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, 
+          Albums.PhotoCover, Artists.Nickname 
+        FROM Songs 
+        INNER JOIN SongGenres ON Songs.SongID = SongGenres.SongID 
+        INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID 
+        INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID 
+        INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID `);
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ error: "Песни не найдены" });
+    }
+    const songsWithDirectLinks = await Promise.all(
+      result.recordset.map((item) =>
+        processYandexLinks(item, ["PhotoCover", "AudioFile"])
+      )
+    );
+    res.json(songsWithDirectLinks);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });

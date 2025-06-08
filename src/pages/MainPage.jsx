@@ -1,15 +1,30 @@
+// MainPage.jsx
 import React, { useState, useEffect } from "react";
 import "./MainPage.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const MainPage = () => {
+const MainPage = ({ songs, albums, playlists, artists }) => {
   const [genres, setGenres] = useState([]);
-  const [albums, setAlbums] = useState([]);
-  const [playlists, setPlaylists] = useState([]);
-  const [artists, setArtists] = useState([]);
   const navigate = useNavigate();
 
   const location = useLocation();
+  const url = "http://localhost:5000/api/genres";
+  const getData = async () => {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        let json = await res.json();
+        setGenres(json);
+      } else {
+        console.log("Ошибка" + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка ", error);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   const GenreCard = ({ genreItem }) => {
     return (
       <div
@@ -25,69 +40,6 @@ const MainPage = () => {
       </div>
     );
   };
-
-  const url = "http://localhost:5000/api/genres";
-  const getData = async () => {
-    try {
-      const res = await fetch(url);
-      if (res.ok) {
-        let json = await res.json();
-        setGenres(json);
-      } else {
-        console.log("Ошибка" + res.status);
-      }
-    } catch (error) {
-      console.error("Ошибка ", error);
-    }
-  };
-  const urlAlbums = "http://localhost:5000/api/albums";
-  const getDataAlbums = async () => {
-    try {
-      const res = await fetch(urlAlbums);
-      if (res.ok) {
-        let json = await res.json();
-        setAlbums(json);
-      } else {
-        console.log("Ошибка" + res.status);
-      }
-    } catch (error) {
-      console.error("Ошибка ", error);
-    }
-  };
-  const urlPlaylists = "http://localhost:5000/api/playlists";
-  const getDataPlaylists = async () => {
-    try {
-      const res = await fetch(urlPlaylists);
-      if (res.ok) {
-        let json = await res.json();
-        setPlaylists(json);
-      } else {
-        console.log("Ошибка" + res.status);
-      }
-    } catch (error) {
-      console.error("Ошибка", error);
-    }
-  };
-  const urlArtists = "http://localhost:5000/api/artists";
-  const getDataArtists = async () => {
-    try {
-      const res = await fetch(urlArtists);
-      if (res.ok) {
-        let json = await res.json();
-        setArtists(json);
-      } else {
-        console.log("Ошибка" + res.status);
-      }
-    } catch (error) {
-      console.error("Ошибка", error);
-    }
-  };
-  useEffect(() => {
-    getData();
-    getDataAlbums();
-    getDataPlaylists();
-    getDataArtists();
-  }, []);
 
   const navigateToAlbum = (album) => {
     navigate("/album", { state: { album } });

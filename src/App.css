@@ -40,6 +40,7 @@ html {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+    flex-wrap: wrap;
 }
 .search-results h3{
     font-size: 30px;

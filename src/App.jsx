@@ -25,7 +25,6 @@ import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
 import RecoveryPasswordPage from "./pages/RecoveryPasswordPage";
 import Media from "./components/Media";
-import CoverImg from "./assets/bibi.jpg";
 import GenresPage from "./pages/GenresPage";
 
 const App = () => {
@@ -55,30 +54,102 @@ const App = () => {
     handleLikeChange,
     playNextSong,
     playPreviousSong,
-    songs,
+    songs: allSongs,
     handleSongSelect,
     isShuffle,
     toggleShuffle,
     isRepeat,
     toggleRepeat,
-    setSongs,
+    setSongs: setAllSongs,
     toggleSongPlay,
   } = ManageMusic();
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState(null);
-  const [searchResults, setSearchResults] = useState({
-    songs: [],
-    albums: [],
-    artists: [],
-  });
+  const [albums, setAlbums] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [artists, setArtists] = useState([]);
+  const [searchResultsSongs, setSearchResultsSongs] = useState([]);
+  const [searchResultsAlbums, setSearchResultsAlbums] = useState([]);
+  const [searchResultsArtists, setSearchResultsArtists] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef(null);
+
+  const Songsurl = "http://localhost:5000/api/songs";
+  const getSongsData = async () => {
+    try {
+      const res = await fetch(Songsurl);
+      if (res.ok) {
+        let json = await res.json();
+        setAllSongs(json); // Setting All songs
+      } else {
+        console.log("Ошибка HTTP: " + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке песен: ", error);
+    }
+  };
+
+  const urlAlbums = "http://localhost:5000/api/albums";
+  const getDataAlbums = async () => {
+    try {
+      const res = await fetch(urlAlbums);
+      if (res.ok) {
+        let json = await res.json();
+        setAlbums(json);
+      } else {
+        console.log("Ошибка HTTP: " + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке альбомов: ", error);
+    }
+  };
+
+  const urlPlaylists = "http://localhost:5000/api/playlists";
+  const getDataPlaylists = async () => {
+    try {
+      const res = await fetch(urlPlaylists);
+      if (res.ok) {
+        let json = await res.json();
+        setPlaylists(json);
+      } else {
+        console.log("Ошибка HTTP: " + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке плейлистов: ", error);
+    }
+  };
+
+  const urlArtists = "http://localhost:5000/api/artists";
+  const getDataArtists = async () => {
+    try {
+      const res = await fetch(urlArtists);
+      if (res.ok) {
+        let json = await res.json();
+        setArtists(json);
+      } else {
+        console.log("Ошибка HTTP: " + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке артистов: ", error);
+    }
+  };
+
+  useEffect(() => {
+    getSongsData();
+    getDataAlbums();
+    getDataPlaylists();
+    getDataArtists();
+  }, []);
 
   useEffect(() => {
     if (location.pathname !== "/search") {
       setSearchQuery("");
+      setIsSearching(false);
+      setSearchResultsSongs([]);
+      setSearchResultsAlbums([]);
+      setSearchResultsArtists([]);
     }
   }, [location.pathname]);
 
@@ -92,103 +163,34 @@ const App = () => {
 
     searchTimeout.current = setTimeout(() => {
       if (query) {
-        const songResults = songs.filter((song) =>
-          song.title?.toLowerCase().includes(query.toLowerCase())
+        const songResults = allSongs.filter((song) =>
+          song.Title?.toLowerCase().includes(query.toLowerCase())
         );
         const albumResults = albums.filter((album) =>
-          album.title?.toLowerCase().includes(query.toLowerCase())
+          album.Title?.toLowerCase().includes(query.toLowerCase())
         );
         const artistResults = artists.filter((artist) =>
-          artist.nickname?.toLowerCase().includes(query.toLowerCase())
+          artist.Nickname?.toLowerCase().includes(query.toLowerCase())
         );
 
-        const combinedResults = {
-          songs: songResults,
-          albums: albumResults,
-          artists: artistResults,
-        };
-
-        setSearchResults(combinedResults);
+        setSearchResultsSongs(songResults);
+        setSearchResultsAlbums(albumResults);
+        setSearchResultsArtists(artistResults);
       } else {
-        setSearchResults({ songs: [], albums: [], artists: [] });
         setIsSearching(false);
+        setSearchResultsSongs([]);
+        setSearchResultsAlbums([]);
+        setSearchResultsArtists([]);
         if (location.pathname === "/search") {
           navigate(-1);
         }
       }
+      setIsSearching(false);
     }, 1000);
   };
 
   const renderSearchResults = () => {
     if (isSearching) {
-      if (
-        searchResults.songs?.length > 0 ||
-        searchResults.albums?.length > 0 ||
-        searchResults.artists?.length > 0
-      ) {
-        return (
-          <div className="search-results">
-            {searchResults.songs?.length > 0 && (
-              <>
-                <h3>Треки</h3>
-                <SongsList
-                  songs={searchResults.songs}
-                  isPlaying={isPlaying}
-                  currentSong={currentSong}
-                  currentTime={currentTime}
-                  duration={duration}
-                  toggleSongPlay={toggleSongPlay}
-                  onLikeChange={handleLikeChange}
-                  onSongSelect={handleSongSelect}
-                />
-              </>
-            )}
-            {searchResults.albums?.length > 0 && (
-              <>
-                <h3>Альбомы</h3>
-                <div className="media-albums">
-                  {searchResults.albums.map((album) => (
-                    <Media
-                      key={album.id}
-                      item={album}
-                      type="album"
-                      onClick={() => {
-                        navigate("/album", { state: { album } });
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-            {searchResults.artists?.length > 0 && (
-              <>
-                <h3>Артисты</h3>
-                <div className="media-artist">
-                  {searchResults.artists.map((artist) => (
-                    <Media
-                      key={artist.id}
-                      item={artist}
-                      type="artist"
-                      onClick={() => {
-                        navigate("/singer", { state: { artist } });
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        );
-      } else {
-        return (
-          <div className="search-process">
-            <p>
-              Ничего с названием <b>{searchQuery}</b> не найдено{" "}
-            </p>
-          </div>
-        );
-      }
-    } else {
       return (
         <div className="search-process">
           <div className="spinner-border" role="status">
@@ -197,6 +199,74 @@ const App = () => {
         </div>
       );
     }
+
+    if (
+      searchResultsSongs?.length === 0 &&
+      searchResultsAlbums?.length === 0 &&
+      searchResultsArtists?.length === 0
+    ) {
+      return (
+        <div className="search-process">
+          <p>
+            Ничего с названием <b>{searchQuery}</b> не найдено
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="search-results">
+        {searchResultsSongs?.length > 0 && (
+          <>
+            <h3>Треки</h3>
+            <SongsList
+              songs={searchResultsSongs}
+              isPlaying={isPlaying}
+              currentSong={currentSong}
+              currentTime={currentTime}
+              duration={duration}
+              toggleSongPlay={toggleSongPlay}
+              onLikeChange={handleLikeChange}
+              onSongSelect={handleSongSelect}
+            />
+          </>
+        )}
+        {searchResultsAlbums?.length > 0 && (
+          <>
+            <h3>Альбомы</h3>
+            <div className="media-albums">
+              {searchResultsAlbums.map((album) => (
+                <Media
+                  key={`album-${album.AlbumID}`}
+                  item={album}
+                  type="album"
+                  onClick={() => {
+                    navigate("/album", { state: { album } });
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        {searchResultsArtists?.length > 0 && (
+          <>
+            <h3>Артисты</h3>
+            <div className="media-artist">
+              {searchResultsArtists.map((artist) => (
+                <Media
+                  key={`artist-${artist.ArtistID}`}
+                  item={artist}
+                  type="artist"
+                  onClick={() => {
+                    navigate("/singer", { state: { artist } });
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -213,7 +283,17 @@ const App = () => {
         )}
       <Routes>
         <Route path="/Diplomnaya-rabota/" element={<Main />} />
-        <Route path="/main" element={<MainPage />} />
+        <Route
+          path="/main"
+          element={
+            <MainPage
+              songs={allSongs}
+              albums={albums}
+              artists={artists}
+              playlists={playlists}
+            />
+          }
+        />
         <Route path="/settings" element={<SettingsPage setUser={setUser} />} />
         <Route path="/recoveryPassword" element={<RecoveryPasswordPage />} />
         <Route
@@ -226,7 +306,7 @@ const App = () => {
               duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              songs={songs}
+              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }
@@ -243,8 +323,8 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setSongs}
-              songs={songs}
+              setSongs={setAllSongs}
+              songs={allSongs}
               onSongSelect={handleSongSelect}
               userData={user}
             />
@@ -261,11 +341,10 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setSongs}
-              songs={songs}
+              setSongs={setAllSongs}
+              songs={allSongs}
               onSongSelect={handleSongSelect}
               searchQuery={searchQuery}
-              searchResults={searchResults}
               isSearching={isSearching}
             />
           }
@@ -281,8 +360,8 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setSongs}
-              songs={songs}
+              setSongs={setAllSongs}
+              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }
@@ -298,8 +377,8 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setSongs}
-              songs={songs}
+              setSongs={setAllSongs}
+              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }
@@ -317,7 +396,7 @@ const App = () => {
               duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              songs={songs}
+              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }
@@ -343,7 +422,7 @@ const App = () => {
             onLikeChange={handleLikeChange}
             playNextSong={playNextSong}
             playPreviousSong={playPreviousSong}
-            songs={songs}
+            songs={allSongs}
             onSongSelect={handleSongSelect}
             isShuffle={isShuffle}
             onToggleShuffle={toggleShuffle}

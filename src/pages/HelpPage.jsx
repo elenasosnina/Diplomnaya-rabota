@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./HelpPage.css";
 
 const HelpPage = () => {
@@ -118,15 +118,32 @@ const TechSupport = ({ setCurrentStep }) => {
   );
 };
 
-const FAQ = ({ setCurrentStep, questions, setSelectedQuestion }) => {
+const FAQ = ({ setCurrentStep, setSelectedQuestion }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [FAQ, setFAQ] = useState([]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
-
-  const filteredQuestions = questions.filter((question) =>
-    question.label.toLowerCase().includes(searchTerm.toLowerCase())
+  const urlFAQ = "http://localhost:5000/api/help/FAQ";
+  const getDataFAQ = async () => {
+    try {
+      const res = await fetch(urlFAQ);
+      if (res.ok) {
+        let json = await res.json();
+        setFAQ(json);
+      } else {
+        console.log("Ошибка" + res.status);
+      }
+    } catch (error) {
+      console.error("Ошибка", error);
+    }
+  };
+  useEffect(() => {
+    getDataFAQ();
+  }, []);
+  const filteredQuestions = FAQ.filter((question) =>
+    question.Title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -154,14 +171,14 @@ const FAQ = ({ setCurrentStep, questions, setSelectedQuestion }) => {
           {filteredQuestions.map((question) => (
             <li
               className="list-group-item"
-              key={question.label}
+              key={question.Title}
               onClick={() => {
                 setSelectedQuestion(question);
                 setCurrentStep(3);
               }}
               style={{ cursor: "pointer" }}
             >
-              {question.label}
+              {question.Title}
             </li>
           ))}
         </ul>
@@ -181,10 +198,10 @@ const AnswersQuestions = ({ setCurrentStep, selectedQuestion }) => {
       >
         Часто задаваемые вопросы
       </p>
-      <h1>{selectedQuestion.label}</h1>
+      <h1>{selectedQuestion.Title}</h1>
 
       <div className="full-answer-questions">
-        {selectedQuestion.description}
+        {selectedQuestion.Description}
       </div>
     </div>
   );
