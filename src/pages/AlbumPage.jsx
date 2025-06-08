@@ -16,15 +16,13 @@ const AlbumPage = ({
   toggleSongPlay,
   onLikeChange,
   audioRef,
-  setSongs,
-  songs,
   onSongSelect,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const [songs, setSongs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
-  const [loading, setLoading] = useState(true);
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);
@@ -69,10 +67,8 @@ const AlbumPage = ({
   useEffect(() => {
     const fetchData = async () => {
       if (!album || !album.AlbumID) {
-        setLoading(false);
         return;
       }
-      setLoading(true);
 
       try {
         const url = `http://localhost:5000/api/albums/songs/${album.AlbumID}`;
@@ -86,24 +82,11 @@ const AlbumPage = ({
         setSongs(data);
       } catch (e) {
         console.error("Ошибка при загрузке песен:", e);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchData();
   }, [album]);
-  const LoadingIndicator = () => (
-    <div className="search-process">
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return <LoadingIndicator />;
-  }
   return (
     <div className="main-al">
       <div className="album-component">

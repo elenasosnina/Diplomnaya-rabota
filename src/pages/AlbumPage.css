@@ -43,6 +43,7 @@ body {
   display: flex;
   justify-content: end;
   width: 100%; 
+  position: relative;
   margin: 120px 0px 0 10px;
 }
 .main-cover-album {
@@ -53,14 +54,15 @@ body {
 }
 
 .block-menu-album {
-  position: relative;
-  top: -240px; 
-  left: 300px; 
+  position: absolute;
+  top: 50px; 
   transform: rotate(-90deg);
+  padding-right: 50px;
 }
 .dropdown {
   position: relative; 
   z-index: 1000;
+  transform: translateX(50px);
 }
 .menu-album {
   background-color: rgb(255, 255, 255);
@@ -80,7 +82,7 @@ body {
   text-align: center; 
   padding: 5px;
   position:relative;
-  right: 150px;
+  right: 100px;
   top: 350px;
 }
 

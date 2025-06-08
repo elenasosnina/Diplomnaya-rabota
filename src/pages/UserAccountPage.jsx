@@ -11,11 +11,8 @@ const UserAccountPage = ({
   isPlaying,
   currentSong,
   currentTime,
-  duration,
   toggleSongPlay,
   onLikeChange,
-  setSongs,
-  songs,
   onSongSelect,
   userData,
 }) => {

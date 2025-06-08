@@ -859,10 +859,9 @@ app.get("/api/songs", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().query(`SELECT 
-          Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, 
+          Songs.SongID, Songs.Title, Songs.Duration,
           Albums.PhotoCover, Artists.Nickname 
         FROM Songs 
-        INNER JOIN SongGenres ON Songs.SongID = SongGenres.SongID 
         INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID 
         INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID 
         INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID `);
@@ -870,9 +869,7 @@ app.get("/api/songs", async (req, res) => {
       return res.status(401).json({ error: "Песни не найдены" });
     }
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
     res.json(songsWithDirectLinks);
   } catch (err) {

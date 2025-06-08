@@ -54,13 +54,13 @@ const App = () => {
     handleLikeChange,
     playNextSong,
     playPreviousSong,
-    songs: allSongs,
+    songs,
     handleSongSelect,
     isShuffle,
     toggleShuffle,
     isRepeat,
     toggleRepeat,
-    setSongs: setAllSongs,
+    setSongs,
     toggleSongPlay,
   } = ManageMusic();
 
@@ -70,6 +70,7 @@ const App = () => {
   const [albums, setAlbums] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [artists, setArtists] = useState([]);
+  const [allSongs, setAllSongs] = useState([]);
   const [searchResultsSongs, setSearchResultsSongs] = useState([]);
   const [searchResultsAlbums, setSearchResultsAlbums] = useState([]);
   const [searchResultsArtists, setSearchResultsArtists] = useState([]);
@@ -82,7 +83,7 @@ const App = () => {
       const res = await fetch(Songsurl);
       if (res.ok) {
         let json = await res.json();
-        setAllSongs(json); // Setting All songs
+        setAllSongs(json);
       } else {
         console.log("Ошибка HTTP: " + res.status);
       }
@@ -186,7 +187,7 @@ const App = () => {
         }
       }
       setIsSearching(false);
-    }, 1000);
+    }, 500);
   };
 
   const renderSearchResults = () => {
@@ -303,10 +304,8 @@ const App = () => {
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }
@@ -319,12 +318,9 @@ const App = () => {
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setAllSongs}
-              songs={allSongs}
               onSongSelect={handleSongSelect}
               userData={user}
             />
@@ -337,15 +333,10 @@ const App = () => {
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setAllSongs}
-              songs={allSongs}
               onSongSelect={handleSongSelect}
-              searchQuery={searchQuery}
-              isSearching={isSearching}
             />
           }
         />
@@ -356,12 +347,8 @@ const App = () => {
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              audioRef={audioRef}
-              setSongs={setAllSongs}
-              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }
@@ -377,8 +364,6 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
-              setSongs={setAllSongs}
-              songs={allSongs}
               onSongSelect={handleSongSelect}
             />
           }

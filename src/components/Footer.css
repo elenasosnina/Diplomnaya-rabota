@@ -17,13 +17,17 @@
 }
 
 .info {
-    font-family: "Nunito";
     font-size: 20px;
     color: white;
     padding-top: 10px;
     white-space: nowrap; 
+    cursor: pointer;
 }
-
+.info a{
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+}
 .footer-logo-name {
     display: flex;
     align-items: center; 

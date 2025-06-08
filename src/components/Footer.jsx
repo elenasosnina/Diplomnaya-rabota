@@ -31,8 +31,14 @@ const Footer = () => {
         </h1>
       </div>
       <div className="info">
-        <p>Правила пользования платформой</p>
-        <p>Политика конфиденциальности</p>
+        <a href="https://disk.yandex.ru/i/4f7EUQ9Q1nudNw">
+          Правила пользования платформой
+        </a>
+        <br />
+        <br />
+        <a href="https://disk.yandex.ru/i/OVXL1FlVMwdoIw">
+          Политика конфиденциальности
+        </a>
       </div>
     </footer>
   );
