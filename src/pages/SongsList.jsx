@@ -7,7 +7,6 @@ const SongsList = ({
   isPlaying,
   currentSong,
   currentTime,
-  duration,
   toggleSongPlay,
   onLikeChange,
   onSongSelect,

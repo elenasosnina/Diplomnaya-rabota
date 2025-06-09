@@ -12,13 +12,14 @@ const SingerPage = ({
   currentTime,
   toggleSongPlay,
   onSongSelect,
+  songs,
+  setSongs,
 }) => {
   const [isClicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [albums, setAlbums] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const heartRef = useRef(null);
-  const [songs, setSongs] = useState([]);
   const location = useLocation();
   const artist = location.state?.artist;
   const navigate = useNavigate();

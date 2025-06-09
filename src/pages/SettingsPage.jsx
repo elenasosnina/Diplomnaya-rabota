@@ -13,8 +13,8 @@ import {
 } from "../components/ModalWindows";
 
 const SettingsPage = ({ setUser }) => {
-  const [profilePicture, setProfilePicture] = useState(userCover);
-  const [backgroundPicture, setBackgroundPicture] = useState(userBack);
+  const [profileFile, setProfileFile] = useState();
+  const [backgroundFile, setBackgroundFile] = useState(userBack);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const [loginChangeInitiated, setLoginChangeInitiated] = useState(false);
@@ -30,20 +30,30 @@ const SettingsPage = ({ setUser }) => {
   const [birthDate, setBirthDate] = useState(
     userdb.toISOString().split("T")[0]
   );
-
-  const handleImageChange = (setter) => (event) => {
+  const [profilePicture, setProfilePicture] = useState(user.PhotoProfile);
+  const [backgroundPicture, setBackgroundPicture] = useState(
+    user.PhotoBackground || UserBackgroundDefault
+  );
+  const [message, setMessage] = useState();
+  const handleImageChange = (type) => (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setter(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (type === "profile") {
+        setProfilePicture(reader.result);
+        setProfileFile(file);
+      } else {
+        setBackgroundPicture(reader.result);
+        setBackgroundFile(file);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleProfilePictureChange = handleImageChange(setProfilePicture);
-  const handleBackgroundPictureChange = handleImageChange(setBackgroundPicture);
+  const handleProfilePictureChange = handleImageChange("profile");
+  const handleBackgroundPictureChange = handleImageChange("background");
 
   const handleImageClick = (inputId) => () => {
     document.getElementById(inputId).click();
@@ -98,13 +108,15 @@ const SettingsPage = ({ setUser }) => {
     setPasswordChangeSuccess,
     "passwordSuccess"
   );
+  const today = new Date();
+  const birthDateObj = birthDate ? new Date(birthDate) : null;
 
-  const handleSaveChanges = () => {
-    handleOpenModal("saveInfo");
-  };
-  const handleRefreshPage = () => {
-    window.location.reload();
-  };
+  const isInvalidBirthDate =
+    !birthDateObj ||
+    birthDateObj >= today ||
+    new Date(today.getFullYear() - birthDateObj.getFullYear()) < 15 ||
+    birthDateObj <
+      new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
 
   const deleteUser = async () => {
     try {
@@ -123,7 +135,63 @@ const SettingsPage = ({ setUser }) => {
       console.error("Ошибка", error);
     }
   };
+  const updateData = async (
+    id,
+    email,
+    username,
+    birthDate,
+    profileFile,
+    backgroundFile
+  ) => {
+    const url = `http://localhost:5000/api/settings/${id}`;
 
+    try {
+      const formData = new FormData();
+      formData.append("Email", email);
+      formData.append("Nickname", username);
+      formData.append("DateOfBirth", birthDate);
+      if (profileFile) {
+        formData.append("profileFile", profileFile);
+      }
+      if (backgroundFile) {
+        formData.append("backgroundFile", backgroundFile);
+      }
+      const res = await fetch(url, {
+        method: "PUT",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Ошибка:", data.error || data.message);
+      } else {
+        handleOpenModal("saveInfo");
+      }
+    } catch (error) {
+      console.error("Ошибка:", error);
+    }
+  };
+  const handleSaveChanges = () => {
+    const isValidEmail = (email) => {
+      const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+      return emailRegex.test(email);
+    };
+    if (!isValidEmail(email)) {
+      setMessage("Пожалуйста, введите корректный адрес электронной почты");
+      return;
+    } else {
+      updateData(
+        user.UserID,
+        email,
+        username,
+        birthDate,
+        profileFile,
+        backgroundFile
+      );
+    }
+  };
+  const handleRefreshPage = () => {
+    window.location.reload();
+  };
   const modalConfig = {
     saveInfo: {
       component: ModalWindowInformation,
@@ -214,7 +282,10 @@ const SettingsPage = ({ setUser }) => {
 
     return <ModalComponent {...modalProps} />;
   };
-
+  const isValidEmail = (email) => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return emailRegex.test(email);
+  };
   return (
     <div className="settings-page">
       <div className="settings-page-content">
@@ -223,13 +294,13 @@ const SettingsPage = ({ setUser }) => {
             <div id="list-example" className="list-group">
               <a
                 className="list-group-item list-group-item-action"
-                href="#list-item-1"
+                href="#profile"
               >
                 Профиль
               </a>
               <a
                 className="list-group-item list-group-item-action"
-                href="#list-item-2"
+                href="#security"
               >
                 Безопасность
               </a>
@@ -245,13 +316,13 @@ const SettingsPage = ({ setUser }) => {
           >
             <form className="settings-page-form">
               <div className="edit-images">
-                <h1 id="list-item-1">Редактирование профиля</h1>
+                <h1 id="profile">Редактирование профиля</h1>
                 <div>
                   <label>Фото профиля</label>
                   <div className="image-upload-wrapper">
                     <img
                       className="set-profile-photo"
-                      src={user.PhotoProfile}
+                      src={profilePicture}
                       alt="Profile"
                       onClick={handleProfilePictureClick}
                     />
@@ -270,7 +341,7 @@ const SettingsPage = ({ setUser }) => {
                   <div className="image-upload-wrapper">
                     <img
                       className="set-background-photo"
-                      src={user.PhotoBackground || UserBackgroundDefault}
+                      src={backgroundPicture}
                       alt="Background"
                       onClick={handleBackgroundPictureClick}
                     />
@@ -288,6 +359,7 @@ const SettingsPage = ({ setUser }) => {
 
               <div className="settings-form">
                 <div>
+                  {message ? <p>{message}</p> : null}
                   <label>Почта</label>
                   <input
                     type="email"
@@ -305,6 +377,7 @@ const SettingsPage = ({ setUser }) => {
                     className="form-control"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    maxLength={15}
                   />
                 </div>
                 <div className="form-group">
@@ -320,6 +393,14 @@ const SettingsPage = ({ setUser }) => {
                   className="btn btn-primary"
                   type="button"
                   onClick={handleSaveChanges}
+                  disabled={
+                    !email ||
+                    !username ||
+                    !birthDate ||
+                    !backgroundPicture ||
+                    !profilePicture ||
+                    isInvalidBirthDate
+                  }
                 >
                   Сохранить изменения
                 </button>
@@ -341,7 +422,7 @@ const SettingsPage = ({ setUser }) => {
               </div>
               <hr />
 
-              <h1 id="list-item-2">Безопасность</h1>
+              <h1 id="security">Безопасность</h1>
               <div className="secure-form">
                 <div>
                   <img src={loginIcon} alt="Login Icon" />

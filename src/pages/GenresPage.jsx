@@ -11,10 +11,11 @@ const GenresPage = ({
   toggleSongPlay,
   onLikeChange,
   onSongSelect,
+  songs,
+  setSongs,
 }) => {
   const location = useLocation();
   const genreItem = location.state?.genreItem;
-  const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

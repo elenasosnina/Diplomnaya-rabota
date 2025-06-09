@@ -71,17 +71,51 @@ const HelpPageContent = ({ setCurrentStep }) => {
 };
 
 const TechSupport = ({ setCurrentStep }) => {
+  const user = localStorage.getItem("user");
   const [text, setText] = useState("");
+  const [message, setMessage] = useState([]);
   const clearText = () => {
     setText("");
   };
   const handleChange = (event) => {
     setText(event.target.value);
   };
-  const handleSubmit = () => {
-    alert("Ваше сообщение отправлено!");
-    clearText();
+
+  const postMessage = async (user, text) => {
+    const urlSendMessage = "http://localhost:5000/api/technialSupport";
+
+    const data = {
+      UserID: user,
+      text: text,
+    };
+
+    try {
+      const result = await fetch(urlSendMessage, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const res = await result.json();
+
+      if (!result.ok) {
+        console.error("Ошибка:", res.error || res.message);
+        setMessage(res.message);
+      } else {
+        console.log("Успешно отправлено:", res);
+        setMessage("Сообщение успешно доставнено");
+        clearText();
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке запроса:", error);
+    }
   };
+  const handleSubmit = () => {
+    postMessage(user, text);
+  };
+
   return (
     <div className="help-page-content">
       <p
@@ -97,6 +131,7 @@ const TechSupport = ({ setCurrentStep }) => {
         Заметили неисправность? Сообщите нам при помощи инструмента технической
         поддержки. Вы можете сделать нас лучше.
       </p>
+      {message ? <p style={{ color: "white" }}>{String(message)}</p> : null}
       <div className="help-message">
         <textarea
           className="form-control"
@@ -106,11 +141,15 @@ const TechSupport = ({ setCurrentStep }) => {
           value={text}
         ></textarea>
         <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+          <button
+            className="help-page-btn"
+            onClick={handleSubmit}
+            disabled={!text}
+          >
+            Отправить
+          </button>
           <button className="help-page-btn" onClick={clearText}>
             Отменить
-          </button>
-          <button className="help-page-btn" onClick={handleSubmit}>
-            Отправить
           </button>
         </div>
       </div>
@@ -121,7 +160,6 @@ const TechSupport = ({ setCurrentStep }) => {
 const FAQ = ({ setCurrentStep, setSelectedQuestion }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [FAQ, setFAQ] = useState([]);
-
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };

@@ -16,12 +16,13 @@ const PlaylistPage = ({
   onLikeChange,
   audioRef,
   onSongSelect,
+  songs,
+  setSongs,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [songs, setSongs] = useState([]);
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);

@@ -114,19 +114,6 @@ const RegistrationEmail = ({ onNext }) => {
       />
       {emailError && <ErrorText>{emailError}</ErrorText>}
       <Button onClick={handleNext}>Далее</Button>
-      {/* <label style={{ fontSize: "12px" }}>Зарегистрируйтесь через почту</label>
-      <div className="socialMediaRegistration">
-        <img
-          src={emailPicture}
-          alt="Зарегистрироваться через почту"
-          aria-label="Зарегистрироваться через почту"
-        />
-        <img
-          src={vkPicture}
-          alt="Зарегистрироваться через VK"
-          aria-label="Зарегистрироваться через VK"
-        />
-      </div> */}
     </div>
   );
 };
@@ -358,6 +345,7 @@ const RegistrationProfile = ({ userData }) => {
         value={username}
         onChange={handleUsernameChange}
         error={!!usernameError}
+        maxLength={15}
       />
       {usernameError && <ErrorText>{usernameError}</ErrorText>}
       <div className="dateOfBirth">

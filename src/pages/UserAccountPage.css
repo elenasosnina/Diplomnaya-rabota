@@ -108,9 +108,19 @@
   display: flex;
   flex-direction: row;
   align-items: end;
+ 
+  width:1100px;
+}
+.photoes-user h1{
+  margin-left: 30px;
+margin-bottom: 0px;
+font-size: 50px;
+font-weight: bolder;
+word-spacing: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; 
   color: white;
 }
-
 .photoes-user img {
   width: 180px;
   height: 180px;

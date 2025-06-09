@@ -15,6 +15,8 @@ const UserAccountPage = ({
   onLikeChange,
   onSongSelect,
   userData,
+  songs,
+  setSongs,
 }) => {
   const [favoriteArtists, setFavoriteArtists] = useState([]);
   const [favoriteSongs, setFavoriteSongs] = useState([]);
@@ -46,6 +48,7 @@ const UserAccountPage = ({
         const res = await fetch(urlFavoriteSongs);
         if (res.ok) {
           let json = await res.json();
+          setSongs(json);
           setFavoriteSongs(json);
         } else {
           console.log("Ошибка" + res.status);
@@ -192,16 +195,7 @@ const UserAccountPage = ({
         />
         <div className="photoes-user">
           <img src={userData.PhotoProfile} alt="user cover" />
-          <h1
-            style={{
-              marginLeft: "30px",
-              marginBottom: "0px",
-              fontSize: "50px",
-              fontWeight: "bolder",
-            }}
-          >
-            {userData.Nickname}
-          </h1>
+          <h1>{userData.Nickname}</h1>
         </div>
       </div>
 

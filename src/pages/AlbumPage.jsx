@@ -17,10 +17,11 @@ const AlbumPage = ({
   onLikeChange,
   audioRef,
   onSongSelect,
+  songs,
+  setSongs,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
-  const [songs, setSongs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const handleOpenModal = (modalType) => {

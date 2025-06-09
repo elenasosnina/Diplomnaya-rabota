@@ -7,6 +7,9 @@ const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
 const bodyParser = require("body-parser");
+const nodemailer = require("nodemailer");
+
+const https = require("https");
 require("dotenv").config();
 const app = express();
 const PORT = 5000;
@@ -14,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
+var emailCheck = require("email-check");
 const dbConfig = {
   server: "SElena",
   database: "impulse",
@@ -233,7 +237,7 @@ app.get("/api/genres/songs/:GenreID", async (req, res) => {
     const result = await pool.request().input("GenreID", sql.Int, GenreID)
       .query(`
         SELECT 
-          Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, 
+          Songs.SongID, Songs.Title, Songs.Duration, 
           Albums.PhotoCover, Artists.Nickname 
         FROM Songs 
         INNER JOIN SongGenres ON Songs.SongID = SongGenres.SongID 
@@ -248,9 +252,7 @@ app.get("/api/genres/songs/:GenreID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
 
     res.json(songsWithDirectLinks);
@@ -285,7 +287,7 @@ app.get("/api/albums/songs/:AlbumID", async (req, res) => {
       .request()
       .input("AlbumID", sql.Int, AlbumID)
       .query(
-        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Albums.PhotoCover, Artists.Nickname FROM Songs
          INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
          INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
          INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
@@ -297,9 +299,7 @@ app.get("/api/albums/songs/:AlbumID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
 
     res.json(songsWithDirectLinks);
@@ -319,9 +319,7 @@ INNER JOIN Users ON Playlists.UserID = Users.UserID`);
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
     const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
     res.json(playlistsWithDirectLinks);
   } catch (err) {
@@ -337,7 +335,7 @@ app.get("/api/playlists/songs/:PlaylistID", async (req, res) => {
       .request()
       .input("PlaylistID", sql.Int, PlaylistID)
       .query(
-        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Albums.PhotoCover, Artists.Nickname FROM Songs
          INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
          INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
          INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
@@ -351,9 +349,7 @@ app.get("/api/playlists/songs/:PlaylistID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
     res.json(songsWithDirectLinks);
   } catch (err) {
@@ -418,7 +414,7 @@ app.get("/api/artists/songs/:ArtistID", async (req, res) => {
       .request()
       .input("ArtistID", sql.Int, ArtistID)
       .query(
-        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Albums.PhotoCover, Artists.Nickname FROM Songs
          INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
          INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
          INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
@@ -430,9 +426,7 @@ app.get("/api/artists/songs/:ArtistID", async (req, res) => {
     }
 
     const artistsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
 
     res.json(artistsWithDirectLinks);
@@ -480,7 +474,7 @@ app.get("/api/favouriteSongs/:UserID", async (req, res) => {
       .request()
       .input("UserID", sql.Int, UserID)
       .query(
-        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Songs.AudioFile, Albums.PhotoCover, Artists.Nickname FROM Songs
+        `SELECT Songs.SongID, Songs.Title, Songs.Duration, Albums.PhotoCover, Artists.Nickname FROM Songs
          INNER JOIN Albums ON Songs.AlbumID = Albums.AlbumID
          INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
          INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
@@ -494,9 +488,7 @@ app.get("/api/favouriteSongs/:UserID", async (req, res) => {
     }
 
     const songsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) =>
-        processYandexLinks(item, ["PhotoCover", "AudioFile"])
-      )
+      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
     );
 
     res.json(songsWithDirectLinks);
@@ -599,50 +591,6 @@ DELETE FROM Users WHERE UserID = @UserID;`);
     res.status(200).json({ message: "Пользователь успешно удален" });
   } catch (err) {
     return res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/api/stream/song/:SongID", async (req, res) => {
-  try {
-    const { SongID } = req.params;
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request().input("SongID", sql.Int, SongID).query(`
-        SELECT AudioFile FROM Songs WHERE SongID = @SongID
-      `);
-    if (result.recordset.length === 0) {
-      return res.status(404).json({ error: "Песня не найдена" });
-    }
-    const item = result.recordset[0];
-
-    if (!item.AudioFile) {
-      return res
-        .status(400)
-        .json({ error: "AudioFile не найден для этой песни" });
-    }
-
-    const publicKey = encodeURIComponent(item.AudioFile);
-    const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
-
-    try {
-      const response = await axios.get(directUrl);
-      const audioFileUrl = response.data.href;
-      await axios
-        .get(audioFileUrl, {
-          responseType: "stream",
-        })
-        .then((axiosResponse) => {
-          const stream = axiosResponse.data;
-          res.setHeader("Content-Type", "audio/mpeg");
-          res.setHeader("Accept-Ranges", "bytes");
-          stream.pipe(res);
-        });
-    } catch (yandexError) {
-      return res
-        .status(500)
-        .json({ error: "Ошибка при получении файла с Yandex Disk" });
-    }
-  } catch (err) {
-    res.status(500).json({ error: "Ошибка сервера" });
   }
 });
 
@@ -874,6 +822,187 @@ app.get("/api/songs", async (req, res) => {
     res.json(songsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+app.put(
+  "/api/settings/:UserID",
+  upload.fields([
+    { name: "profileFile", maxCount: 1 },
+    { name: "backgroundFile", maxCount: 1 },
+  ]),
+  async function (req, res) {
+    const UserID = req.params.UserID;
+    const { Email, Nickname, DateOfBirth } = req.body;
+
+    let PhotoProfileUrl = null;
+    let PhotoBackgroundUrl = null;
+
+    try {
+      if (req.files && req.files["backgroundFile"]) {
+        PhotoBackgroundUrl = await uploadToYandexDisk(
+          req.files["backgroundFile"][0]
+        );
+      }
+      if (req.files && req.files["profileFile"]) {
+        PhotoProfileUrl = await uploadToYandexDisk(req.files["profileFile"][0]);
+      }
+
+      const pool = await sql.connect(dbConfig);
+      const request = pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("Email", sql.VarChar, Email);
+
+      let updateQuery = `UPDATE Users SET Email = @Email`;
+      if (PhotoProfileUrl) {
+        request.input("PhotoProfile", sql.NVarChar, PhotoProfileUrl);
+        updateQuery += `, PhotoProfile = @PhotoProfile`;
+      }
+      if (PhotoBackgroundUrl) {
+        request.input("PhotoBackground", sql.NVarChar, PhotoBackgroundUrl);
+        updateQuery += `, PhotoBackground = @PhotoBackground`;
+      }
+      if (Nickname) {
+        request.input("Nickname", sql.VarChar, Nickname);
+        updateQuery += `, Nickname = @Nickname`;
+      }
+      if (DateOfBirth) {
+        request.input("DateOfBirth", sql.Date, new Date(DateOfBirth));
+        updateQuery += `, DateOfBirth = @DateOfBirth`;
+      }
+
+      updateQuery += ` WHERE UserID = @UserID`;
+
+      await request.query(updateQuery);
+      await pool.close();
+      return res.json({ message: "Пользователь успешно обновлен" });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "Ошибка сервера: " + error.message });
+    }
+  }
+);
+app.get("/api/stream/song/:SongID", async (req, res) => {
+  try {
+    const { SongID } = req.params;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request().input("SongID", sql.Int, SongID).query(`
+        SELECT AudioFile FROM Songs WHERE SongID = @SongID
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Песня не найдена" });
+    }
+
+    const item = result.recordset[0];
+
+    if (!item.AudioFile) {
+      return res
+        .status(400)
+        .json({ error: "AudioFile не найден для этой песни" });
+    }
+
+    const publicKey = encodeURIComponent(item.AudioFile);
+    const directUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${publicKey}`;
+
+    try {
+      const response = await axios.get(directUrl);
+      const audioFileUrl = response.data.href;
+
+      // Get the audio file size from Yandex Disk
+      const headResponse = await axios.head(audioFileUrl);
+      const fileSize = headResponse.headers["content-length"];
+      const range = req.headers.range;
+
+      if (range) {
+        let [start, end] = range.replace(/bytes=/, "").split("-");
+        start = parseInt(start, 10);
+        end = end ? parseInt(end, 10) : fileSize - 1;
+        const chunkSize = end - start + 1;
+        const headers = {
+          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Accept-Ranges": "bytes",
+          "Content-Length": chunkSize,
+          "Content-Type": "audio/mpeg",
+        };
+
+        res.writeHead(206, headers);
+
+        await axios
+          .get(audioFileUrl, {
+            responseType: "stream",
+            headers: {
+              Range: `bytes=${start}-${end}`,
+            },
+          })
+          .then((axiosResponse) => {
+            const stream = axiosResponse.data;
+            stream.pipe(res);
+          });
+      } else {
+        const headers = {
+          "Content-Length": fileSize,
+          "Content-Type": "audio/mpeg",
+          "Accept-Ranges": "bytes",
+        };
+        res.writeHead(200, headers);
+        await axios
+          .get(audioFileUrl, {
+            responseType: "stream",
+          })
+          .then((axiosResponse) => {
+            const stream = axiosResponse.data;
+            stream.pipe(res);
+          });
+      }
+    } catch (yandexError) {
+      return res
+        .status(500)
+        .json({ error: "Ошибка при получении файла с Yandex Disk" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Ошибка сервера" });
+  }
+});
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
+app.post("/api/technialSupport", async function (req, res) {
+  try {
+    const { UserID, text } = req.body;
+    const pool = await sql.connect(dbConfig);
+    const result = await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .query(`SELECT Nickname FROM Users WHERE UserID = @UserID`);
+    const transporter = nodemailer.createTransport({
+      host: "smtp.yandex.ru",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.YANDEX_EMAIL,
+        pass: process.env.YANDEX_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.YANDEX_EMAIL,
+      to: process.env.YANDEX_EMAIL,
+      subject: "Запрос в техническую поддержку",
+      text: `Пользователь: ${result.recordset[0].Nickname}\nСообщение: ${text}`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Письмо отправлено:", info.messageId);
+    return res.status(200).json({ message: "Письмо успешно отправлено!" });
+  } catch (error) {
+    console.error("Ошибка отправки:", error);
+    return res.status(500).json({ message: "Ошибка отправки письма" });
   }
 });
 app.listen(PORT, () => {

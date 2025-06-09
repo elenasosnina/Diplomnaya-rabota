@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -77,72 +77,77 @@ const App = () => {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef(null);
 
-  const Songsurl = "http://localhost:5000/api/songs";
-  const getSongsData = async () => {
+  const getSongsData = useCallback(async () => {
     try {
-      const res = await fetch(Songsurl);
+      const res = await fetch("http://localhost:5000/api/songs");
       if (res.ok) {
-        let json = await res.json();
+        const json = await res.json();
         setAllSongs(json);
-      } else {
-        console.log("Ошибка HTTP: " + res.status);
       }
     } catch (error) {
-      console.error("Ошибка при загрузке песен: ", error);
+      console.error("Ошибка при загрузке песен:", error);
     }
-  };
+  }, []);
 
-  const urlAlbums = "http://localhost:5000/api/albums";
-  const getDataAlbums = async () => {
-    try {
-      const res = await fetch(urlAlbums);
-      if (res.ok) {
-        let json = await res.json();
-        setAlbums(json);
-      } else {
-        console.log("Ошибка HTTP: " + res.status);
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке альбомов: ", error);
-    }
-  };
+  const getDataFavoriteSongs = useCallback(async () => {
+    if (!user?.UserID) return;
 
-  const urlPlaylists = "http://localhost:5000/api/playlists";
-  const getDataPlaylists = async () => {
     try {
-      const res = await fetch(urlPlaylists);
+      const res = await fetch(
+        `http://localhost:5000/api/favouriteSongs/${user.UserID}`
+      );
       if (res.ok) {
-        let json = await res.json();
-        setPlaylists(json);
-      } else {
-        console.log("Ошибка HTTP: " + res.status);
+        const favoriteSongs = await res.json();
+        const favoritesSet = new Set(favoriteSongs.map((song) => song.SongID));
+        setAllSongs((prevSongs) =>
+          prevSongs.map((song) => ({
+            ...song,
+            liked: favoritesSet.has(song.SongID),
+          }))
+        );
       }
     } catch (error) {
-      console.error("Ошибка при загрузке плейлистов: ", error);
+      console.error("Ошибка при загрузке избранных песен:", error);
     }
-  };
+  }, [user?.UserID]);
 
-  const urlArtists = "http://localhost:5000/api/artists";
-  const getDataArtists = async () => {
+  const getDataAlbums = useCallback(async () => {
     try {
-      const res = await fetch(urlArtists);
-      if (res.ok) {
-        let json = await res.json();
-        setArtists(json);
-      } else {
-        console.log("Ошибка HTTP: " + res.status);
-      }
+      const res = await fetch("http://localhost:5000/api/albums");
+      if (res.ok) setAlbums(await res.json());
     } catch (error) {
-      console.error("Ошибка при загрузке артистов: ", error);
+      console.error("Ошибка при загрузке альбомов:", error);
     }
-  };
+  }, []);
+
+  const getDataPlaylists = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/playlists");
+      if (res.ok) setPlaylists(await res.json());
+    } catch (error) {
+      console.error("Ошибка при загрузке плейлистов:", error);
+    }
+  }, []);
+
+  const getDataArtists = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/artists");
+      if (res.ok) setArtists(await res.json());
+    } catch (error) {
+      console.error("Ошибка при загрузке артистов:", error);
+    }
+  }, []);
 
   useEffect(() => {
     getSongsData();
     getDataAlbums();
     getDataPlaylists();
     getDataArtists();
-  }, []);
+  }, [getSongsData, getDataAlbums, getDataPlaylists, getDataArtists]);
+
+  useEffect(() => {
+    getDataFavoriteSongs();
+  }, [getDataFavoriteSongs]);
 
   useEffect(() => {
     if (location.pathname !== "/search") {
@@ -154,41 +159,44 @@ const App = () => {
     }
   }, [location.pathname]);
 
-  const handleSearchChange = (query) => {
-    setSearchQuery(query);
-    setIsSearching(true);
+  const handleSearchChange = useCallback(
+    (query) => {
+      setSearchQuery(query);
+      setIsSearching(true);
 
-    if (searchTimeout.current) {
-      clearTimeout(searchTimeout.current);
-    }
-
-    searchTimeout.current = setTimeout(() => {
-      if (query) {
-        const songResults = allSongs.filter((song) =>
-          song.Title?.toLowerCase().includes(query.toLowerCase())
-        );
-        const albumResults = albums.filter((album) =>
-          album.Title?.toLowerCase().includes(query.toLowerCase())
-        );
-        const artistResults = artists.filter((artist) =>
-          artist.Nickname?.toLowerCase().includes(query.toLowerCase())
-        );
-
-        setSearchResultsSongs(songResults);
-        setSearchResultsAlbums(albumResults);
-        setSearchResultsArtists(artistResults);
-      } else {
-        setIsSearching(false);
-        setSearchResultsSongs([]);
-        setSearchResultsAlbums([]);
-        setSearchResultsArtists([]);
-        if (location.pathname === "/search") {
-          navigate(-1);
-        }
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
       }
-      setIsSearching(false);
-    }, 500);
-  };
+
+      searchTimeout.current = setTimeout(() => {
+        if (query) {
+          const lowerQuery = query.toLowerCase();
+          setSearchResultsSongs(
+            allSongs.filter((song) =>
+              song.Title?.toLowerCase().includes(lowerQuery)
+            )
+          );
+          setSearchResultsAlbums(
+            albums.filter((album) =>
+              album.Title?.toLowerCase().includes(lowerQuery)
+            )
+          );
+          setSearchResultsArtists(
+            artists.filter((artist) =>
+              artist.Nickname?.toLowerCase().includes(lowerQuery)
+            )
+          );
+        } else {
+          setSearchResultsSongs([]);
+          setSearchResultsAlbums([]);
+          setSearchResultsArtists([]);
+          if (location.pathname === "/search") navigate(-1);
+        }
+        setIsSearching(false);
+      }, 500);
+    },
+    [allSongs, albums, artists, location.pathname, navigate]
+  );
 
   const renderSearchResults = () => {
     if (isSearching) {
@@ -202,9 +210,9 @@ const App = () => {
     }
 
     if (
-      searchResultsSongs?.length === 0 &&
-      searchResultsAlbums?.length === 0 &&
-      searchResultsArtists?.length === 0
+      !searchResultsSongs.length &&
+      !searchResultsAlbums.length &&
+      !searchResultsArtists.length
     ) {
       return (
         <div className="search-process">
@@ -217,7 +225,7 @@ const App = () => {
 
     return (
       <div className="search-results">
-        {searchResultsSongs?.length > 0 && (
+        {searchResultsSongs.length > 0 && (
           <>
             <h3>Треки</h3>
             <SongsList
@@ -232,7 +240,7 @@ const App = () => {
             />
           </>
         )}
-        {searchResultsAlbums?.length > 0 && (
+        {searchResultsAlbums.length > 0 && (
           <>
             <h3>Альбомы</h3>
             <div className="media-albums">
@@ -241,15 +249,13 @@ const App = () => {
                   key={`album-${album.AlbumID}`}
                   item={album}
                   type="album"
-                  onClick={() => {
-                    navigate("/album", { state: { album } });
-                  }}
+                  onClick={() => navigate("/album", { state: { album } })}
                 />
               ))}
             </div>
           </>
         )}
-        {searchResultsArtists?.length > 0 && (
+        {searchResultsArtists.length > 0 && (
           <>
             <h3>Артисты</h3>
             <div className="media-artist">
@@ -258,9 +264,7 @@ const App = () => {
                   key={`artist-${artist.ArtistID}`}
                   item={artist}
                   type="artist"
-                  onClick={() => {
-                    navigate("/singer", { state: { artist } });
-                  }}
+                  onClick={() => navigate("/singer", { state: { artist } })}
                 />
               ))}
             </div>
@@ -272,16 +276,17 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      {location.pathname !== "/login" &&
-        location.pathname !== "/recoveryPassword" &&
-        location.pathname !== "/registration" && (
-          <Header
-            user={user}
-            setUser={setUser}
-            onSearchChange={handleSearchChange}
-            searchQuery={searchQuery}
-          />
-        )}
+      {!["/login", "/recoveryPassword", "/registration"].includes(
+        location.pathname
+      ) && (
+        <Header
+          user={user}
+          setUser={setUser}
+          onSearchChange={handleSearchChange}
+          searchQuery={searchQuery}
+        />
+      )}
+
       <Routes>
         <Route path="/Diplomnaya-rabota/" element={<Main />} />
         <Route
@@ -307,6 +312,8 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               onSongSelect={handleSongSelect}
+              setSongs={setSongs}
+              songs={songs}
             />
           }
         />
@@ -323,6 +330,8 @@ const App = () => {
               audioRef={audioRef}
               onSongSelect={handleSongSelect}
               userData={user}
+              setSongs={setSongs}
+              songs={songs}
             />
           }
         />
@@ -337,6 +346,8 @@ const App = () => {
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
               onSongSelect={handleSongSelect}
+              setSongs={setSongs}
+              songs={songs}
             />
           }
         />
@@ -350,6 +361,8 @@ const App = () => {
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               onSongSelect={handleSongSelect}
+              setSongs={setSongs}
+              songs={songs}
             />
           }
         />
@@ -360,11 +373,12 @@ const App = () => {
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               audioRef={audioRef}
               onSongSelect={handleSongSelect}
+              setSongs={setSongs}
+              songs={songs}
             />
           }
         />
@@ -378,25 +392,26 @@ const App = () => {
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
-              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              songs={allSongs}
               onSongSelect={handleSongSelect}
+              songs={songs}
             />
           }
         />
         <Route path="/search" element={renderSearchResults()} />
       </Routes>
-      {location.pathname !== "/login" &&
-        location.pathname !== "/recoveryPassword" &&
-        location.pathname !== "/registration" && <Footer />}
-      {location.pathname !== "/login" &&
-        location.pathname !== "/recoveryPassword" &&
-        location.pathname !== "/registration" &&
-        location.pathname !== "/Diplomnaya-rabota/" && (
+
+      {![
+        "/login",
+        "/recoveryPassword",
+        "/registration",
+        "/Diplomnaya-rabota/",
+      ].includes(location.pathname) && (
+        <>
+          <Footer />
           <Player
-            key={currentSong ? currentSong.SongID : "no-song"}
+            key={currentSong?.SongID || "no-song"}
             currentSong={currentSong}
             isPlaying={isPlaying}
             onTogglePlay={togglePlay}
@@ -407,7 +422,7 @@ const App = () => {
             onLikeChange={handleLikeChange}
             playNextSong={playNextSong}
             playPreviousSong={playPreviousSong}
-            songs={allSongs}
+            songs={songs}
             onSongSelect={handleSongSelect}
             isShuffle={isShuffle}
             onToggleShuffle={toggleShuffle}
@@ -416,7 +431,8 @@ const App = () => {
             isMaximized={isMaximized}
             setIsMaximized={setIsMaximized}
           />
-        )}
+        </>
+      )}
     </div>
   );
 };
