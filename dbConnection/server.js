@@ -576,21 +576,24 @@ app.delete("/api/user/settings/:UserID", async (req, res) => {
   try {
     const { UserID } = req.params;
     const pool = await sql.connect(dbConfig);
-    const result = await pool.request().input("UserID", sql.Int, UserID)
-      .query(`DELETE FROM FavoriteArtists WHERE UserID = @UserID;
-DELETE FROM FavoriteAlbums WHERE UserID = @UserID;
-DELETE FROM FavoriteSongs WHERE UserID = @UserID;
-DELETE FROM FavoritePlaylists WHERE UserID = @UserID;
-DELETE FROM FavoritePlaylists WHERE PlaylistID IN (SELECT PlaylistID FROM Playlists WHERE UserID = @UserID);
-DELETE FROM PlaylistSongs WHERE PlaylistID IN (SELECT PlaylistID FROM Playlists WHERE UserID = @UserID);
-DELETE FROM Playlists WHERE UserID = @UserID;
-DELETE FROM Users WHERE UserID = @UserID;`);
-    if (result.rowsAffected[0] === 0) {
-      return res.status(401).json({ error: "Пользователь не найден" });
-    }
+
+    const result = await pool.request().input("UserID", sql.Int, UserID).query(`
+        DELETE FROM FavoriteArtists WHERE UserID = @UserID;
+        DELETE FROM FavoriteAlbums WHERE UserID = @UserID;
+        DELETE FROM FavoriteSongs WHERE UserID = @UserID;
+        DELETE FROM FavoritePlaylists 
+        WHERE PlaylistID IN (SELECT PlaylistID FROM Playlists WHERE UserID = @UserID);
+        DELETE FROM PlaylistSongs 
+        WHERE PlaylistID IN (SELECT PlaylistID FROM Playlists WHERE UserID = @UserID);
+        DELETE FROM Playlists WHERE UserID = @UserID;
+        DELETE FROM FavoritePlaylists WHERE UserID = @UserID;
+        DELETE FROM Users WHERE UserID = @UserID;
+      `);
+
     res.status(200).json({ message: "Пользователь успешно удален" });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error("Ошибка при удалении пользователя:", err);
+    res.status(500).json({ error: "Ошибка при удалении пользователя" });
   }
 });
 
@@ -910,8 +913,6 @@ app.get("/api/stream/song/:SongID", async (req, res) => {
     try {
       const response = await axios.get(directUrl);
       const audioFileUrl = response.data.href;
-
-      // Get the audio file size from Yandex Disk
       const headResponse = await axios.head(audioFileUrl);
       const fileSize = headResponse.headers["content-length"];
       const range = req.headers.range;
@@ -966,9 +967,7 @@ app.get("/api/stream/song/:SongID", async (req, res) => {
     res.status(500).json({ error: "Ошибка сервера" });
   }
 });
-const agent = new https.Agent({
-  rejectUnauthorized: false,
-});
+
 app.post("/api/technialSupport", async function (req, res) {
   try {
     const { UserID, text } = req.body;
@@ -1003,6 +1002,68 @@ app.post("/api/technialSupport", async function (req, res) {
   } catch (error) {
     console.error("Ошибка отправки:", error);
     return res.status(500).json({ message: "Ошибка отправки письма" });
+  }
+});
+app.post("/api/sendConfirmCode", async function (req, res) {
+  try {
+    const { email, nickname } = req.body;
+    const transporter = nodemailer.createTransport({
+      host: "smtp.yandex.ru",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.YANDEX_EMAIL,
+        pass: process.env.YANDEX_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+    const code = "" + Math.floor(1000 + Math.random() * 9000);
+    const emailValid = await emailCheck(email);
+
+    if (!emailValid) {
+      console.log("Ошибка почты", email);
+      return res
+        .status(400)
+        .json({ message: "Адрес электронной почты не существует" });
+    } else {
+      const mailOptions = {
+        from: process.env.YANDEX_EMAIL,
+        to: email,
+        subject: "Запрос в техническую поддержку",
+        text: `Пользователь: ${nickname}\nКод подтверждения: ${code}`,
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Письмо отправлено:", info.messageId);
+      return res.status(200).json({ code: code });
+    }
+  } catch (error) {
+    console.error("Ошибка отправки:", error);
+    return res.status(500).json({ message: "Ошибка отправки письма" });
+  }
+});
+app.put("/api/changeLogin/:UserID", async function (req, res) {
+  const UserID = req.params.UserID;
+  const { login } = req.body;
+
+  try {
+    const pool = await sql.connect(dbConfig);
+    const request = pool.request();
+    request.input("UserID", sql.Int, UserID);
+    request.input("Login", sql.VarChar, login);
+
+    const result = await request.query(
+      `UPDATE Users SET Login = @Login WHERE UserID = @UserID`
+    );
+    await pool.close();
+    return res
+      .status(200)
+      .json({ message: "Логин пользователя успешно обновлен" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Ошибка сервера: " + error.message });
   }
 });
 app.listen(PORT, () => {

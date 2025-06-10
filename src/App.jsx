@@ -23,7 +23,6 @@ import ManageMusic from "./components/ManageMusic";
 import AlbumSongs from "./pages/AlbumPage";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
-import RecoveryPasswordPage from "./pages/RecoveryPasswordPage";
 import Media from "./components/Media";
 import GenresPage from "./pages/GenresPage";
 
@@ -301,7 +300,6 @@ const App = () => {
           }
         />
         <Route path="/settings" element={<SettingsPage setUser={setUser} />} />
-        <Route path="/recoveryPassword" element={<RecoveryPasswordPage />} />
         <Route
           path="/songs-genres"
           element={

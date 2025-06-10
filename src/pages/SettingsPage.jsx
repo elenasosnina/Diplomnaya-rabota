@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./SettingsPage.css";
-import userCover from "../assets/bibi.jpg";
 import userBack from "../assets/bibi_back.jpg";
 import loginIcon from "../assets/login.png";
 import passwordIcon from "../assets/password.png";
@@ -13,8 +12,8 @@ import {
 } from "../components/ModalWindows";
 
 const SettingsPage = ({ setUser }) => {
-  const [profileFile, setProfileFile] = useState();
-  const [backgroundFile, setBackgroundFile] = useState(userBack);
+  const [profileFile, setProfileFile] = useState(null);
+  const [backgroundFile, setBackgroundFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const [loginChangeInitiated, setLoginChangeInitiated] = useState(false);
@@ -24,17 +23,31 @@ const SettingsPage = ({ setUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = location.state?.user;
-  const [email, setEmail] = useState(user.Email);
-  const [username, setUsername] = useState(user.Nickname);
-  const userdb = new Date(user.DateOfBirth);
-  const [birthDate, setBirthDate] = useState(
-    userdb.toISOString().split("T")[0]
-  );
-  const [profilePicture, setProfilePicture] = useState(user.PhotoProfile);
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [profilePicture, setProfilePicture] = useState("");
   const [backgroundPicture, setBackgroundPicture] = useState(
-    user.PhotoBackground || UserBackgroundDefault
+    UserBackgroundDefault
   );
-  const [message, setMessage] = useState();
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setEmail(user.Email || "");
+      setUsername(user.Nickname || "");
+      const userdb = new Date(user.DateOfBirth);
+      setBirthDate(userdb.toISOString().split("T")[0] || "");
+      setProfilePicture(user.PhotoProfile || "");
+
+      if (user.PhotoBackground) {
+        setBackgroundPicture(user.PhotoBackground);
+      } else {
+        setBackgroundPicture(UserBackgroundDefault);
+      }
+    }
+  }, [user]);
+
   const handleImageChange = (type) => (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -85,13 +98,15 @@ const SettingsPage = ({ setUser }) => {
 
   const handleLoginChangeFlow = handleChangeFlow(
     setLoginChangeInitiated,
+    "loginInfo",
     "changeLogin",
-    "loginInfo"
+    "loginSuccess"
   );
   const handlePasswordChangeFlow = handleChangeFlow(
     setPasswordChangeInitiated,
+    "passwordInfo",
     "changePassword",
-    "passwordInfo"
+    "passwordSuccess"
   );
 
   const handleChangeSuccess = (setter, successModalType) => () => {
@@ -114,9 +129,10 @@ const SettingsPage = ({ setUser }) => {
   const isInvalidBirthDate =
     !birthDateObj ||
     birthDateObj >= today ||
-    new Date(today.getFullYear() - birthDateObj.getFullYear()) < 15 ||
-    birthDateObj <
-      new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+    (birthDateObj && today.getFullYear() - birthDateObj.getFullYear() < 15) ||
+    (birthDateObj &&
+      birthDateObj <
+        new Date(today.getFullYear() - 120, today.getMonth(), today.getDate()));
 
   const deleteUser = async () => {
     try {
@@ -124,15 +140,20 @@ const SettingsPage = ({ setUser }) => {
       const res = await fetch(urlDeleteUser, {
         method: "DELETE",
       });
-      if (res.ok) {
-        setUser(null);
-        navigate("/main");
-        handleCloseModal();
-      } else {
-        console.log("Ошибка" + res.status);
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Не удалось удалить пользователя");
       }
+
+      setUser(null);
+      localStorage.removeItem("user");
+      navigate("/main");
+      handleCloseModal();
     } catch (error) {
-      console.error("Ошибка", error);
+      console.error("Ошибка:", error.message);
+      alert(error.message);
     }
   };
   const updateData = async (
@@ -163,11 +184,14 @@ const SettingsPage = ({ setUser }) => {
       const data = await res.json();
       if (!res.ok) {
         console.error("Ошибка:", data.error || data.message);
+        setMessage(data.error || data.message);
       } else {
         handleOpenModal("saveInfo");
+        setMessage("");
       }
     } catch (error) {
       console.error("Ошибка:", error);
+      setMessage("Произошла ошибка при обновлении данных.");
     }
   };
   const handleSaveChanges = () => {
@@ -179,6 +203,7 @@ const SettingsPage = ({ setUser }) => {
       setMessage("Пожалуйста, введите корректный адрес электронной почты");
       return;
     } else {
+      setMessage("");
       updateData(
         user.UserID,
         email,
@@ -231,6 +256,7 @@ const SettingsPage = ({ setUser }) => {
         onSuccess: handleLoginChangeSuccess,
         showCancelButton: true,
         confirmButtonText: "Подтвердить",
+        user: user,
       },
     },
     changePassword: {
@@ -265,7 +291,9 @@ const SettingsPage = ({ setUser }) => {
         message: "Если вы удалите аккаунт то все данные потеряются",
         showCancelButton: true,
         confirmButtonText: "Подтвердить",
-        onConfirm: deleteUser,
+        onConfirm: () => {
+          deleteUser();
+        },
         onCancel: handleCloseModal,
       },
     },
@@ -278,14 +306,12 @@ const SettingsPage = ({ setUser }) => {
     const modalProps = {
       ...modalConfig[currentModal].props,
       onClose: handleCloseModal,
+      setUser: setUser,
     };
 
     return <ModalComponent {...modalProps} />;
   };
-  const isValidEmail = (email) => {
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    return emailRegex.test(email);
-  };
+
   return (
     <div className="settings-page">
       <div className="settings-page-content">
@@ -359,7 +385,7 @@ const SettingsPage = ({ setUser }) => {
 
               <div className="settings-form">
                 <div>
-                  {message ? <p>{message}</p> : null}
+                  {message && <p className="error-message">{message}</p>}
                   <label>Почта</label>
                   <input
                     type="email"
@@ -394,12 +420,7 @@ const SettingsPage = ({ setUser }) => {
                   type="button"
                   onClick={handleSaveChanges}
                   disabled={
-                    !email ||
-                    !username ||
-                    !birthDate ||
-                    !backgroundPicture ||
-                    !profilePicture ||
-                    isInvalidBirthDate
+                    !email || !username || !birthDate || isInvalidBirthDate
                   }
                 >
                   Сохранить изменения

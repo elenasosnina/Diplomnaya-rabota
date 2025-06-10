@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import loginPicture from "../assets/login.jpg";
-// import emailPicture from "../assets/email.png";
-// import vkPicture from "../assets/icon2.png";
 import "./RegistrationPage.css";
 import * as RegistrationComponents from "./RegistrationPage.jsx";
 const { ErrorText, TextBox, Label, Button } = RegistrationComponents;
@@ -115,12 +113,6 @@ const LoginPage = ({ setUser }) => {
             error={passwordError}
           />
           <Button onClick={handleEnterence}>Войти</Button>
-          <label
-            className="loginForm__label--hyperlink"
-            onClick={() => handleNavigation("/recoveryPassword")}
-          >
-            Забыли пароль? Восстановите пароль
-          </label>
           <label
             className="loginForm__label--hyperlink"
             onClick={() => handleNavigation("/registration")}

@@ -8,7 +8,7 @@
 }
 
 .settings-page-form {
-  min-width: 800px;
+  min-width: 800px; 
 }
 
 .settings-page-form label {
@@ -23,12 +23,13 @@
 }
 
 .settings-nav {
-  position: fixed;
+  position: fixed;  
   top: 100px;
   z-index: 0;
   background-color: rgb(79, 15, 255);
   padding: 10px;
   min-width: 200px;
+  height: fit-content; 
 }
 
 .settings-nav a {
@@ -49,7 +50,7 @@
   gap: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  flex-direction: row-reverse;
+  flex-direction: row-reverse; 
 }
 
 #list-example {
@@ -149,12 +150,12 @@
 .image-upload-wrapper {
   position: relative;
   display: inline-block;
+  width: 650px;
 }
 
 .image-container {
   position: relative;
   display: inline-block;
-  /* Чтобы контейнер не занимал всю ширину */
 }
 
 .image-container:hover::before {

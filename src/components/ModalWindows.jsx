@@ -583,7 +583,11 @@ const ModalWindowInformation = ({
   showCancelButton = true,
   confirmButtonText = "Подтвердить",
 }) => {
-  const navigate = useNavigate();
+  const handleConfirm = () => {
+    if (onConfirm) {
+      onConfirm();
+    }
+  };
 
   return (
     <div className="modal-overlay">
@@ -600,39 +604,96 @@ const ModalWindowInformation = ({
               Отмена
             </button>
           )}
-          {onConfirm ? (
-            <button className="save-playlist" onClick={onConfirm}>
-              {confirmButtonText}
-            </button>
-          ) : (
-            <button
-              className="save-playlist"
-              onClick={() => {
-                navigate("/main");
-              }}
-            >
-              {confirmButtonText}
-            </button>
-          )}
+          <button className="save-playlist" onClick={handleConfirm}>
+            {confirmButtonText}
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-const ChangeLoginModal = ({ onClose, onSuccess }) => {
+const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
   const [login, setLogin] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
+  const [userCode, setUserCode] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleCodeCheck = async (e) => {
     e.preventDefault();
-    setShowConfirmation(true);
+    if (confirmationCode === userCode) {
+      await updateLogin();
+    } else {
+      alert("Код подтверждения не совпадает.");
+    }
+  };
+
+  const updateLogin = async () => {
+    const url = `http://localhost:5000/api/changeLogin/${user.UserID}`;
+    try {
+      const result = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ login: login }),
+      });
+      const answer = await result.json();
+
+      if (answer && answer.message) {
+        console.log("Успешно:", answer.message);
+        onSuccess();
+      } else {
+        console.error("Ошибка сервера:", answer);
+      }
+    } catch (error) {
+      console.error("Ошибка сети или другая:", error);
+    }
   };
 
   const handleConfirmationSubmit = (e) => {
     e.preventDefault();
-    onSuccess();
+    handleCodeCheck(e);
+  };
+
+  const postMessage = async (user) => {
+    const urlSendMessage = "http://localhost:5000/api/sendConfirmCode";
+
+    const data = {
+      email: user.Email,
+      nickname: user.Nickname,
+    };
+
+    try {
+      const result = await fetch(urlSendMessage, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const res = await result.json();
+
+      if (!result.ok) {
+        console.error("Ошибка:", res.error || res.message);
+      } else {
+        setConfirmationCode(res.code);
+        setShowConfirmation(true);
+        console.log("Успешно отправлено:", res);
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке запроса:", error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await postMessage(user);
+  };
+
+  const handleUserCodeChange = (e) => {
+    setUserCode(e.target.value);
   };
 
   return (
@@ -646,7 +707,7 @@ const ChangeLoginModal = ({ onClose, onSuccess }) => {
           <form onSubmit={handleSubmit} className="settings-form">
             <div>
               <p>
-                Код подтверждения будет отправлен по адресу почты: @gmail.com{" "}
+                Код подтверждения будет отправлен по адресу почты: {user.Email}
               </p>
               <label>Новый логин</label>
               <input
@@ -681,8 +742,8 @@ const ChangeLoginModal = ({ onClose, onSuccess }) => {
               <input
                 type="text"
                 className="form-control"
-                value={confirmationCode}
-                onChange={(e) => setConfirmationCode(e.target.value)}
+                value={userCode}
+                onChange={handleUserCodeChange}
               />
             </div>
             <div className="buttons-playlist">
