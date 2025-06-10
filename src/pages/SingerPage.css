@@ -30,12 +30,14 @@
     flex-direction: row;
     align-items: end;
     color: white;
+ 
 }
 
 .photoes-artist img {
     width: 180px;
     height: 180px;
     border-radius: 50%;
+       object-fit: cover;
 }
 
 .btn-add {

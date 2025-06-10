@@ -618,13 +618,13 @@ const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
   const [userCode, setUserCode] = useState("");
-
+  const [error, setError] = useState("");
   const handleCodeCheck = async (e) => {
     e.preventDefault();
     if (confirmationCode === userCode) {
       await updateLogin();
     } else {
-      alert("Код подтверждения не совпадает.");
+      setError("Ваш код проверки не действителен");
     }
   };
 
@@ -677,9 +677,11 @@ const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
 
       if (!result.ok) {
         console.error("Ошибка:", res.error || res.message);
+        setError("Ваша электронная почта не найдена");
       } else {
         setConfirmationCode(res.code);
         setShowConfirmation(true);
+
         console.log("Успешно отправлено:", res);
       }
     } catch (error) {
@@ -706,9 +708,13 @@ const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
         {!showConfirmation ? (
           <form onSubmit={handleSubmit} className="settings-form">
             <div>
-              <p>
+              <p style={{ margin: "0" }}>
                 Код подтверждения будет отправлен по адресу почты: {user.Email}
               </p>
+              <p style={{ color: "red", fontSize: "small", margin: "0" }}>
+                {error ? error : " "}
+              </p>
+
               <label>Новый логин</label>
               <input
                 type="text"
@@ -721,7 +727,11 @@ const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
               <button className="create-playlist" onClick={onClose}>
                 Отмена
               </button>
-              <button className="save-playlist" type="submit">
+              <button
+                className="save-playlist"
+                type="submit"
+                disabled={!login || login.trim() === ""}
+              >
                 Подтвердить
               </button>
             </div>
@@ -729,6 +739,9 @@ const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
         ) : (
           <form onSubmit={handleConfirmationSubmit} className="settings-form">
             <div>
+              <p style={{ color: "red", fontSize: "small", margin: "0" }}>
+                {error ? error : " "}
+              </p>
               <label>Ваш новый логин</label>
               <input
                 type="text"

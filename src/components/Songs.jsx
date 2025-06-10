@@ -55,13 +55,6 @@ const Songs = ({
 
   const options = [
     {
-      label: "Поделиться",
-      action: () => {
-        console.log("Поделиться нажато");
-        handleOpenModal("share");
-      },
-    },
-    {
       label: "Добавить в плейлист",
       action: () => {
         console.log("Добавить в плейлист нажато");

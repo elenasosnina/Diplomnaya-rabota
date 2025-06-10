@@ -162,7 +162,7 @@ const SingerPage = ({
                 item={album}
                 type="album"
                 onClick={() =>
-                  navigate("/album", {
+                  navigate(`/album/${album.AlbumID}`, {
                     state: {
                       album: album,
                     },
@@ -174,7 +174,7 @@ const SingerPage = ({
           <button
             className="album-more"
             onClick={() =>
-              navigate("/albumList", {
+              navigate(`/albumList`, {
                 state: {
                   albums: albums,
                 },

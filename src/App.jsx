@@ -248,7 +248,9 @@ const App = () => {
                   key={`album-${album.AlbumID}`}
                   item={album}
                   type="album"
-                  onClick={() => navigate("/album", { state: { album } })}
+                  onClick={() =>
+                    navigate(`/album/${album.AlbumID}`, { state: { album } })
+                  }
                 />
               ))}
             </div>
@@ -263,7 +265,11 @@ const App = () => {
                   key={`artist-${artist.ArtistID}`}
                   item={artist}
                   type="artist"
-                  onClick={() => navigate("/singer", { state: { artist } })}
+                  onClick={() =>
+                    navigate(`/singer/${artist.ArtistID}`, {
+                      state: { artist },
+                    })
+                  }
                 />
               ))}
             </div>
@@ -301,7 +307,7 @@ const App = () => {
         />
         <Route path="/settings" element={<SettingsPage setUser={setUser} />} />
         <Route
-          path="/songs-genres"
+          path="/songs-genres/:genreID"
           element={
             <GenresPage
               isPlaying={isPlaying}
@@ -334,7 +340,7 @@ const App = () => {
           }
         />
         <Route
-          path="/playlist"
+          path="/playlist/:playlistID"
           element={
             <PlaylistPage
               isPlaying={isPlaying}
@@ -350,7 +356,7 @@ const App = () => {
           }
         />
         <Route
-          path="/singer"
+          path="/singer/:singerID"
           element={
             <SingerPage
               isPlaying={isPlaying}
@@ -365,7 +371,7 @@ const App = () => {
           }
         />
         <Route
-          path="/album"
+          path="/album/:albumID"
           element={
             <AlbumSongs
               isPlaying={isPlaying}

@@ -29,7 +29,11 @@ const MainPage = ({ songs, albums, playlists, artists }) => {
     return (
       <div
         className="main-genre-card"
-        onClick={() => navigate("/songs-genres", { state: { genreItem } })}
+        onClick={() =>
+          navigate(`/songs-genres/${genreItem.GenreID}`, {
+            state: { genreItem },
+          })
+        }
       >
         <img
           className="image-genre"
@@ -42,15 +46,15 @@ const MainPage = ({ songs, albums, playlists, artists }) => {
   };
 
   const navigateToAlbum = (album) => {
-    navigate("/album", { state: { album } });
+    navigate(`/album/${album.AlbumID}`, { state: { album } });
   };
 
   const navigateToSinger = (artist) => {
-    navigate("/singer", { state: { artist } });
+    navigate(`/singer/${artist.ArtistID}`, { state: { artist } });
   };
 
   const navigateToPlaylist = (playlist) => {
-    navigate("/playlist", { state: { playlist } });
+    navigate(`/playlist/${playlist.PlaylistID}`, { state: { playlist } });
   };
 
   return (

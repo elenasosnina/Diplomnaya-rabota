@@ -975,7 +975,7 @@ app.post("/api/technialSupport", async function (req, res) {
     const result = await pool
       .request()
       .input("UserID", sql.Int, UserID)
-      .query(`SELECT Nickname FROM Users WHERE UserID = @UserID`);
+      .query(`SELECT Nickname, Email FROM Users WHERE UserID = @UserID`);
     const transporter = nodemailer.createTransport({
       host: "smtp.yandex.ru",
       port: 465,
@@ -993,7 +993,7 @@ app.post("/api/technialSupport", async function (req, res) {
       from: process.env.YANDEX_EMAIL,
       to: process.env.YANDEX_EMAIL,
       subject: "Запрос в техническую поддержку",
-      text: `Пользователь: ${result.recordset[0].Nickname}\nСообщение: ${text}`,
+      text: `Пользователь: ${result.recordset[0].Nickname}\nПочта: ${result.recordset[0].Email}\nСообщение: ${text}`,
     };
 
     const info = await transporter.sendMail(mailOptions);

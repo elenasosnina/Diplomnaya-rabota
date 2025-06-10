@@ -125,7 +125,7 @@ const AlbumPage = ({
               message={"Выбранный альбом добавлен в Избранное"}
             />
           )}
-          <div className="main-timing">1ч 24м</div>
+          <div className="main-timing"></div>
         </div>
         <div className="album-page-info">
           <div className="album-page-tracklist">

@@ -9,7 +9,7 @@ const Album = ({ album }) => {
     <div
       className="album-component-cover"
       onClick={() =>
-        navigate("/album", {
+        navigate(`/album/${album.AlbumID}`, {
           state: {
             album: album,
           },

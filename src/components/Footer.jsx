@@ -1,17 +1,12 @@
 import React, { useState } from "react";
 import "./Footer.css";
-import icon1 from "../assets/icon1.png";
-import icon2 from "../assets/icon2.png";
-import icon3 from "../assets/icon3.png";
 import companyLogo from "../assets/sound-wave.png";
-const icons = [icon1, icon2, icon3];
+import icon1 from "../assets/icon1.png";
 const Footer = () => {
   return (
     <footer className="footer">
       <div className="icons">
-        {icons.map((icon, index) => (
-          <img key={index} src={icon} width={index === 2 ? 70 : 60} />
-        ))}
+        <img src={icon1} width="70" href={"https://t.me/impulseOfficialSite"} />
       </div>
       <div className="info">
         <p style={{ fontSize: "35px" }}>

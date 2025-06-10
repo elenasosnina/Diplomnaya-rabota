@@ -260,7 +260,7 @@ const UserAccountPage = ({
                     item={artist}
                     type="artist"
                     onClick={() =>
-                      navigate("/singer", {
+                      navigate(`/singer/${artist.ArtistID}`, {
                         state: { artist: artist },
                       })
                     }
@@ -295,7 +295,7 @@ const UserAccountPage = ({
                     item={playlist}
                     type="album"
                     onClick={() =>
-                      navigate("/playlist", {
+                      navigate(`/playlist/${playlist.PlaylistID}`, {
                         state: { playlist: playlist },
                       })
                     }
@@ -307,7 +307,13 @@ const UserAccountPage = ({
             {activeCategory === "Альбомы" && (
               <div className="favourites-albums">
                 {favoriteAlbums.map((album) => (
-                  <Album key={album.AlbumID} album={album} />
+                  <Album
+                    key={album.AlbumID}
+                    album={album}
+                    onClick={() =>
+                      navigate(`/album/${album.AlbumID}`, { state: { album } })
+                    }
+                  />
                 ))}
               </div>
             )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./GenresPage.css";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import coverSong from "../assets/party.webp";
 import Songs from "../components/Songs";
 
@@ -17,7 +17,7 @@ const GenresPage = ({
   const location = useLocation();
   const genreItem = location.state?.genreItem;
   const [loading, setLoading] = useState(true);
-
+  const { genreID } = useParams();
   useEffect(() => {
     const fetchData = async () => {
       if (!genreItem || !genreItem.GenreID) {
