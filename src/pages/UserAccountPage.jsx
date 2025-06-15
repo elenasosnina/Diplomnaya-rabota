@@ -19,15 +19,12 @@ const UserAccountPage = ({
   setSongs,
 }) => {
   const [favoriteArtists, setFavoriteArtists] = useState([]);
-  const [favoriteSongs, setFavoriteSongs] = useState([]);
   const [favoriteAlbums, setFavoriteAlbums] = useState([]);
   const [favoritePlaylists, setFavoritePlaylists] = useState([]);
   const [makePlaylists, setMakePlaylists] = useState([]);
-  const location = useLocation();
-  const user = localStorage.getItem("user");
 
   useEffect(() => {
-    const urlFavoriteArtists = `http://localhost:5000/api/favouriteArtists/${user}`;
+    const urlFavoriteArtists = `http://localhost:5000/api/favouriteArtists/${userData.UserID}`;
     const getDataFavoriteArtists = async () => {
       try {
         const res = await fetch(urlFavoriteArtists);
@@ -42,7 +39,7 @@ const UserAccountPage = ({
       }
     };
     getDataFavoriteArtists();
-    const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${user}`;
+    const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${userData.UserID}`;
     const getDataFavoriteSongs = async () => {
       try {
         const res = await fetch(urlFavoriteSongs);
@@ -58,7 +55,7 @@ const UserAccountPage = ({
       }
     };
     getDataFavoriteSongs();
-    const urlFavoriteAlbums = `http://localhost:5000/api/favouriteAlbums/${user}`;
+    const urlFavoriteAlbums = `http://localhost:5000/api/favouriteAlbums/${userData.UserID}`;
     const getDataFavoriteAlbums = async () => {
       try {
         const res = await fetch(urlFavoriteAlbums);
@@ -73,7 +70,7 @@ const UserAccountPage = ({
       }
     };
     getDataFavoriteAlbums();
-    const urlFavoritePlaylists = `http://localhost:5000/api/favouritePlaylists/${user}`;
+    const urlFavoritePlaylists = `http://localhost:5000/api/favouritePlaylists/${userData.UserID}`;
     const getDataFavoritePlaylists = async () => {
       try {
         const res = await fetch(urlFavoritePlaylists);
@@ -88,9 +85,9 @@ const UserAccountPage = ({
       }
     };
     getDataFavoritePlaylists();
-  }, []);
+  }, [userData?.UserID, setSongs]);
   useEffect(() => {
-    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user}`;
+    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${userData.UserID}`;
     const getDataMakePlaylists = async () => {
       try {
         const res = await fetch(urlMakePlaylists);
@@ -271,7 +268,7 @@ const UserAccountPage = ({
 
             {activeCategory === "Треки" && (
               <div className="songs-list-fav">
-                {favoriteSongs.map((song) => (
+                {songs.map((song) => (
                   <Songs
                     key={song.SongID}
                     song={song}
@@ -281,7 +278,6 @@ const UserAccountPage = ({
                     toggleSongPlay={toggleSongPlay}
                     onLikeChange={onLikeChange}
                     onSongSelect={onSongSelect}
-                    user={user}
                   />
                 ))}
               </div>

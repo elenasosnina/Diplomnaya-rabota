@@ -23,6 +23,7 @@ const PlaylistPage = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const user = localStorage.getItem("user");
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);
@@ -56,13 +57,6 @@ const PlaylistPage = ({
     setIsHovered(false);
   };
 
-  const handleLikeChangeInternal = (songId, newLiked) => {
-    const updatedSongs = songs.map((song) =>
-      song.SongID === songId ? { ...song, liked: newLiked } : song
-    );
-    setSongs(updatedSongs);
-  };
-
   const location = useLocation();
   const playlist = location.state?.playlist;
   useEffect(() => {
@@ -75,7 +69,11 @@ const PlaylistPage = ({
 
       try {
         const url = `http://localhost:5000/api/playlists/songs/${playlist.PlaylistID}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);
@@ -91,7 +89,7 @@ const PlaylistPage = ({
     };
 
     fetchData();
-  }, [playlist]);
+  }, [playlist, user]);
 
   const LoadingIndicator = () => (
     <div className="search-process">
@@ -165,7 +163,7 @@ const PlaylistPage = ({
               currentSong={currentSong}
               currentTime={currentTime}
               toggleSongPlay={toggleSongPlay}
-              onLikeChange={handleLikeChangeInternal}
+              onLikeChange={onLikeChange}
               onSongSelect={onSongSelect}
             />
           ))}

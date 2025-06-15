@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./GenresPage.css";
-import { useLocation, useParams } from "react-router-dom";
-import coverSong from "../assets/party.webp";
+import { useLocation } from "react-router-dom";
 import Songs from "../components/Songs";
 
 const GenresPage = ({
@@ -16,8 +15,8 @@ const GenresPage = ({
 }) => {
   const location = useLocation();
   const genreItem = location.state?.genreItem;
+  const user = localStorage.getItem("user");
   const [loading, setLoading] = useState(true);
-  const { genreID } = useParams();
   useEffect(() => {
     const fetchData = async () => {
       if (!genreItem || !genreItem.GenreID) {
@@ -28,13 +27,18 @@ const GenresPage = ({
 
       try {
         const url = `http://localhost:5000/api/genres/songs/${genreItem.GenreID}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log(data);
         setSongs(data);
       } catch (e) {
         console.error("Ошибка при загрузке песен:", e);
@@ -44,7 +48,7 @@ const GenresPage = ({
     };
 
     fetchData();
-  }, [genreItem]);
+  }, [genreItem, user]);
 
   const LoadingIndicator = () => (
     <div className="search-process">

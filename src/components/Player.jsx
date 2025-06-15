@@ -50,14 +50,6 @@ const Player = ({
     }
   }, [currentSong]);
 
-  useEffect(() => {
-    if (currentSong) {
-      setIsLiked(!!currentSong.liked);
-    } else {
-      setIsLiked(false);
-    }
-  }, [currentSong]);
-
   const handleMouseEnter = () => {
     if (!currentSong) return;
     setIsHovered(true);
@@ -321,11 +313,9 @@ const Player = ({
       )}
     </>
   );
-
   const LikeButton = () => {
     const handleLikeClick = () => {
-      setIsLiked((prev) => !prev);
-      onLikeChange && onLikeChange(!isLiked);
+      onLikeChange(currentSong.SongID, !currentSong.liked);
     };
 
     return (
@@ -336,11 +326,10 @@ const Player = ({
         viewBox="0 0 24 24"
         stroke="white"
         strokeWidth="2"
-        fill={isLiked ? "white" : "none"}
+        fill={currentSong.liked ? "white" : "none"}
         className="icon-liked"
         role="button"
-        aria-label={isLiked ? "Unlike" : "Like"}
-        onClick={isDisabled ? null : handleLikeClick}
+        onClick={handleLikeClick}
         style={{ cursor: isDisabled ? "default" : "pointer" }}
       >
         <path

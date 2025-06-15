@@ -4,7 +4,6 @@ import Dropdown from "./MenuSong";
 import play from "../assets/play.png";
 import pause from "../assets/pause.png";
 import { useNavigate } from "react-router-dom";
-
 import { ShareModalWindow, AddToPlaylistModalWindow } from "./ModalWindows";
 
 const Songs = ({
@@ -16,11 +15,13 @@ const Songs = ({
   onLikeChange,
   onSongSelect,
   isInAddToPlaylistModal = false,
+  handleArtistClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
   const navigate = useNavigate();
+
   const formatDuration = (duration) => {
     const [minutes, seconds] = duration.split(":");
     const time = `${String(minutes).padStart(2, "0")}:${String(
@@ -116,11 +117,11 @@ const Songs = ({
             style={{ cursor: "pointer" }}
             onClick={() => handleArtistClick(song.Nickname)}
           >
-            {song.Nickname}
+            {" "}
+            {song.Nickname}{" "}
           </p>
         </div>
       </div>
-
       {!isInAddToPlaylistModal && (
         <div className="timing-menu">
           <svg
@@ -149,9 +150,7 @@ const Songs = ({
             <circle cx="25" cy="10" r="5" fill="black" />
             <circle cx="40" cy="10" r="5" fill="black" />
           </svg>
-
           <p>{isThisSongPlaying ? formatTime(currentTime) : duration}</p>
-
           {isHovered && (
             <div
               className="menu-dropdown"

@@ -34,14 +34,14 @@ const LoginPage = ({ setUser }) => {
       } else {
         const userData = await res.json();
         setUser(userData);
-        localStorage.setItem("user", userData.UserID);
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("UserID", userData.UserID);
         handleNavigation("/main");
       }
     } catch (error) {
       console.error("Ошибка:", error);
     }
   };
-
   const handleNavigation = (path) => {
     navigate(path);
   };

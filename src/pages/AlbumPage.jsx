@@ -24,6 +24,7 @@ const AlbumPage = ({
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
+  const user = localStorage.getItem("user");
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);
@@ -73,7 +74,11 @@ const AlbumPage = ({
 
       try {
         const url = `http://localhost:5000/api/albums/songs/${album.AlbumID}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);
@@ -138,7 +143,7 @@ const AlbumPage = ({
                 currentSong={currentSong}
                 currentTime={currentTime}
                 toggleSongPlay={toggleSongPlay}
-                onLikeChange={handleLikeChangeInternal}
+                onLikeChange={onLikeChange}
                 onSongSelect={onSongSelect}
               />
             ))}

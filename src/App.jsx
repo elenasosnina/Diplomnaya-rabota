@@ -19,29 +19,25 @@ import UserAccount from "./pages/UserAccountPage";
 import AlbumList from "./pages/AlbumList";
 import "./App.css";
 import SingerPage from "./pages/SingerPage";
-import ManageMusic from "./components/ManageMusic";
 import AlbumSongs from "./pages/AlbumPage";
 import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
 import Media from "./components/Media";
 import GenresPage from "./pages/GenresPage";
-
+import Songs from "./components/Songs";
+import ManageMusic from "./components/ManageMusic";
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const appStyle = {
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
     backgroundColor:
-      location.pathname === "/login" ||
-      location.pathname === "/registration" ||
-      location.pathname === "/recoveryPassword"
+      location.pathname === "/login" || location.pathname === "/registration"
         ? "rgb(50, 0, 249)"
         : "rgb(255, 255, 255)",
   };
-
   const {
     currentSong,
     isPlaying,
@@ -62,10 +58,9 @@ const App = () => {
     setSongs,
     toggleSongPlay,
   } = ManageMusic();
-
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [user, setUser] = useState(null);
+
   const [albums, setAlbums] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [artists, setArtists] = useState([]);
@@ -75,41 +70,31 @@ const App = () => {
   const [searchResultsArtists, setSearchResultsArtists] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef(null);
+  const [user, setUser] = useState();
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   const getSongsData = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/songs");
+      if (!user?.UserID) return;
+      const res = await fetch("http://localhost:5000/api/songs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ UserID: user.UserID }),
+      });
       if (res.ok) {
         const json = await res.json();
         setAllSongs(json);
+        setSongs(json);
       }
     } catch (error) {
       console.error("Ошибка при загрузке песен:", error);
     }
-  }, []);
-
-  const getDataFavoriteSongs = useCallback(async () => {
-    if (!user?.UserID) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/favouriteSongs/${user.UserID}`
-      );
-      if (res.ok) {
-        const favoriteSongs = await res.json();
-        const favoritesSet = new Set(favoriteSongs.map((song) => song.SongID));
-        setAllSongs((prevSongs) =>
-          prevSongs.map((song) => ({
-            ...song,
-            liked: favoritesSet.has(song.SongID),
-          }))
-        );
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке избранных песен:", error);
-    }
-  }, [user?.UserID]);
-
+  }, [user?.UserID, setSongs]);
   const getDataAlbums = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/api/albums");
@@ -118,7 +103,6 @@ const App = () => {
       console.error("Ошибка при загрузке альбомов:", error);
     }
   }, []);
-
   const getDataPlaylists = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/api/playlists");
@@ -127,7 +111,6 @@ const App = () => {
       console.error("Ошибка при загрузке плейлистов:", error);
     }
   }, []);
-
   const getDataArtists = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/api/artists");
@@ -136,18 +119,12 @@ const App = () => {
       console.error("Ошибка при загрузке артистов:", error);
     }
   }, []);
-
   useEffect(() => {
     getSongsData();
     getDataAlbums();
     getDataPlaylists();
     getDataArtists();
   }, [getSongsData, getDataAlbums, getDataPlaylists, getDataArtists]);
-
-  useEffect(() => {
-    getDataFavoriteSongs();
-  }, [getDataFavoriteSongs]);
-
   useEffect(() => {
     if (location.pathname !== "/search") {
       setSearchQuery("");
@@ -157,16 +134,13 @@ const App = () => {
       setSearchResultsArtists([]);
     }
   }, [location.pathname]);
-
   const handleSearchChange = useCallback(
     (query) => {
       setSearchQuery(query);
       setIsSearching(true);
-
       if (searchTimeout.current) {
         clearTimeout(searchTimeout.current);
       }
-
       searchTimeout.current = setTimeout(() => {
         if (query) {
           const lowerQuery = query.toLowerCase();
@@ -216,7 +190,8 @@ const App = () => {
       return (
         <div className="search-process">
           <p>
-            Ничего с названием <b>{searchQuery}</b> не найдено
+            {" "}
+            Ничего с названием <b>{searchQuery}</b> не найдено{" "}
           </p>
         </div>
       );
@@ -249,7 +224,9 @@ const App = () => {
                   item={album}
                   type="album"
                   onClick={() =>
-                    navigate(`/album/${album.AlbumID}`, { state: { album } })
+                    navigate(`/album/${album.AlbumID}`, {
+                      state: { album },
+                    })
                   }
                 />
               ))}
@@ -278,12 +255,22 @@ const App = () => {
       </div>
     );
   };
+  const handleArtistClick = (artistNickname) => {
+    const foundArtist = artists.find(
+      (artist) => artist.Nickname === artistNickname
+    );
+    if (foundArtist) {
+      navigate(`/singer/${foundArtist.ArtistID}`, {
+        state: { artist: foundArtist },
+      });
+    } else {
+      console.log("Артист не найден:", artistNickname);
+    }
+  };
 
   return (
     <div style={appStyle}>
-      {!["/login", "/recoveryPassword", "/registration"].includes(
-        location.pathname
-      ) && (
+      {!["/login", "/registration"].includes(location.pathname) && (
         <Header
           user={user}
           setUser={setUser}
@@ -291,9 +278,8 @@ const App = () => {
           searchQuery={searchQuery}
         />
       )}
-
       <Routes>
-        <Route path="/Diplomnaya-rabota/" element={<Main />} />
+        <Route path="/" element={<Main />} />
         <Route
           path="/main"
           element={
@@ -331,7 +317,6 @@ const App = () => {
               currentTime={currentTime}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              audioRef={audioRef}
               onSongSelect={handleSongSelect}
               userData={user}
               setSongs={setSongs}
@@ -348,7 +333,6 @@ const App = () => {
               currentTime={currentTime}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
-              audioRef={audioRef}
               onSongSelect={handleSongSelect}
               setSongs={setSongs}
               songs={songs}
@@ -393,25 +377,21 @@ const App = () => {
           path="/songsList"
           element={
             <SongsList
+              songs={songs}
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
+              duration={duration}
               toggleSongPlay={toggleSongPlay}
               onLikeChange={handleLikeChange}
               onSongSelect={handleSongSelect}
-              songs={songs}
+              handleArtistClick={handleArtistClick}
             />
           }
         />
         <Route path="/search" element={renderSearchResults()} />
       </Routes>
-
-      {![
-        "/login",
-        "/recoveryPassword",
-        "/registration",
-        "/Diplomnaya-rabota/",
-      ].includes(location.pathname) && (
+      {!["/login", "/registration"].includes(location.pathname) && (
         <>
           <Footer />
           <Player
@@ -440,11 +420,9 @@ const App = () => {
     </div>
   );
 };
-
 const MainApp = () => (
-  <Router>
+  <Router basename="/impulse">
     <App />
   </Router>
 );
-
 export default MainApp;

@@ -38,13 +38,17 @@ const Header = ({ user, setUser, onSearchChange, searchQuery }) => {
     {
       label: "Выйти",
       action: () => {
-        setUser(null);
-        // window.location.reload();
+        handleLogout();
         handleNavigation("/main");
+        window.location.reload();
       },
     },
   ];
 
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
   useEffect(() => {
     setVisible(!user);
   }, [location.pathname, user]);
