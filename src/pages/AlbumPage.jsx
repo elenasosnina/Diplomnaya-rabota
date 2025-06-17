@@ -65,6 +65,7 @@ const AlbumPage = ({
 
   const location = useLocation();
   const album = location.state?.album;
+  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
     const fetchData = async () => {
       if (!album || !album.AlbumID) {
@@ -73,7 +74,11 @@ const AlbumPage = ({
 
       try {
         const url = `http://localhost:5000/api/albums/songs/${album.AlbumID}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);

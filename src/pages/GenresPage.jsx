@@ -17,7 +17,7 @@ const GenresPage = ({
   const location = useLocation();
   const genreItem = location.state?.genreItem;
   const [loading, setLoading] = useState(true);
-  const { genreID } = useParams();
+  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
     const fetchData = async () => {
       if (!genreItem || !genreItem.GenreID) {
@@ -28,7 +28,11 @@ const GenresPage = ({
 
       try {
         const url = `http://localhost:5000/api/genres/songs/${genreItem.GenreID}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);

@@ -65,6 +65,7 @@ const PlaylistPage = ({
 
   const location = useLocation();
   const playlist = location.state?.playlist;
+  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
     const fetchData = async () => {
       if (!playlist || !playlist.PlaylistID) {
@@ -75,7 +76,11 @@ const PlaylistPage = ({
 
       try {
         const url = `http://localhost:5000/api/playlists/songs/${playlist.PlaylistID}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);

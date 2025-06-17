@@ -78,18 +78,6 @@ const App = () => {
   const [searchResultsArtists, setSearchResultsArtists] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef(null);
-
-  const getSongsData = useCallback(async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/songs");
-      if (res.ok) {
-        const json = await res.json();
-        setAllSongs(json);
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке песен:", error);
-    }
-  }, []);
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
@@ -115,27 +103,43 @@ const App = () => {
 
     checkAuth();
   }, []);
-  const getDataFavoriteSongs = useCallback(async () => {
-    if (!user?.UserID) return;
-
+  const getSongsData = useCallback(async () => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/favouriteSongs/${user.UserID}`
-      );
+      const res = await fetch("http://localhost:5000/api/songs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ UserID: user.UserID }),
+      });
       if (res.ok) {
-        const favoriteSongs = await res.json();
-        const favoritesSet = new Set(favoriteSongs.map((song) => song.SongID));
-        setAllSongs((prevSongs) =>
-          prevSongs.map((song) => ({
-            ...song,
-            liked: favoritesSet.has(song.SongID),
-          }))
-        );
+        const json = await res.json();
+        setAllSongs(json);
       }
     } catch (error) {
-      console.error("Ошибка при загрузке избранных песен:", error);
+      console.error("Ошибка при загрузке песен:", error);
     }
-  }, [user?.UserID]);
+  }, []);
+
+  // const getDataFavoriteSongs = useCallback(async () => {
+  //   if (!user?.UserID) return;
+
+  //   try {
+  //     const res = await fetch(
+  //       `http://localhost:5000/api/favouriteSongs/${user.UserID}`
+  //     );
+  //     if (res.ok) {
+  //       const favoriteSongs = await res.json();
+  //       const favoritesSet = new Set(favoriteSongs.map((song) => song.SongID));
+  //       setAllSongs((prevSongs) =>
+  //         prevSongs.map((song) => ({
+  //           ...song,
+  //           liked: favoritesSet.has(song.SongID),
+  //         }))
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Ошибка при загрузке избранных песен:", error);
+  //   }
+  // }, [user?.UserID]);
 
   const getDataAlbums = useCallback(async () => {
     try {
@@ -171,9 +175,9 @@ const App = () => {
     getDataArtists();
   }, [getSongsData, getDataAlbums, getDataPlaylists, getDataArtists]);
 
-  useEffect(() => {
-    getDataFavoriteSongs();
-  }, [getDataFavoriteSongs]);
+  // useEffect(() => {
+  //   getDataFavoriteSongs();
+  // }, [getDataFavoriteSongs]);
 
   useEffect(() => {
     if (location.pathname !== "/search") {

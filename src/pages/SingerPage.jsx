@@ -23,7 +23,7 @@ const SingerPage = ({
   const location = useLocation();
   const artist = location.state?.artist;
   const navigate = useNavigate();
-
+  const user = JSON.parse(localStorage.getItem("user"));
   const likedArtist = () => {
     setClicked(!isClicked);
   };
@@ -42,7 +42,11 @@ const SingerPage = ({
 
       try {
         const songsUrl = `http://localhost:5000/api/artists/songs/${artist.ArtistID}`;
-        const songsResponse = await fetch(songsUrl);
+        const songsResponse = await fetch(songsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        });
 
         if (!songsResponse.ok) {
           console.error(`Ошибка: ${songsResponse.status}`);
