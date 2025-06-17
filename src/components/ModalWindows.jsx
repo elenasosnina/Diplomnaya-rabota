@@ -119,13 +119,13 @@ const AddToPlaylistModalWindow = ({
   const [filteredPlaylistItems, setFilteredPlaylistItems] =
     useState(playlistItems);
   const [currentPlaylistId, setCurrentPlaylistId] = useState(null);
-  const user = localStorage.getItem("user");
+  const user = JSON.parse(localStorage.getItem("user"));
   const modalRef = useRef(null);
 
   useEffect(() => {
     const getDataFavoriteSongs = async () => {
       try {
-        const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${user}`;
+        const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${user.UserID}`;
         const res = await fetch(urlFavoriteSongs);
         if (res.ok) {
           let json = await res.json();
@@ -157,7 +157,22 @@ const AddToPlaylistModalWindow = ({
         console.error("Ошибка при загрузке песен:", e);
       }
     };
-    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user}`;
+
+    if (selectedPlaylist && selectedPlaylist.PlaylistID) {
+      setCurrentPlaylistId(selectedPlaylist.PlaylistID);
+      setCover(selectedPlaylist.PhotoCover || defoultPhoto);
+      setPlaylistName(selectedPlaylist.Title);
+      fetchData(selectedPlaylist.PlaylistID);
+    } else {
+      setCurrentPlaylistId(null);
+      setCover(defoultPhoto);
+      setPlaylistName("");
+      setPlaylistSongs([]);
+    }
+  }, [selectedPlaylist]);
+
+  useEffect(() => {
+    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user.UserID}`;
     const getDataMakePlaylists = async () => {
       try {
         const res = await fetch(urlMakePlaylists);
@@ -172,19 +187,7 @@ const AddToPlaylistModalWindow = ({
       }
     };
     getDataMakePlaylists();
-
-    if (selectedPlaylist && selectedPlaylist.PlaylistID) {
-      setCurrentPlaylistId(selectedPlaylist.PlaylistID);
-      setCover(selectedPlaylist.PhotoCover || defoultPhoto);
-      setPlaylistName(selectedPlaylist.Title);
-      fetchData(selectedPlaylist.PlaylistID);
-    } else {
-      setCurrentPlaylistId(null);
-      setCover(defoultPhoto);
-      setPlaylistName("");
-      setPlaylistSongs([]);
-    }
-  }, [selectedPlaylist, user]);
+  }, [user]);
 
   useEffect(() => {
     const results = songs.filter((song) =>
@@ -331,7 +334,7 @@ const AddToPlaylistModalWindow = ({
     }
 
     const playlistData = {
-      UserID: user,
+      UserID: user.UserID,
       Title: playlistName,
       Songs: playlistSongs,
     };
@@ -344,8 +347,6 @@ const AddToPlaylistModalWindow = ({
   };
 
   const handleModalClose = () => {
-    console.log(user);
-
     onClose();
   };
 

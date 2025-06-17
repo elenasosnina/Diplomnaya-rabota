@@ -71,7 +71,7 @@ const HelpPageContent = ({ setCurrentStep }) => {
 };
 
 const TechSupport = ({ setCurrentStep }) => {
-  const user = localStorage.getItem("user");
+  const user = JSON.parse(localStorage.getItem("user"));
   const [text, setText] = useState("");
   const [message, setMessage] = useState([]);
   const clearText = () => {
@@ -83,9 +83,11 @@ const TechSupport = ({ setCurrentStep }) => {
 
   const postMessage = async (user, text) => {
     const urlSendMessage = "http://localhost:5000/api/technialSupport";
-
+    console.log(user.Nickname);
+    console.log(user.Email);
     const data = {
-      UserID: user,
+      nickname: user.Nickname,
+      email: user.Email,
       text: text,
     };
 

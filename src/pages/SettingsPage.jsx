@@ -11,7 +11,7 @@ import {
   ChangePasswordModal,
 } from "../components/ModalWindows";
 
-const SettingsPage = ({ setUser }) => {
+const SettingsPage = ({ userData }) => {
   const [profileFile, setProfileFile] = useState(null);
   const [backgroundFile, setBackgroundFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,8 +21,9 @@ const SettingsPage = ({ setUser }) => {
   const [loginChangeSuccess, setLoginChangeSuccess] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const user = location.state?.user;
+  const [user, setUser] = useState(() => {
+    return userData || JSON.parse(localStorage.getItem("user")) || null;
+  });
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -147,10 +148,11 @@ const SettingsPage = ({ setUser }) => {
         throw new Error(data.error || "Не удалось удалить пользователя");
       }
 
-      setUser(null);
+      localStorage.removeItem("token");
       localStorage.removeItem("user");
       navigate("/main");
       handleCloseModal();
+      window.location.reload();
     } catch (error) {
       console.error("Ошибка:", error.message);
       alert(error.message);
@@ -306,7 +308,6 @@ const SettingsPage = ({ setUser }) => {
     const modalProps = {
       ...modalConfig[currentModal].props,
       onClose: handleCloseModal,
-      setUser: setUser,
     };
 
     return <ModalComponent {...modalProps} />;

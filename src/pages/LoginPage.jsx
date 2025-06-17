@@ -27,15 +27,24 @@ const LoginPage = ({ setUser }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+
       if (!res.ok) {
         setMessage("Неправильный логин или пароль. Повторите попытку!");
         setLoginError(true);
         setPasswordError(true);
       } else {
-        const userData = await res.json();
-        setUser(userData);
-        localStorage.setItem("user", userData.UserID);
-        handleNavigation("/main");
+        const token = await res.json();
+        localStorage.setItem("token", token);
+
+        const userResponse = await fetch("http://localhost:5000/api/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser(userData.user);
+          handleNavigation("/main");
+        }
       }
     } catch (error) {
       console.error("Ошибка:", error);

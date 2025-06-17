@@ -8,8 +8,8 @@ const fs = require("fs");
 const axios = require("axios");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
-
 const https = require("https");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const app = express();
 const PORT = 5000;
@@ -102,10 +102,28 @@ app.post("/api/user/login", async (req, res) => {
     ]);
 
     delete updatedUser.Password;
-    res.json(updatedUser);
+    let payload = updatedUser;
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    res.status(200).json(token);
   } catch (err) {
     console.error("Ошибка при входе:", err);
     return res.status(500).json({ error: "Ошибка сервера" });
+  }
+});
+//проверка токена
+app.get("/api/user", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Токен отсутствует" });
+    }
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    return res.json({ user: decoded });
+  } catch (error) {
+    console.error("Ошибка", error);
   }
 });
 //Проверка пользователя в системе по логину
@@ -970,12 +988,7 @@ app.get("/api/stream/song/:SongID", async (req, res) => {
 
 app.post("/api/technialSupport", async function (req, res) {
   try {
-    const { UserID, text } = req.body;
-    const pool = await sql.connect(dbConfig);
-    const result = await pool
-      .request()
-      .input("UserID", sql.Int, UserID)
-      .query(`SELECT Nickname, Email FROM Users WHERE UserID = @UserID`);
+    const { nickname, email, text } = req.body;
     const transporter = nodemailer.createTransport({
       host: "smtp.yandex.ru",
       port: 465,
@@ -993,7 +1006,7 @@ app.post("/api/technialSupport", async function (req, res) {
       from: process.env.YANDEX_EMAIL,
       to: process.env.YANDEX_EMAIL,
       subject: "Запрос в техническую поддержку",
-      text: `Пользователь: ${result.recordset[0].Nickname}\nПочта: ${result.recordset[0].Email}\nСообщение: ${text}`,
+      text: `Пользователь: ${nickname}\nПочта: ${email}\nСообщение: ${text}`,
     };
 
     const info = await transporter.sendMail(mailOptions);

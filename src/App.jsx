@@ -65,7 +65,10 @@ const App = () => {
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [albums, setAlbums] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [artists, setArtists] = useState([]);
@@ -87,7 +90,31 @@ const App = () => {
       console.error("Ошибка при загрузке песен:", error);
     }
   }, []);
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
+      try {
+        const response = await fetch("http://localhost:5000/api/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setUser(data.user);
+        } else {
+          localStorage.removeItem("token");
+        }
+      } catch (error) {
+        console.error("Ошибка проверки токена:", error);
+        localStorage.removeItem("token");
+      }
+    };
+
+    checkAuth();
+  }, []);
   const getDataFavoriteSongs = useCallback(async () => {
     if (!user?.UserID) return;
 
@@ -194,7 +221,7 @@ const App = () => {
         setIsSearching(false);
       }, 500);
     },
-    [allSongs, albums, artists, location.pathname, navigate]
+    [allSongs, albums, artists, location.pathname, navigate, user]
   );
 
   const renderSearchResults = () => {
@@ -281,9 +308,7 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      {!["/login", "/recoveryPassword", "/registration"].includes(
-        location.pathname
-      ) && (
+      {!["/login", "/registration"].includes(location.pathname) && (
         <Header
           user={user}
           setUser={setUser}
@@ -293,7 +318,7 @@ const App = () => {
       )}
 
       <Routes>
-        <Route path="/Diplomnaya-rabota/" element={<Main />} />
+        <Route path="/" element={<Main />} />
         <Route
           path="/main"
           element={
@@ -305,7 +330,7 @@ const App = () => {
             />
           }
         />
-        <Route path="/settings" element={<SettingsPage setUser={setUser} />} />
+        <Route path="/settings" element={<SettingsPage userData={user} />} />
         <Route
           path="/songs-genres/:genreID"
           element={
@@ -406,12 +431,7 @@ const App = () => {
         <Route path="/search" element={renderSearchResults()} />
       </Routes>
 
-      {![
-        "/login",
-        "/recoveryPassword",
-        "/registration",
-        "/Diplomnaya-rabota/",
-      ].includes(location.pathname) && (
+      {!["/login", "/registration", "/"].includes(location.pathname) && (
         <>
           <Footer />
           <Player
@@ -442,7 +462,7 @@ const App = () => {
 };
 
 const MainApp = () => (
-  <Router>
+  <Router basename="/impulse">
     <App />
   </Router>
 );

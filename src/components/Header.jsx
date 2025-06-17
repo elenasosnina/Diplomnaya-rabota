@@ -39,8 +39,10 @@ const Header = ({ user, setUser, onSearchChange, searchQuery }) => {
       label: "Выйти",
       action: () => {
         setUser(null);
-        // window.location.reload();
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         handleNavigation("/main");
+        window.location.reload();
       },
     },
   ];

@@ -23,11 +23,15 @@ const UserAccountPage = ({
   const [favoriteAlbums, setFavoriteAlbums] = useState([]);
   const [favoritePlaylists, setFavoritePlaylists] = useState([]);
   const [makePlaylists, setMakePlaylists] = useState([]);
-  const location = useLocation();
-  const user = localStorage.getItem("user");
+  const [user, setUser] = useState(() => {
+    return userData || JSON.parse(localStorage.getItem("user")) || null;
+  });
 
   useEffect(() => {
-    const urlFavoriteArtists = `http://localhost:5000/api/favouriteArtists/${user}`;
+    if (!user) return;
+
+    console.log(user);
+    const urlFavoriteArtists = `http://localhost:5000/api/favouriteArtists/${user.UserID}`;
     const getDataFavoriteArtists = async () => {
       try {
         const res = await fetch(urlFavoriteArtists);
@@ -42,7 +46,8 @@ const UserAccountPage = ({
       }
     };
     getDataFavoriteArtists();
-    const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${user}`;
+
+    const urlFavoriteSongs = `http://localhost:5000/api/favouriteSongs/${user.UserID}`;
     const getDataFavoriteSongs = async () => {
       try {
         const res = await fetch(urlFavoriteSongs);
@@ -58,7 +63,8 @@ const UserAccountPage = ({
       }
     };
     getDataFavoriteSongs();
-    const urlFavoriteAlbums = `http://localhost:5000/api/favouriteAlbums/${user}`;
+
+    const urlFavoriteAlbums = `http://localhost:5000/api/favouriteAlbums/${user.UserID}`;
     const getDataFavoriteAlbums = async () => {
       try {
         const res = await fetch(urlFavoriteAlbums);
@@ -73,7 +79,8 @@ const UserAccountPage = ({
       }
     };
     getDataFavoriteAlbums();
-    const urlFavoritePlaylists = `http://localhost:5000/api/favouritePlaylists/${user}`;
+
+    const urlFavoritePlaylists = `http://localhost:5000/api/favouritePlaylists/${user.UserID}`;
     const getDataFavoritePlaylists = async () => {
       try {
         const res = await fetch(urlFavoritePlaylists);
@@ -88,9 +95,12 @@ const UserAccountPage = ({
       }
     };
     getDataFavoritePlaylists();
-  }, []);
+  }, [user, setSongs]);
+
   useEffect(() => {
-    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user}`;
+    if (!user) return;
+
+    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${user.UserID}`;
     const getDataMakePlaylists = async () => {
       try {
         const res = await fetch(urlMakePlaylists);
@@ -105,13 +115,31 @@ const UserAccountPage = ({
       }
     };
     getDataMakePlaylists();
-  }, [makePlaylists]);
+  }, [makePlaylists, user]);
+
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("ИЗБРАННОЕ");
   const [activeCategory, setActiveCategory] = useState("Исполнители");
   const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+
+  if (!user) {
+    return (
+      <div className="userPage">
+        <div className="cover-userPage">
+          <img
+            className="background-userPage"
+            src={UserBackgroundDefault}
+            alt="Background"
+          />
+          <div className="photoes-user">
+            <h1>Пожалуйста, войдите в систему</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleCategoryClick = (category) => {
     setActiveCategory(category);
@@ -160,7 +188,7 @@ const UserAccountPage = ({
             item={playlist}
             type="album"
             onClick={() =>
-              navigate("/playlist", {
+              navigate(`/playlist/${playlist.PlaylistID}`, {
                 state: { playlist: playlist },
               })
             }
@@ -190,12 +218,12 @@ const UserAccountPage = ({
       <div className="cover-userPage">
         <img
           className="background-userPage"
-          src={userData.PhotoBackground || UserBackgroundDefault}
+          src={user.PhotoBackground || UserBackgroundDefault}
           alt="Background"
         />
         <div className="photoes-user">
-          <img src={userData.PhotoProfile} alt="user cover" />
-          <h1>{userData.Nickname}</h1>
+          <img src={user.PhotoProfile} alt="user cover" />
+          <h1>{user.Nickname}</h1>
         </div>
       </div>
 
