@@ -342,7 +342,7 @@ app.get("/api/playlists", async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request()
-      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover,Playlists.FavoriteCounter, Users.Nickname FROM Playlists
+      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover, Users.Nickname FROM Playlists
 INNER JOIN Users ON Playlists.UserID = Users.UserID`);
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Плейлисты не найдены" });
@@ -390,10 +390,13 @@ app.post("/api/playlists/songs/:PlaylistID", async (req, res) => {
   }
 });
 //Получение артистов для главной страницы
-app.get("/api/artists", async (req, res) => {
+app.post("/api/artists", async (req, res) => {
   try {
+    const { UserID } = req.body;
     const pool = await sql.connect(dbConfig);
-    const result = await pool.request().query(`SELECT * FROM Artists`);
+    const result = await pool.request().input("UserID", sql.Int, UserID)
+      .query(`SELECT Artists.*,  CASE WHEN FavoriteArtists.ArtistID IS NOT NULL THEN 1 ELSE 0 END AS liked FROM Artists
+   LEFT JOIN FavoriteArtists ON Artists.ArtistID = FavoriteArtists.ArtistID AND FavoriteArtists.UserID = @UserID`);
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Артисты не найдены" });
     }
@@ -417,7 +420,7 @@ app.get("/api/favouriteArtists/:UserID", async (req, res) => {
     const { UserID } = req.params;
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserId", sql.Int, UserID)
-      .query(`SELECT * FROM Artists
+      .query(`SELECT Artists.*, CASE WHEN FavoriteArtists.ArtistID IS NOT NULL THEN 1 ELSE 0 END AS liked FROM Artists
 INNER JOIN FavoriteArtists ON Artists.ArtistID = FavoriteArtists.ArtistID
 WHERE FavoriteArtists.UserID=@UserID`);
     if (result.recordset.length === 0) {
@@ -570,8 +573,7 @@ app.get("/api/favouritePlaylists/:UserID", async (req, res) => {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserID", sql.Int, UserID)
       .query(`SELECT Playlists.Title,Playlists.PlaylistID, 
-Playlists.PhotoCover, 
-Playlists.FavoriteCounter, Users.Nickname FROM Playlists 
+Playlists.PhotoCover, Users.Nickname FROM Playlists 
 INNER JOIN Users ON Playlists.UserID = Users.UserID 
 INNER JOIN FavoritePlaylists ON Playlists.PlaylistID= FavoritePlaylists.PlaylistID WHERE FavoritePlaylists.UserID = @UserID`);
     if (result.recordset.length === 0) {
@@ -591,7 +593,7 @@ app.get("/api/makePlaylists/:UserID", async (req, res) => {
     const { UserID } = req.params;
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserID", sql.Int, UserID)
-      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover,  Playlists.FavoriteCounter, Users.Nickname FROM Playlists 
+      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover,  Users.Nickname FROM Playlists 
 INNER JOIN Users ON Playlists.UserID = Users.UserID 
 WHERE Playlists.UserID = @UserID`);
     if (result.recordset.length === 0) {
@@ -1170,31 +1172,13 @@ app.put("/api/changePassword/:UserID", async function (req, res) {
     return res.status(500).json({ error: "Ошибка сервера: " + error.message });
   }
 });
-
-app.post("/api/likeChange/:SongID", async function (req, res) {
+//добавление\удаление песни из избранного
+app.post("/api/song/likeChange/:SongID", async function (req, res) {
   const { UserID } = req.body;
   const { SongID } = req.params;
-  if (!UserID || !SongID) {
-    return res.status(400).json({
-      error: "Не указан UserID или SongID",
-      liked: false,
-    });
-  }
-
   let pool;
   try {
     pool = await sql.connect(dbConfig);
-    const songExists = await pool
-      .request()
-      .input("SongID", sql.Int, SongID)
-      .query(`SELECT 1 FROM Songs WHERE SongID = @SongID`);
-
-    if (songExists.recordset.length === 0) {
-      return res.status(404).json({
-        error: "Песня не найдена",
-        liked: false,
-      });
-    }
     const favoriteCheck = await pool
       .request()
       .input("UserID", sql.Int, UserID)
@@ -1214,7 +1198,6 @@ app.post("/api/likeChange/:SongID", async function (req, res) {
 
       return res.status(200).json({
         liked: true,
-        message: "Песня добавлена в избранное",
       });
     } else {
       await pool
@@ -1227,7 +1210,6 @@ app.post("/api/likeChange/:SongID", async function (req, res) {
 
       return res.status(200).json({
         liked: false,
-        message: "Песня удалена из избранного",
       });
     }
   } catch (error) {
@@ -1236,10 +1218,177 @@ app.post("/api/likeChange/:SongID", async function (req, res) {
       error: "Ошибка сервера",
       liked: false,
     });
-  } finally {
-    if (pool) {
-      await pool.close();
+  }
+});
+//добавление\удаление артиста из избранного
+app.post("/api/artist/likeChange/:ArtistID", async function (req, res) {
+  const { UserID } = req.body;
+  const { ArtistID } = req.params;
+  if (!UserID || !ArtistID) {
+    return res.status(400).json({
+      error: "Не указан UserID или ArtistID",
+      liked: false,
+    });
+  }
+
+  let pool;
+  try {
+    pool = await sql.connect(dbConfig);
+    const favoriteCheck = await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .input("ArtistID", sql.Int, ArtistID)
+      .query(
+        `SELECT 1 FROM FavoriteArtists WHERE UserID = @UserID AND ArtistID = @ArtistID`
+      );
+
+    if (favoriteCheck.recordset.length === 0) {
+      await pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("ArtistID", sql.Int, ArtistID)
+        .query(
+          `INSERT INTO FavoriteArtists(ArtistID, UserID) VALUES (@ArtistID, @UserID)`
+        );
+
+      return res.status(200).json({
+        liked: true,
+        message: "Артист добавлен в избранное",
+      });
+    } else {
+      await pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("ArtistID", sql.Int, ArtistID)
+        .query(
+          `DELETE FROM FavoriteArtists WHERE UserID = @UserID AND ArtistID = @ArtistID`
+        );
+
+      return res.status(200).json({
+        liked: false,
+        message: "Артист удален из избранного",
+      });
     }
+  } catch (error) {
+    console.error("Ошибка базы данных:", error);
+    return res.status(500).json({
+      error: "Ошибка сервера",
+      liked: false,
+    });
+  }
+});
+//добавление\удаление альбома в избранное
+app.post("/api/album/likeChange/:AlbumID", async function (req, res) {
+  const { UserID } = req.body;
+  const { AlbumID } = req.params;
+  if (!UserID || !AlbumID) {
+    return res.status(400).json({
+      error: "Не указан UserID или AlbumID",
+      liked: false,
+    });
+  }
+
+  let pool;
+  try {
+    pool = await sql.connect(dbConfig);
+    const favoriteCheck = await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .input("AlbumID", sql.Int, AlbumID)
+      .query(
+        `SELECT 1 FROM FavoriteAlbums WHERE UserID = @UserID AND AlbumID = @AlbumID`
+      );
+
+    if (favoriteCheck.recordset.length === 0) {
+      await pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("AlbumID", sql.Int, AlbumID)
+        .query(
+          `INSERT INTO FavoriteAlbums(AlbumID, UserID) VALUES (@AlbumID, @UserID)`
+        );
+
+      return res.status(200).json({
+        liked: true,
+        message: "Песня добавлена в избранное",
+      });
+    } else {
+      await pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("AlbumID", sql.Int, AlbumID)
+        .query(
+          `DELETE FROM FavoriteAlbums WHERE UserID = @UserID AND AlbumID = @AlbumID`
+        );
+
+      return res.status(200).json({
+        liked: false,
+        message: "Альбом удален из избранного",
+      });
+    }
+  } catch (error) {
+    console.error("Ошибка базы данных:", error);
+    return res.status(500).json({
+      error: "Ошибка сервера",
+      liked: false,
+    });
+  }
+});
+//добавление\удаление плейлиста из избранного
+app.post("/api/playlist/likeChange/:PlaylistID", async function (req, res) {
+  const { UserID } = req.body;
+  const { PlaylistID } = req.params;
+  if (!UserID || !PlaylistID) {
+    return res.status(400).json({
+      error: "Не указан UserID или PlaylistID",
+      liked: false,
+    });
+  }
+
+  let pool;
+  try {
+    pool = await sql.connect(dbConfig);
+    const favoriteCheck = await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .input("PlaylistID", sql.Int, PlaylistID)
+      .query(
+        `SELECT 1 FROM FavoritePlaylists WHERE UserID = @UserID AND PlaylistID = @PlaylistID`
+      );
+
+    if (favoriteCheck.recordset.length === 0) {
+      await pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("PlaylistID", sql.Int, PlaylistID)
+        .query(
+          `INSERT INTO FavoritePlaylists(PlaylistID, UserID) VALUES (@PlaylistID, @UserID)`
+        );
+
+      return res.status(200).json({
+        liked: true,
+        message: "Плейлист добавлен в избранное",
+      });
+    } else {
+      await pool
+        .request()
+        .input("UserID", sql.Int, UserID)
+        .input("PlaylistID", sql.Int, PlaylistID)
+        .query(
+          `DELETE FROM FavoritePlaylists WHERE UserID = @UserID AND PlaylistID = @PlaylistID`
+        );
+
+      return res.status(200).json({
+        liked: false,
+        message: "Плейлист  удален из избранного",
+      });
+    }
+  } catch (error) {
+    console.error("Ошибка базы данных:", error);
+    return res.status(500).json({
+      error: "Ошибка сервера",
+      liked: false,
+    });
   }
 });
 app.listen(PORT, () => {

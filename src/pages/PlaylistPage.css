@@ -45,6 +45,10 @@
     transform: rotate(90deg);
     border: none;
   }
+  .menu-playlist:hover {
+    box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.541);
+    background-color: rgba(226, 226, 226, 0.678);
+  }
   .playlist-cover img {
     height: 280px;
     width: 280px;

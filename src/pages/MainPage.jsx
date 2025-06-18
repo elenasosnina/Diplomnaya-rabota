@@ -1,4 +1,3 @@
-// MainPage.jsx
 import React, { useState, useEffect } from "react";
 import "./MainPage.css";
 import { useNavigate, useLocation } from "react-router-dom";

@@ -137,7 +137,7 @@ const PlaylistPage = ({
           )}
           <div className="playlist-cover">
             <img src={playlist?.PhotoCover} alt="Cover" />
-            <div className="listen-counter">{playlist?.FavoriteCounter}</div>
+            <div className="listen-counter">{0}</div>
           </div>
           <div className="playlist-info">
             <p>

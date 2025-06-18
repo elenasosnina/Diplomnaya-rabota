@@ -138,12 +138,20 @@ const App = () => {
 
   const getDataArtists = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/artists");
-      if (res.ok) setArtists(await res.json());
+      const res = await fetch("http://localhost:5000/api/artists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ UserID: user?.UserID }),
+      });
+      if (!res.ok) {
+        throw new Error(`Ошибка HTTP: ${res.status}`);
+      }
+      const artistsData = await res.json();
+      setArtists(artistsData);
     } catch (error) {
       console.error("Ошибка при загрузке артистов:", error);
     }
-  }, []);
+  }, [user.UserID]);
 
   useEffect(() => {
     getSongsData();

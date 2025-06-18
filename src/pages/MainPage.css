@@ -71,6 +71,13 @@ padding: 25px 30px;
     border-radius: 14px;
     margin: 0px 50px;
 }
+.image-playlists img:hover, .main-genre-card:hover{
+   box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.705);
+}
+.image-playlists img:active, .main-genre-card:active{
+   opacity: 0.7;
+
+}
 .collection{
     display: flex;
     flex-direction:row;

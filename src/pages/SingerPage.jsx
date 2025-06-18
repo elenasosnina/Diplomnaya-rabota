@@ -16,23 +16,51 @@ const SingerPage = ({
   songs,
   setSongs,
 }) => {
-  const [isClicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [albums, setAlbums] = useState([]);
-  const [isLiked, setIsLiked] = useState(false);
-  const heartRef = useRef(null);
+  const [artist, setArtist] = useState(null);
   const location = useLocation();
-  const artist = location.state?.artist;
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-  const likedArtist = () => {
-    setClicked(!isClicked);
-  };
 
-  const likeClick = () => {
-    setIsLiked(!isLiked);
-  };
+  useEffect(() => {
+    const item = location.state?.artist;
+    if (item) {
+      setArtist(item);
+    }
+  }, [location.state]);
 
+  const LikeChange = async () => {
+    if (!user || !artist) return;
+
+    try {
+      const newLikedStatus = !artist.liked;
+      setArtist((prev) => ({ ...prev, liked: newLikedStatus }));
+      const response = await fetch(
+        `http://localhost:5000/api/artist/likeChange/${artist.ArtistID}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        }
+      );
+
+      if (!response.ok) {
+        setArtist((prev) => ({ ...prev, liked: !newLikedStatus }));
+        throw new Error(`Ошибка: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      setArtist((prev) => ({ ...prev, liked: result.liked }));
+    } catch (error) {
+      console.error("Ошибка при изменении статуса артиста:", error);
+    }
+  };
+  const toggleArtistLike = (e) => {
+    e.preventDefault();
+    LikeChange();
+  };
   useEffect(() => {
     const fetchData = async () => {
       if (!artist || !artist.ArtistID) {
@@ -51,20 +79,20 @@ const SingerPage = ({
 
         if (!songsResponse.ok) {
           console.error(`Ошибка: ${songsResponse.status}`);
+        } else {
+          const songsData = await songsResponse.json();
+          setSongs(songsData);
         }
-
-        const songsData = await songsResponse.json();
-        setSongs(songsData);
 
         const albumsUrl = `http://localhost:5000/api/artists/albums/${artist.ArtistID}`;
         const albumsResponse = await fetch(albumsUrl);
 
         if (!albumsResponse.ok) {
           console.error(`Ошибка: ${albumsResponse.status}`);
+        } else {
+          const albumsData = await albumsResponse.json();
+          setAlbums(albumsData);
         }
-
-        const albumsData = await albumsResponse.json();
-        setAlbums(albumsData);
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
       } finally {
@@ -73,18 +101,7 @@ const SingerPage = ({
     };
 
     fetchData();
-  }, [artist, setSongs]);
-
-  const handleSongChange = useCallback(
-    (newSong) => {
-      if (currentSong && currentSong.SongID === newSong.SongID) {
-        toggleSongPlay();
-      } else {
-        onSongSelect(newSong);
-      }
-    },
-    [currentSong, toggleSongPlay, onSongSelect]
-  );
+  }, [artist, setSongs, user?.UserID]);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -98,7 +115,7 @@ const SingerPage = ({
     </div>
   );
 
-  if (loading) {
+  if (loading || !artist) {
     return <LoadingIndicator />;
   }
   return (
@@ -110,15 +127,19 @@ const SingerPage = ({
           alt="Singer Background"
         />
         <div className="photoes-artist">
-          <img src={artist.PhotoProfile} alt="Singer Cover" />
+          <img
+            className="photoes-artist-img"
+            src={artist.PhotoProfile}
+            alt="Singer Cover"
+          />
           <div
             className="btn-add"
-            onClick={likedArtist}
+            onClick={(e) => toggleArtistLike(e)}
             style={{
-              backgroundColor: isClicked ? "#4f0fff" : "white",
+              backgroundColor: artist.liked ? "#4f0fff" : "white",
             }}
           >
-            {isClicked ? (
+            {artist.liked ? (
               <img src={Wheart} alt="White Heart" />
             ) : (
               <img src={Bheart} alt="Black Heart" />
@@ -169,9 +190,7 @@ const SingerPage = ({
                 type="album"
                 onClick={() =>
                   navigate(`/album/${album.AlbumID}`, {
-                    state: {
-                      album: album,
-                    },
+                    state: { album },
                   })
                 }
               />
@@ -181,9 +200,7 @@ const SingerPage = ({
             className="album-more"
             onClick={() =>
               navigate(`/albumList`, {
-                state: {
-                  albums: albums,
-                },
+                state: { albums },
               })
             }
           >

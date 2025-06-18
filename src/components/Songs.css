@@ -3,14 +3,18 @@
     flex-direction: row;
     align-self: center;
     justify-content: space-between;
+      
 }
 
 .card-song {
     border-radius: 20px;
     margin: 0 5px;
-    padding: 5px 5px 5px 5px ;
+    padding: 8px 15px 8px 15px ;
+       
 }
-
+.card-song:hover {
+        background-color: rgba(216, 216, 216, 0.603);
+}
 .menu-dropdown{
     position: absolute; 
     z-index: 1000; 
@@ -37,9 +41,6 @@
     flex-direction: column;
     justify-content: center; 
     font-size: 17px;
-}
-.title-singer p:hover:last-child {
-    text-decoration: underline;
 }
 .title-singer p, .timing-menu p {
     margin: 0; 

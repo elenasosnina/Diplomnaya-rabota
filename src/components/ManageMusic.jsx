@@ -55,7 +55,7 @@ const ManageMusic = ({ user }) => {
         }
 
         const response = await fetch(
-          `http://localhost:5000/api/likeChange/${SongID}`,
+          `http://localhost:5000/api/song/likeChange/${SongID}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

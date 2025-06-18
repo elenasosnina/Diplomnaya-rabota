@@ -325,7 +325,7 @@ const Player = ({
   const LikeButton = () => {
     const handleLikeClick = () => {
       setIsLiked((prev) => !prev);
-      onLikeChange && onLikeChange(!isLiked);
+      onLikeChange(currentSong.SongID, !currentSong.liked);
     };
 
     return (

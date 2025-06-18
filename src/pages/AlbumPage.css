@@ -51,6 +51,7 @@ body {
   width: 400px;
   border-radius: 30px;
   display: block; 
+  box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.438);
 }
 
 .block-menu-album {
@@ -64,6 +65,7 @@ body {
   z-index: 1000;
   transform: translateX(50px);
 }
+
 .menu-album {
   background-color: rgb(255, 255, 255);
   height: 10px;
@@ -71,7 +73,10 @@ body {
   border-radius: 25px;
   border: none;
 }
-
+.menu-album:hover {
+  background-color: rgba(255, 255, 255, 0.658);
+  box-shadow: 1px 1px 14px rgba(0, 0, 0, 0.397);
+}
 .main-timing {
   border-radius: 30px;
   width: 80px;
@@ -91,7 +96,7 @@ body {
   justify-content: flex-start; 
   background-color: rgba(255, 255, 255, 0.8); 
   width: 100%; 
-  padding: 20px;
+  padding: 10px;
   min-height: 100vh;
   min-width: 515px;
   margin-top: 60px;

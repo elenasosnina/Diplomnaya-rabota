@@ -33,11 +33,15 @@
  
 }
 
-.photoes-artist img {
+.photoes-artist-img {
     width: 180px;
     height: 180px;
     border-radius: 50%;
        object-fit: cover;
+        box-shadow: 1px 1px 14px black;
+}
+.photoes-artist h1 {
+     text-shadow: 1px 1px 5px black;
 }
 
 .btn-add {
@@ -50,6 +54,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 1px 1px 14px black;
 }
 
 .btn-add img {

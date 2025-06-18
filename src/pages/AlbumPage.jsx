@@ -34,12 +34,6 @@ const AlbumPage = ({
   };
   const options = [
     {
-      label: "Поделиться",
-      action: () => {
-        handleOpenModal("share");
-      },
-    },
-    {
       label: "Добавить в избранное",
       action: () => {
         handleOpenModal("addToFav");
@@ -109,9 +103,6 @@ const AlbumPage = ({
             >
               <Dropdown options={options} />
             </div>
-          )}
-          {currentModal === "share" && (
-            <ShareModalWindow onClose={handleCloseModal} link={album.url} />
           )}
           {currentModal === "addToFav" && (
             <ModalWindowInformation

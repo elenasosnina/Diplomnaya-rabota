@@ -118,7 +118,7 @@ const UserAccountPage = ({
       borderRadius: "30px",
       padding: "5px 20px",
       fontSize: "20px",
-      backgroundColor: activeCategory === category ? "grey" : "transparent",
+      backgroundColor: activeCategory === category ? "#ebebeb" : "transparent",
       cursor: "pointer",
     };
   };
