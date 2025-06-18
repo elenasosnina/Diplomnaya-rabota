@@ -1099,6 +1099,78 @@ app.put("/api/changeLogin/:UserID", async function (req, res) {
     return res.status(500).json({ error: "Ошибка сервера: " + error.message });
   }
 });
+app.put("/api/changePassword/:UserID", async function (req, res) {
+  const UserID = req.params.UserID;
+  const { newPassword, oldPassword } = req.body;
+
+  try {
+    const pool = await sql.connect(dbConfig);
+    const result = await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .query("SELECT * FROM Users WHERE UserID = @UserID");
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
+
+    const userPassword = result.recordset[0].Password;
+
+    const hashCheck = await bcrypt.compare(oldPassword, userPassword);
+    if (!hashCheck) {
+      return res.status(400).json({ message: "Неверный текущий пароль." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .input("Password", sql.VarChar, hashedPassword)
+      .query("UPDATE Users SET Password = @Password WHERE UserID = @UserID");
+
+    const email = result.recordset[0].Email;
+    const emailValid = await emailCheck(email);
+
+    if (!emailValid) {
+      console.log("Ошибка почты", email);
+      return res
+        .status(400)
+        .json({ message: "Адрес электронной почты не существует" });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.yandex.ru",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.YANDEX_EMAIL,
+        pass: process.env.YANDEX_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.YANDEX_EMAIL,
+      to: email,
+      subject: "ПРЕДУПРЕЖДЕНИЕ",
+      text: `Пользователь: ${result.recordset[0].Nickname}\nВ данный момент пароль от вашего аккаунта на impulse был изменен. Если это не вы, то ответьте на это письмо с запросом на восстановление своих данных. С любовью, Ваш impulse`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Письмо отправлено");
+
+    return res
+      .status(200)
+      .json({ message: "Пароль пользователя успешно обновлен" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Ошибка сервера: " + error.message });
+  }
+});
+
 app.post("/api/likeChange/:SongID", async function (req, res) {
   const { UserID } = req.body;
   const { SongID } = req.params;

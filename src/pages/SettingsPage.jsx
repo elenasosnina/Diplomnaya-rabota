@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./SettingsPage.css";
-import userBack from "../assets/bibi_back.jpg";
 import loginIcon from "../assets/login.png";
 import passwordIcon from "../assets/password.png";
 import UserBackgroundDefault from "../assets/UserBackgroundDefault.jpg";
@@ -22,7 +21,7 @@ const SettingsPage = ({ userData }) => {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
   const navigate = useNavigate();
   const [user, setUser] = useState(() => {
-    return userData || JSON.parse(localStorage.getItem("user")) || null;
+    return userData || JSON.parse(localStorage.getItem("user"));
   });
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -267,6 +266,7 @@ const SettingsPage = ({ userData }) => {
         onSuccess: handlePasswordChangeSuccess,
         showCancelButton: true,
         confirmButtonText: "Подтвердить",
+        user: user,
       },
     },
     loginSuccess: {

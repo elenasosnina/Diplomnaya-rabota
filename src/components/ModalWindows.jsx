@@ -774,19 +774,66 @@ const ChangeLoginModal = ({ onClose, onSuccess, user }) => {
     </div>
   );
 };
-
-const ChangePasswordModal = ({ onClose, onSuccess }) => {
+const ChangePasswordModal = ({ onClose, onSuccess, user }) => {
+  const errorStyle = { color: "red", fontSize: "12px" };
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const updatePassword = async (UserID) => {
+    const url = `http://localhost:5000/api/changePassword/${UserID}`;
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          newPassword: newPassword,
+          oldPassword: currentPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Успех", data.message);
+        onSuccess();
+      } else {
+        setError(data.message || "Ошибка при изменении пароля");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/main");
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Ошибка сети:", error);
+      setError("Ошибка соединения с сервером");
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
+
     if (newPassword !== confirmPassword) {
-      alert("Пароли не совпадают");
+      setError("Пароли не совпадают");
       return;
     }
-    onSuccess();
+
+    if (!currentPassword) {
+      setError("Текущий пароль обязателен");
+      return;
+    }
+
+    if (user && user.UserID) {
+      updatePassword(user.UserID);
+    } else {
+      setError("Не удалось получить ID пользователя.");
+    }
   };
 
   return (
@@ -827,11 +874,16 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
               placeholder="Повторите новый пароль"
             />
           </div>
+          {error && <div style={errorStyle}>{error}</div>}
           <div className="buttons-playlist">
-            <button className="create-playlist" onClick={onClose}>
+            <button className="create-playlist" onClick={onClose} type="button">
               Отмена
             </button>
-            <button className="save-playlist" type="submit">
+            <button
+              className="save-playlist"
+              type="submit"
+              disabled={!confirmPassword || !newPassword || !currentPassword}
+            >
               Подтвердить
             </button>
           </div>
