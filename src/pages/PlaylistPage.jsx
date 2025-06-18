@@ -56,13 +56,6 @@ const PlaylistPage = ({
     setIsHovered(false);
   };
 
-  const handleLikeChangeInternal = (songId, newLiked) => {
-    const updatedSongs = songs.map((song) =>
-      song.SongID === songId ? { ...song, liked: newLiked } : song
-    );
-    setSongs(updatedSongs);
-  };
-
   const location = useLocation();
   const playlist = location.state?.playlist;
   const user = JSON.parse(localStorage.getItem("user"));
@@ -131,9 +124,6 @@ const PlaylistPage = ({
           )}
           {isModalOpen && (
             <div className="modal-overlay">
-              {currentModal === "share" && (
-                <ShareModalWindow onClose={handleCloseModal} link={"hgvg"} />
-              )}
               {currentModal === "addToFav" && (
                 <ModalWindowInformation
                   onClose={handleCloseModal}
@@ -170,7 +160,7 @@ const PlaylistPage = ({
               currentSong={currentSong}
               currentTime={currentTime}
               toggleSongPlay={toggleSongPlay}
-              onLikeChange={handleLikeChangeInternal}
+              onLikeChange={onLikeChange}
               onSongSelect={onSongSelect}
             />
           ))}

@@ -41,7 +41,10 @@ const App = () => {
         ? "rgb(50, 0, 249)"
         : "rgb(255, 255, 255)",
   };
-
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const {
     currentSong,
     isPlaying,
@@ -61,14 +64,10 @@ const App = () => {
     toggleRepeat,
     setSongs,
     toggleSongPlay,
-  } = ManageMusic();
+  } = ManageMusic({ user });
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
   const [albums, setAlbums] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [artists, setArtists] = useState([]);
@@ -119,28 +118,6 @@ const App = () => {
     }
   }, []);
 
-  // const getDataFavoriteSongs = useCallback(async () => {
-  //   if (!user?.UserID) return;
-
-  //   try {
-  //     const res = await fetch(
-  //       `http://localhost:5000/api/favouriteSongs/${user.UserID}`
-  //     );
-  //     if (res.ok) {
-  //       const favoriteSongs = await res.json();
-  //       const favoritesSet = new Set(favoriteSongs.map((song) => song.SongID));
-  //       setAllSongs((prevSongs) =>
-  //         prevSongs.map((song) => ({
-  //           ...song,
-  //           liked: favoritesSet.has(song.SongID),
-  //         }))
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Ошибка при загрузке избранных песен:", error);
-  //   }
-  // }, [user?.UserID]);
-
   const getDataAlbums = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/api/albums");
@@ -174,10 +151,6 @@ const App = () => {
     getDataPlaylists();
     getDataArtists();
   }, [getSongsData, getDataAlbums, getDataPlaylists, getDataArtists]);
-
-  // useEffect(() => {
-  //   getDataFavoriteSongs();
-  // }, [getDataFavoriteSongs]);
 
   useEffect(() => {
     if (location.pathname !== "/search") {

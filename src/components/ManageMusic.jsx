@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
-const ManageMusic = () => {
+const ManageMusic = ({ user }) => {
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(new Audio());
@@ -10,7 +10,7 @@ const ManageMusic = () => {
   const [shuffledSongs, setShuffledSongs] = useState([]);
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
-  const user = JSON.parse(localStorage.getItem("user"));
+
   const shuffleArray = useCallback((array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -37,18 +37,21 @@ const ManageMusic = () => {
   }, []);
 
   const handleLikeChange = useCallback(
-    async (SongID) => {
-      if (!SongID || !user) return;
+    async (SongID, newLikedStatus) => {
+      if (!SongID || !user?.UserID) {
+        console.error("Не указан SongID или UserID");
+        return;
+      }
 
       try {
         setSongs((prevSongs) =>
           prevSongs.map((song) =>
-            song.SongID === SongID ? { ...song, liked: !song.liked } : song
+            song.SongID === SongID ? { ...song, liked: newLikedStatus } : song
           )
         );
 
-        if (currentSong && currentSong.SongID === SongID) {
-          setCurrentSong((prev) => ({ ...prev, liked: !prev.liked }));
+        if (currentSong?.SongID === SongID) {
+          setCurrentSong((prev) => ({ ...prev, liked: newLikedStatus }));
         }
 
         const response = await fetch(
@@ -61,34 +64,27 @@ const ManageMusic = () => {
         );
 
         if (!response.ok) {
-          setSongs((prevSongs) =>
-            prevSongs.map((song) =>
-              song.SongID === SongID ? { ...song, liked: !song.liked } : song
-            )
-          );
-
-          if (currentSong && currentSong.SongID === SongID) {
-            setCurrentSong((prev) => ({ ...prev, liked: !prev.liked }));
-          }
-
-          throw new Error("Ошибка при изменении статуса лайка");
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Ошибка сервера");
         }
 
         const data = await response.json();
 
-        setSongs((prevSongs) =>
-          prevSongs.map((song) =>
-            song.SongID === SongID ? { ...song, liked: data.isFavorite } : song
-          )
-        );
+        if (data.liked !== newLikedStatus) {
+          setSongs((prevSongs) =>
+            prevSongs.map((song) =>
+              song.SongID === SongID ? { ...song, liked: data.liked } : song
+            )
+          );
 
-        if (currentSong && currentSong.SongID === SongID) {
-          setCurrentSong((prev) => ({ ...prev, liked: data.isFavorite }));
+          if (currentSong?.SongID === SongID) {
+            setCurrentSong((prev) => ({ ...prev, liked: data.liked }));
+          }
         }
 
-        return data.isFavorite;
+        return data.liked;
       } catch (error) {
-        console.error("Ошибка при изменении лайка:", error);
+        console.error("Ошибка при изменении лайка:", error.message);
         return null;
       }
     },
@@ -186,6 +182,7 @@ const ManageMusic = () => {
       (currentIndex - 1 + songListToUse.length) % songListToUse.length;
     handleSongSelect(songListToUse[previousIndex]);
   }, [currentSong, songs, shuffledSongs, isShuffle, handleSongSelect]);
+
   useEffect(() => {
     const handleLoadedMetadata = () => {
       setDuration(audioRef.current.duration);
@@ -208,6 +205,7 @@ const ManageMusic = () => {
       };
     }
   }, [currentSong]);
+
   useEffect(() => {
     const handleEnded = () => {
       if (isRepeat) {
@@ -229,6 +227,7 @@ const ManageMusic = () => {
       }
     };
   }, [playNextSong, isRepeat]);
+
   return {
     currentSong,
     isPlaying,
@@ -250,4 +249,5 @@ const ManageMusic = () => {
     toggleSongPlay,
   };
 };
+
 export default ManageMusic;

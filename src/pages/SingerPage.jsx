@@ -11,6 +11,7 @@ const SingerPage = ({
   currentSong,
   currentTime,
   toggleSongPlay,
+  onLikeChange,
   onSongSelect,
   songs,
   setSongs,
@@ -144,6 +145,7 @@ const SingerPage = ({
               isPlaying={isPlaying}
               currentSong={currentSong}
               currentTime={currentTime}
+              onLikeChange={onLikeChange}
               toggleSongPlay={toggleSongPlay}
               onSongSelect={onSongSelect}
             />

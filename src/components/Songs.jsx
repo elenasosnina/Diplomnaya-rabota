@@ -163,9 +163,6 @@ const Songs = ({
           )}
           {isModalOpen && (
             <div className="modal-overlay">
-              {currentModal === "share" && (
-                <ShareModalWindow onClose={handleCloseModal} link={song.url} />
-              )}
               {currentModal === "addToPlaylist" && (
                 <AddToPlaylistModalWindow
                   onClose={handleCloseModal}

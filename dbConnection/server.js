@@ -1174,23 +1174,36 @@ app.put("/api/changePassword/:UserID", async function (req, res) {
 app.post("/api/likeChange/:SongID", async function (req, res) {
   const { UserID } = req.body;
   const { SongID } = req.params;
-
-  if (!UserID) {
-    return res.status(400).json({ error: "Не указан UserID" });
+  if (!UserID || !SongID) {
+    return res.status(400).json({
+      error: "Не указан UserID или SongID",
+      liked: false,
+    });
   }
 
+  let pool;
   try {
-    const pool = await sql.connect(dbConfig);
+    pool = await sql.connect(dbConfig);
+    const songExists = await pool
+      .request()
+      .input("SongID", sql.Int, SongID)
+      .query(`SELECT 1 FROM Songs WHERE SongID = @SongID`);
 
-    const resultCheck = await pool
+    if (songExists.recordset.length === 0) {
+      return res.status(404).json({
+        error: "Песня не найдена",
+        liked: false,
+      });
+    }
+    const favoriteCheck = await pool
       .request()
       .input("UserID", sql.Int, UserID)
       .input("SongID", sql.Int, SongID)
       .query(
-        `SELECT * FROM FavoriteSongs WHERE UserID = @UserID AND SongID = @SongID`
+        `SELECT 1 FROM FavoriteSongs WHERE UserID = @UserID AND SongID = @SongID`
       );
 
-    if (resultCheck.recordset.length === 0) {
+    if (favoriteCheck.recordset.length === 0) {
       await pool
         .request()
         .input("UserID", sql.Int, UserID)
@@ -1218,9 +1231,15 @@ app.post("/api/likeChange/:SongID", async function (req, res) {
       });
     }
   } catch (error) {
+    console.error("Ошибка базы данных:", error);
     return res.status(500).json({
       error: "Ошибка сервера",
+      liked: false,
     });
+  } finally {
+    if (pool) {
+      await pool.close();
+    }
   }
 });
 app.listen(PORT, () => {

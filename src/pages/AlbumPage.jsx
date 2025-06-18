@@ -47,14 +47,6 @@ const AlbumPage = ({
     },
   ];
 
-  const handleLikeChangeInternal = (songId) => {
-    setSongs((prevSongs) =>
-      prevSongs.map((song) =>
-        song.SongID === songId ? { ...song, liked: !song.liked } : song
-      )
-    );
-  };
-
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -143,7 +135,7 @@ const AlbumPage = ({
                 currentSong={currentSong}
                 currentTime={currentTime}
                 toggleSongPlay={toggleSongPlay}
-                onLikeChange={handleLikeChangeInternal}
+                onLikeChange={onLikeChange}
                 onSongSelect={onSongSelect}
               />
             ))}
