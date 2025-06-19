@@ -22,8 +22,10 @@ const AlbumPage = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const [album, setAlbum] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user"));
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
     setCurrentModal(modalType);
@@ -32,15 +34,51 @@ const AlbumPage = ({
     setIsModalOpen(false);
     setCurrentModal(null);
   };
+  const location = useLocation();
+  useEffect(() => {
+    const item = location.state?.album;
+    if (item) {
+      setAlbum(item);
+    }
+  }, [location.state]);
   const options = [
     {
-      label: "Добавить в избранное",
+      label: album.liked ? "Удалить из избранного" : "Добавить в избранное",
       action: () => {
-        handleOpenModal("addToFav");
+        album.liked
+          ? handleOpenModal("delFromFav")
+          : handleOpenModal("addToFav");
+        LikeChange();
       },
     },
   ];
+  const LikeChange = async () => {
+    if (!user || !album) return;
 
+    try {
+      const newLikedStatus = !album.liked;
+      setAlbum((prev) => ({ ...prev, liked: newLikedStatus }));
+      const response = await fetch(
+        `http://localhost:5000/api/album/likeChange/${album.AlbumID}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        }
+      );
+
+      if (!response.ok) {
+        setAlbum((prev) => ({ ...prev, liked: !newLikedStatus }));
+        throw new Error(`Ошибка: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      setAlbum((prev) => ({ ...prev, liked: result.liked }));
+    } catch (error) {
+      console.error("Ошибка при изменении статуса альбома:", error);
+    }
+  };
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -49,9 +87,6 @@ const AlbumPage = ({
     setIsHovered(false);
   };
 
-  const location = useLocation();
-  const album = location.state?.album;
-  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
     const fetchData = async () => {
       if (!album || !album.AlbumID) {
@@ -111,6 +146,15 @@ const AlbumPage = ({
               confirmButtonText={"Ок"}
               onConfirm={handleCloseModal}
               message={"Выбранный альбом добавлен в Избранное"}
+            />
+          )}
+          {currentModal === "delFromFav" && (
+            <ModalWindowInformation
+              onClose={handleCloseModal}
+              showCancelButton={false}
+              confirmButtonText={"Ок"}
+              onConfirm={handleCloseModal}
+              message={"Выбранный альбом удален из Избранного"}
             />
           )}
           <div className="main-timing"></div>

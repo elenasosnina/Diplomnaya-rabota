@@ -103,6 +103,8 @@ const App = () => {
     checkAuth();
   }, []);
   const getSongsData = useCallback(async () => {
+    if (!user?.UserID) return;
+
     try {
       const res = await fetch("http://localhost:5000/api/songs", {
         method: "POST",
@@ -116,11 +118,15 @@ const App = () => {
     } catch (error) {
       console.error("Ошибка при загрузке песен:", error);
     }
-  }, []);
+  }, [user?.UserID]);
 
   const getDataAlbums = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/albums");
+      const res = await fetch("http://localhost:5000/api/albums", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ UserID: user.UserID }),
+      });
       if (res.ok) setAlbums(await res.json());
     } catch (error) {
       console.error("Ошибка при загрузке альбомов:", error);
@@ -129,7 +135,11 @@ const App = () => {
 
   const getDataPlaylists = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/playlists");
+      const res = await fetch("http://localhost:5000/api/playlists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ UserID: user.UserID }),
+      });
       if (res.ok) setPlaylists(await res.json());
     } catch (error) {
       console.error("Ошибка при загрузке плейлистов:", error);
@@ -137,11 +147,13 @@ const App = () => {
   }, []);
 
   const getDataArtists = useCallback(async () => {
+    if (!user?.UserID) return;
+
     try {
       const res = await fetch("http://localhost:5000/api/artists", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ UserID: user?.UserID }),
+        body: JSON.stringify({ UserID: user.UserID }),
       });
       if (!res.ok) {
         throw new Error(`Ошибка HTTP: ${res.status}`);
@@ -151,7 +163,7 @@ const App = () => {
     } catch (error) {
       console.error("Ошибка при загрузке артистов:", error);
     }
-  }, [user.UserID]);
+  }, [user?.UserID]);
 
   useEffect(() => {
     getSongsData();

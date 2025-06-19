@@ -22,6 +22,7 @@ const PlaylistPage = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
+  const [playlist, setPlaylist] = useState([]);
   const [loading, setLoading] = useState(true);
   const handleOpenModal = (modalType) => {
     setIsModalOpen(true);
@@ -32,22 +33,52 @@ const PlaylistPage = ({
     setIsModalOpen(false);
     setCurrentModal(null);
   };
-
+  const location = useLocation();
+  useEffect(() => {
+    const item = location.state?.playlist;
+    if (item) {
+      setPlaylist(item);
+    }
+  }, [location.state]);
+  const user = JSON.parse(localStorage.getItem("user"));
   const options = [
     {
-      label: "Поделиться",
+      label: !playlist.liked ? "Добавить в избранное" : "Удалить из избранного",
       action: () => {
-        handleOpenModal("share");
-      },
-    },
-    {
-      label: "Добавить в избранное",
-      action: () => {
-        handleOpenModal("addToFav");
+        !playlist.liked
+          ? handleOpenModal("addToFav")
+          : handleOpenModal("delFromFav");
+        LikeChange();
       },
     },
   ];
+  const LikeChange = async () => {
+    if (!user || !playlist) return;
 
+    try {
+      const newLikedStatus = !playlist.liked;
+      setPlaylist((prev) => ({ ...prev, liked: newLikedStatus }));
+      const response = await fetch(
+        `http://localhost:5000/api/playlist/likeChange/${playlist.PlaylistID}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        }
+      );
+
+      if (!response.ok) {
+        setPlaylist((prev) => ({ ...prev, liked: !newLikedStatus }));
+        throw new Error(`Ошибка: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      setPlaylist((prev) => ({ ...prev, liked: result.liked }));
+    } catch (error) {
+      console.error("Ошибка при изменении статуса плейлиста:", error);
+    }
+  };
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -56,9 +87,6 @@ const PlaylistPage = ({
     setIsHovered(false);
   };
 
-  const location = useLocation();
-  const playlist = location.state?.playlist;
-  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
     const fetchData = async () => {
       if (!playlist || !playlist.PlaylistID) {
@@ -131,6 +159,15 @@ const PlaylistPage = ({
                   confirmButtonText={"Ок"}
                   onConfirm={handleCloseModal}
                   message={"Выбранный плейлист добавлен в Избранное"}
+                />
+              )}
+              {currentModal === "delFromFav" && (
+                <ModalWindowInformation
+                  onClose={handleCloseModal}
+                  showCancelButton={false}
+                  confirmButtonText={"Ок"}
+                  onConfirm={handleCloseModal}
+                  message={"Выбранный плейлист удален из Избранного"}
                 />
               )}
             </div>

@@ -288,10 +288,17 @@ WHERE SongGenres.GenreID = @GenreID
   }
 });
 //Получение альбомов для главной страницы
-app.get("/api/albums", async (req, res) => {
+app.post("/api/albums", async (req, res) => {
   try {
+    const { UserID } = req.body;
     const pool = await sql.connect(dbConfig);
-    const result = await pool.request().query("SELECT * FROM Albums");
+    const result = await pool
+      .request()
+      .input("UserID", sql.Int, UserID)
+      .query(
+        `SELECT Albums.*, CASE WHEN FavoriteAlbums.AlbumID IS NOT NULL THEN 1 ELSE 0 END AS liked FROM Albums
+left join FavoriteAlbums ON Albums.AlbumID= FavoriteAlbums.AlbumID AND FavoriteAlbums.UserID = 16`
+      );
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Альбомы не найдены" });
     }
@@ -338,12 +345,13 @@ app.post("/api/albums/songs/:AlbumID", async (req, res) => {
   }
 });
 //Получение плейлистов для главной страницы
-app.get("/api/playlists", async (req, res) => {
+app.post("/api/playlists", async (req, res) => {
   try {
+    const { UserID } = req.body;
     const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover, Users.Nickname FROM Playlists
-INNER JOIN Users ON Playlists.UserID = Users.UserID`);
+    const result = await pool.request().input("UserID", sql.Int, UserID)
+      .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover, Users.Nickname,CASE WHEN FavoritePlaylists.PlaylistID IS NOT NULL THEN 1 ELSE 0 END AS liked FROM Playlists
+INNER JOIN Users ON Playlists.UserID = Users.UserID LEFT JOIN FavoritePlaylists ON Playlists.PlaylistID = FavoritePlaylists.PlaylistID AND FavoritePlaylists.UserID = @UserID`);
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Плейлисты не найдены" });
     }
@@ -544,7 +552,7 @@ app.get("/api/favouriteAlbums/:UserID", async (req, res) => {
       .request()
       .input("UserID", sql.Int, UserID)
       .query(
-        `SELECT Albums.PhotoCover, Albums.Title, Albums.AlbumID 
+        `SELECT Albums.PhotoCover, Albums.Title, Albums.AlbumID, CASE WHEN FavoriteAlbums.AlbumID IS NOT NULL THEN 1 ELSE 0 END AS liked 
          FROM Albums 
          INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID 
          INNER JOIN FavoriteAlbums ON AlbumArtists.AlbumID = FavoriteAlbums.AlbumID 
@@ -573,7 +581,7 @@ app.get("/api/favouritePlaylists/:UserID", async (req, res) => {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserID", sql.Int, UserID)
       .query(`SELECT Playlists.Title,Playlists.PlaylistID, 
-Playlists.PhotoCover, Users.Nickname FROM Playlists 
+Playlists.PhotoCover, Users.Nickname, CASE WHEN FavoritePlaylists.PlaylistID IS NOT NULL THEN 1 ELSE 0 END AS liked  FROM Playlists 
 INNER JOIN Users ON Playlists.UserID = Users.UserID 
 INNER JOIN FavoritePlaylists ON Playlists.PlaylistID= FavoritePlaylists.PlaylistID WHERE FavoritePlaylists.UserID = @UserID`);
     if (result.recordset.length === 0) {
