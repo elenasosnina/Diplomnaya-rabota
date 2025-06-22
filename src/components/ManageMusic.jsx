@@ -53,6 +53,11 @@ const ManageMusic = ({ user }) => {
         if (currentSong?.SongID === SongID) {
           setCurrentSong((prev) => ({ ...prev, liked: newLikedStatus }));
         }
+        setSearchResultsSongs((prevSearchResults) =>
+          prevSearchResults.map((song) =>
+            song.SongID === SongID ? { ...song, liked: newLikedStatus } : song
+          )
+        );
 
         const response = await fetch(
           `http://localhost:5000/api/song/likeChange/${SongID}`,
@@ -80,6 +85,11 @@ const ManageMusic = ({ user }) => {
           if (currentSong?.SongID === SongID) {
             setCurrentSong((prev) => ({ ...prev, liked: data.liked }));
           }
+          setSearchResultsSongs((prevSearchResults) =>
+            prevSearchResults.map((song) =>
+              song.SongID === SongID ? { ...song, liked: data.liked } : song
+            )
+          );
         }
 
         return data.liked;
@@ -227,7 +237,7 @@ const ManageMusic = ({ user }) => {
       }
     };
   }, [playNextSong, isRepeat]);
-
+  const [searchResultsSongs, setSearchResultsSongs] = useState([]);
   return {
     currentSong,
     isPlaying,
@@ -247,6 +257,8 @@ const ManageMusic = ({ user }) => {
     toggleRepeat,
     setSongs,
     toggleSongPlay,
+    searchResultsSongs,
+    setSearchResultsSongs,
   };
 };
 

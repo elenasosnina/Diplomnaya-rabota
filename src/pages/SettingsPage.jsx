@@ -10,7 +10,7 @@ import {
   ChangePasswordModal,
 } from "../components/ModalWindows";
 
-const SettingsPage = ({ userData }) => {
+const SettingsPage = ({ userData, checkAuth }) => {
   const [profileFile, setProfileFile] = useState(null);
   const [backgroundFile, setBackgroundFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -180,19 +180,35 @@ const SettingsPage = ({ userData }) => {
       }
       const res = await fetch(url, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: formData,
       });
-      const data = await res.json();
+
       if (!res.ok) {
-        console.error("Ошибка:", data.error || data.message);
-        setMessage(data.error || data.message);
-      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Ошибка при обновлении данных");
+      }
+
+      const newToken = await res.json();
+
+      localStorage.setItem("token", newToken);
+      const userResponse = await fetch("http://localhost:5000/api/user", {
+        headers: { Authorization: `Bearer ${newToken}` },
+      });
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        localStorage.setItem("user", JSON.stringify(userData.user));
+        checkAuth(newToken);
         handleOpenModal("saveInfo");
         setMessage("");
+      } else {
+        throw new Error("Не удалось получить обновленные данные пользователя");
       }
     } catch (error) {
       console.error("Ошибка:", error);
-      setMessage("Произошла ошибка при обновлении данных.");
+      setMessage(error.message || "Произошла ошибка при обновлении данных.");
     }
   };
   const handleSaveChanges = () => {

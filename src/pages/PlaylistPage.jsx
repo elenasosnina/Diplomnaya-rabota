@@ -174,14 +174,10 @@ const PlaylistPage = ({
           )}
           <div className="playlist-cover">
             <img src={playlist?.PhotoCover} alt="Cover" />
-            <div className="listen-counter">{0}</div>
           </div>
           <div className="playlist-info">
             <p>
               <b>{playlist?.Title}</b>
-            </p>
-            <p style={{ fontSize: "18px", marginTop: "30px" }}>
-              {playlist?.Duration || "0"}
             </p>
             <p style={{ fontSize: "25px", marginTop: "0px" }}>
               {playlist?.Nickname}

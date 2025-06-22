@@ -297,7 +297,7 @@ app.post("/api/albums", async (req, res) => {
       .input("UserID", sql.Int, UserID)
       .query(
         `SELECT Albums.*, CASE WHEN FavoriteAlbums.AlbumID IS NOT NULL THEN 1 ELSE 0 END AS liked FROM Albums
-left join FavoriteAlbums ON Albums.AlbumID= FavoriteAlbums.AlbumID AND FavoriteAlbums.UserID = 16`
+left join FavoriteAlbums ON Albums.AlbumID= FavoriteAlbums.AlbumID AND FavoriteAlbums.UserID = @UserID`
       );
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Альбомы не найдены" });
@@ -482,20 +482,23 @@ app.post("/api/artists/songs/:ArtistID", async (req, res) => {
   }
 });
 //Получение альбомов для страницы артиста
-app.get("/api/artists/albums/:ArtistID", async (req, res) => {
+app.post("/api/artists/albums/:ArtistID", async (req, res) => {
   try {
     const { ArtistID } = req.params;
+    const { UserID } = req.body;
     const pool = await sql.connect(dbConfig);
     const result = await pool
       .request()
       .input("ArtistID", sql.Int, ArtistID)
-      .query(
-        `SELECT Albums.PhotoCover, Albums.Title, Albums.AlbumID 
-         FROM Albums 
-         INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID 
-         INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID 
-         WHERE Artists.ArtistID = @ArtistID`
-      );
+      .input("UserID", sql.Int, UserID).query(`
+    SELECT Albums.PhotoCover, Albums.Title, Albums.AlbumID,
+           CASE WHEN FavoriteAlbums.AlbumID IS NOT NULL THEN 1 ELSE 0 END AS liked
+    FROM Albums
+    INNER JOIN AlbumArtists ON Albums.AlbumID = AlbumArtists.AlbumID
+    INNER JOIN Artists ON AlbumArtists.ArtistID = Artists.ArtistID
+    LEFT JOIN FavoriteAlbums ON Albums.AlbumID = FavoriteAlbums.AlbumID AND FavoriteAlbums.UserID = @UserID
+    WHERE Artists.ArtistID = @ArtistID
+  `);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: "Альбомы не найдены" });
@@ -602,7 +605,7 @@ app.get("/api/makePlaylists/:UserID", async (req, res) => {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("UserID", sql.Int, UserID)
       .query(`SELECT Playlists.Title,Playlists.PlaylistID, Playlists.PhotoCover,  Users.Nickname FROM Playlists 
-INNER JOIN Users ON Playlists.UserID = Users.UserID 
+    INNER JOIN Users ON Playlists.UserID = Users.UserID 
 WHERE Playlists.UserID = @UserID`);
     if (result.recordset.length === 0) {
       return res.status(401).json({ error: "Плейлисты не найдены" });
@@ -783,7 +786,7 @@ app.put(
   }
 );
 //добавление песни в плейлист
-app.post("/api/playlists/songs/adding", async function (req, res) {
+app.post("/api/song/adding", async function (req, res) {
   let playlists = req.body.playlists;
   let song = req.body.song;
 
@@ -802,8 +805,7 @@ app.post("/api/playlists/songs/adding", async function (req, res) {
       if (!playlist) {
         continue;
       }
-      console.log(playlist);
-      console.log(song.SongID);
+
       try {
         const resultCheck = await pool
           .request()
@@ -887,7 +889,20 @@ app.put(
 
     let PhotoProfileUrl = null;
     let PhotoBackgroundUrl = null;
+    const token = req.headers.authorization?.split(" ")[1];
 
+    if (!token) {
+      return res.status(401).json({ error: "Токен отсутствует" });
+    }
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.SECRET_KEY);
+    } catch (err) {
+      return res.status(401).json({ error: "Неверный или просроченный токен" });
+    }
+    if (decoded.UserID !== parseInt(UserID)) {
+      return res.status(403).json({ error: "Доступ запрещён" });
+    }
     try {
       if (req.files && req.files["backgroundFile"]) {
         PhotoBackgroundUrl = await uploadToYandexDisk(
@@ -922,11 +937,24 @@ app.put(
         updateQuery += `, DateOfBirth = @DateOfBirth`;
       }
 
-      updateQuery += ` WHERE UserID = @UserID`;
+      updateQuery += ` OUTPUT inserted.* WHERE UserID = @UserID`;
 
-      await request.query(updateQuery);
+      const result = await request.query(updateQuery);
       await pool.close();
-      return res.json({ message: "Пользователь успешно обновлен" });
+
+      if (result.recordset.length === 0) {
+        return res.status(404).json({ error: "Пользователь не найден" });
+      }
+      const userWithDirectLinks = await processYandexLinks(
+        result.recordset[0],
+        ["PhotoProfile", "PhotoBackground"]
+      );
+      const userData = { ...userWithDirectLinks };
+      delete userData.Password;
+      const token = jwt.sign(userData, process.env.SECRET_KEY, {
+        expiresIn: "1h",
+      });
+      return res.status(200).json(token);
     } catch (error) {
       console.error(error);
       return res

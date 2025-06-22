@@ -15,6 +15,8 @@ const SingerPage = ({
   onSongSelect,
   songs,
   setSongs,
+  searchResultsArtists,
+  setSearchResultsArtists,
 }) => {
   const [loading, setLoading] = useState(true);
   const [albums, setAlbums] = useState([]);
@@ -53,6 +55,7 @@ const SingerPage = ({
       const result = await response.json();
 
       setArtist((prev) => ({ ...prev, liked: result.liked }));
+      setSearchResultsArtists((prev) => ({ ...prev, liked: result.liked }));
     } catch (error) {
       console.error("Ошибка при изменении статуса артиста:", error);
     }
@@ -85,7 +88,11 @@ const SingerPage = ({
         }
 
         const albumsUrl = `http://localhost:5000/api/artists/albums/${artist.ArtistID}`;
-        const albumsResponse = await fetch(albumsUrl);
+        const albumsResponse = await fetch(albumsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        });
 
         if (!albumsResponse.ok) {
           console.error(`Ошибка: ${albumsResponse.status}`);

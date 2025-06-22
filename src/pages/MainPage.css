@@ -31,6 +31,7 @@ width:300px;
     border-radius: 14px;
     
 }
+
 .image-singers {
     display: flex;
     justify-self: center;
@@ -44,6 +45,10 @@ width:300px;
     border-radius: 80px;
     margin: 5px 20px;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.image-singers img:hover{
+   transform: scale(1.2);
 }
 .best-singers{
 background-color: rgb(226, 226, 226);
@@ -58,6 +63,7 @@ padding: 25px 30px;
 }
 .artist-nickname{
  text-align: center;
+ margin-top: 10px;
 }
 .top{
     display: flex;
@@ -71,10 +77,10 @@ padding: 25px 30px;
     border-radius: 14px;
     margin: 0px 50px;
 }
-.image-playlists img:hover, .main-genre-card:hover{
+.image-playlists img:hover, .main-genre-card:hover, .image-albums img:hover{
    box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.705);
 }
-.image-playlists img:active, .main-genre-card:active{
+.image-playlists img:active, .main-genre-card:active, .image-albums img:active {
    opacity: 0.7;
 
 }

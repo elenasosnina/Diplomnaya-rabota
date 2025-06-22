@@ -146,7 +146,11 @@ const AddToPlaylistModalWindow = ({
 
       try {
         const url = `http://localhost:5000/api/playlists/songs/${playlistId}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ UserID: user.UserID }),
+        });
 
         if (!response.ok) {
           console.error(`HTTP error! status: ${response.status}`);
@@ -388,8 +392,7 @@ const AddToPlaylistModalWindow = ({
     ));
   };
   const addSongIntoPlaylist = async (song, selectedItems) => {
-    const url = `http://localhost:5000/api/playlists/songs/adding`;
-
+    const url = `http://localhost:5000/api/song/adding`;
     try {
       const response = await fetch(url, {
         method: "POST",

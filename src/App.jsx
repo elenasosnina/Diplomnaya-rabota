@@ -64,6 +64,8 @@ const App = () => {
     toggleRepeat,
     setSongs,
     toggleSongPlay,
+    searchResultsSongs,
+    setSearchResultsSongs,
   } = ManageMusic({ user });
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -72,36 +74,35 @@ const App = () => {
   const [playlists, setPlaylists] = useState([]);
   const [artists, setArtists] = useState([]);
   const [allSongs, setAllSongs] = useState([]);
-  const [searchResultsSongs, setSearchResultsSongs] = useState([]);
   const [searchResultsAlbums, setSearchResultsAlbums] = useState([]);
   const [searchResultsArtists, setSearchResultsArtists] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef(null);
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+  const token = localStorage.getItem("token");
+  const checkAuth = async (token) => {
+    if (!token) return;
 
-      try {
-        const response = await fetch("http://localhost:5000/api/user", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    try {
+      const response = await fetch("http://localhost:5000/api/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem("user", JSON.stringify(data.user));
-          setUser(data.user);
-        } else {
-          localStorage.removeItem("token");
-        }
-      } catch (error) {
-        console.error("Ошибка проверки токена:", error);
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+      } else {
         localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
       }
-    };
-
-    checkAuth();
-  }, []);
+    } catch (error) {
+      console.error("Ошибка проверки токена:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+    }
+  };
   const getSongsData = useCallback(async () => {
     if (!user?.UserID) return;
 
@@ -131,8 +132,7 @@ const App = () => {
     } catch (error) {
       console.error("Ошибка при загрузке альбомов:", error);
     }
-  }, []);
-
+  }, [user?.UserID]);
   const getDataPlaylists = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/api/playlists", {
@@ -144,7 +144,7 @@ const App = () => {
     } catch (error) {
       console.error("Ошибка при загрузке плейлистов:", error);
     }
-  }, []);
+  }, [user?.UserID]);
 
   const getDataArtists = useCallback(async () => {
     if (!user?.UserID) return;
@@ -166,6 +166,7 @@ const App = () => {
   }, [user?.UserID]);
 
   useEffect(() => {
+    checkAuth(token);
     getSongsData();
     getDataAlbums();
     getDataPlaylists();
@@ -327,7 +328,10 @@ const App = () => {
             />
           }
         />
-        <Route path="/settings" element={<SettingsPage userData={user} />} />
+        <Route
+          path="/settings"
+          element={<SettingsPage userData={user} checkAuth={checkAuth} />}
+        />
         <Route
           path="/songs-genres/:genreID"
           element={
@@ -389,6 +393,8 @@ const App = () => {
               onSongSelect={handleSongSelect}
               setSongs={setSongs}
               songs={songs}
+              searchResultsArtists={searchResultsArtists}
+              setSearchResultsArtists={setSearchResultsArtists}
             />
           }
         />

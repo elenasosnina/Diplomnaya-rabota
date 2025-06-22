@@ -149,20 +149,24 @@ const UserAccountPage = ({
   const renderCreatedContent = () => {
     return (
       <div className="favourites-playlists">
-        {makePlaylists.map((playlist) => (
-          <Artist
-            key={playlist.PlaylistID}
-            item={playlist}
-            type="album"
-            onClick={() =>
-              navigate(`/playlist/${playlist.PlaylistID}`, {
-                state: { playlist: playlist },
-              })
-            }
-            showEditIcon={activeTab === "СОЗДАННОЕ"}
-            onClickEdit={() => handleEditClick(playlist)}
-          />
-        ))}
+        {makePlaylists.length === 0 ? (
+          <p style={{ padding: "10px 50px" }}>У вас нет созданных плейлистов</p>
+        ) : (
+          makePlaylists.map((playlist) => (
+            <Artist
+              key={playlist.PlaylistID}
+              item={playlist}
+              type="album"
+              onClick={() =>
+                navigate(`/playlist/${playlist.PlaylistID}`, {
+                  state: { playlist: playlist },
+                })
+              }
+              showEditIcon={activeTab === "СОЗДАННОЕ"}
+              onClickEdit={() => handleEditClick(playlist)}
+            />
+          ))
+        )}
         {createPlaylistModalOpen && (
           <AddToPlaylistModalWindow
             onClose={handleCloseModal}
@@ -249,66 +253,90 @@ const UserAccountPage = ({
           >
             {activeCategory === "Исполнители" && (
               <div className="favourites-artists">
-                {favoriteArtists.map((artist) => (
-                  <Artist
-                    key={artist.ArtistID}
-                    item={artist}
-                    type="artist"
-                    onClick={() =>
-                      navigate(`/singer/${artist.ArtistID}`, {
-                        state: { artist: artist },
-                      })
-                    }
-                  />
-                ))}
+                {favoriteArtists.length === 0 ? (
+                  <p>Вы не добавили ни одного исполнителя в Избранное</p>
+                ) : (
+                  favoriteArtists.map((artist) => (
+                    <Artist
+                      key={artist.ArtistID}
+                      item={artist}
+                      type="artist"
+                      onClick={() =>
+                        navigate(`/singer/${artist.ArtistID}`, {
+                          state: { artist: artist },
+                        })
+                      }
+                    />
+               ))
+                )}
               </div>
             )}
 
             {activeCategory === "Треки" && (
               <div className="songs-list-fav">
-                {songs.map((song) => (
-                  <Songs
-                    key={song.SongID}
-                    song={song}
-                    isPlaying={isPlaying}
-                    currentSong={currentSong}
-                    currentTime={currentTime}
-                    toggleSongPlay={toggleSongPlay}
-                    onLikeChange={onLikeChange}
-                    onSongSelect={onSongSelect}
-                  />
-                ))}
+                {songs.length === 0 ? (
+                  <p style={{ padding: "10px 50px" }}>
+                    Вы не добавили ни одного трека в Избранное
+                  </p>
+                ) : (
+                  songs.map((song) => (
+                    <Songs
+                      key={song.SongID}
+                      song={song}
+                      isPlaying={isPlaying}
+                      currentSong={currentSong}
+                      currentTime={currentTime}
+                      toggleSongPlay={toggleSongPlay}
+                      onLikeChange={onLikeChange}
+                      onSongSelect={onSongSelect}
+                    />
+                  ))
+                )}
               </div>
             )}
 
             {activeCategory === "Плейлисты" && (
               <div className="favourites-playlists">
-                {favoritePlaylists.map((playlist) => (
-                  <Artist
-                    key={playlist.PlaylistID}
-                    item={playlist}
-                    type="album"
-                    onClick={() =>
-                      navigate(`/playlist/${playlist.PlaylistID}`, {
-                        state: { playlist: playlist },
-                      })
-                    }
-                  />
-                ))}
+                {favoritePlaylists.length === 0 ? (
+                  <p style={{ padding: "10px 50px" }}>
+                    Вы не добавили ни одного плейлиста в Избранное
+                  </p>
+                ) : (
+                  favoritePlaylists.map((playlist) => (
+                    <Artist
+                      key={playlist.PlaylistID}
+                      item={playlist}
+                      type="album"
+                      onClick={() =>
+                        navigate(`/playlist/${playlist.PlaylistID}`, {
+                          state: { playlist: playlist },
+                        })
+                      }
+                    />
+                  ))
+                )}
               </div>
             )}
 
             {activeCategory === "Альбомы" && (
               <div className="favourites-albums">
-                {favoriteAlbums.map((album) => (
-                  <Album
-                    key={album.AlbumID}
-                    album={album}
-                    onClick={() =>
-                      navigate(`/album/${album.AlbumID}`, { state: { album } })
-                    }
-                  />
-                ))}
+                {favoriteAlbums.length === 0 ? (
+                  <p style={{ padding: "10px 50px" }}>
+                    Вы не добавили ни одного альбома в Избранное
+                  </p>
+                ) : (
+                  favoriteAlbums.map((album) => (
+                    <Album
+                      key={album.AlbumID}
+                      album={album}
+                      onClick={() =>
+                        navigate(`/album/${album.AlbumID}`, {
+                          state: { album },
+                        })
+                      }
+                    />
+                  ))
+                )}
               </div>
             )}
           </div>

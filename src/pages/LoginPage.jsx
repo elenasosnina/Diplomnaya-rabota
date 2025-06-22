@@ -42,6 +42,7 @@ const LoginPage = ({ setUser }) => {
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
+          localStorage.setItem("user", JSON.stringify(userData.user));
           setUser(userData.user);
           handleNavigation("/main");
         }
