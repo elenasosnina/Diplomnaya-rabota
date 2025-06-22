@@ -25,7 +25,7 @@ import HelpPage from "./pages/HelpPage";
 import SettingsPage from "./pages/SettingsPage";
 import Media from "./components/Media";
 import GenresPage from "./pages/GenresPage";
-
+import direct from "./assets/direction.png";
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,6 +66,8 @@ const App = () => {
     toggleSongPlay,
     searchResultsSongs,
     setSearchResultsSongs,
+    shuffledSongs,
+    setShuffledSongs,
   } = ManageMusic({ user });
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -320,12 +322,26 @@ const App = () => {
         <Route
           path="/main"
           element={
-            <MainPage
-              songs={allSongs}
-              albums={albums}
-              artists={artists}
-              playlists={playlists}
-            />
+            !user ? (
+              <div className="block">
+                <div className="block-text">
+                  <p>
+                    Чтобы получить доступ к музыке на impulse необходимо войти в
+                    аккаунт
+                  </p>
+                  <p>Все еще нет аккаунта? Создайте его! </p>
+                </div>
+
+                <img src={direct} />
+              </div>
+            ) : (
+              <MainPage
+                songs={allSongs}
+                albums={albums}
+                artists={artists}
+                playlists={playlists}
+              />
+            )
           }
         />
         <Route
@@ -457,6 +473,8 @@ const App = () => {
             onToggleRepeat={toggleRepeat}
             isMaximized={isMaximized}
             setIsMaximized={setIsMaximized}
+            shuffledSongs={shuffledSongs}
+            setShuffledSongs={setShuffledSongs}
           />
         </>
       )}

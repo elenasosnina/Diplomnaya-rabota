@@ -608,13 +608,13 @@ app.get("/api/makePlaylists/:UserID", async (req, res) => {
     INNER JOIN Users ON Playlists.UserID = Users.UserID 
 WHERE Playlists.UserID = @UserID`);
     if (result.recordset.length === 0) {
-      return res.status(401).json({ error: "Плейлисты не найдены" });
+      return res.json(result.recordset);
+    } else {
+      const playlistsWithDirectLinks = await Promise.all(
+        result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
+      );
+      return res.json(playlistsWithDirectLinks);
     }
-    const playlistsWithDirectLinks = await Promise.all(
-      result.recordset.map((item) => processYandexLinks(item, ["PhotoCover"]))
-    );
-
-    res.json(playlistsWithDirectLinks);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -645,18 +645,21 @@ app.delete("/api/user/settings/:UserID", async (req, res) => {
   }
 });
 
-app.delete("/api/user/playlists/:PlaylistID", async (req, res) => {
+app.delete("/api/delete/playlist/:PlaylistID", async (req, res) => {
   try {
     const { PlaylistID } = req.params;
+    if (!PlaylistID) {
+      return res.status(400).json({ error: err.message });
+    }
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().input("PlaylistID", sql.Int, PlaylistID)
       .query(`DELETE FROM FavoritePlaylists WHERE PlaylistID = @PlaylistID;
 DELETE FROM PlaylistSongs WHERE PlaylistID = @PlaylistID;
 DELETE FROM Playlists WHERE PlaylistID = @PlaylistID;`);
-    if (result.rowsAffected[0] === 0) {
-      return res.status(401).json({ error: "Плейлист не найден" });
+    if (result.rowsAffected[2] === 0) {
+      return res.status(400).json({ error: "Плейлист не найден" });
     }
-    res.status(200).json({ message: "Плейлист успешно удален" });
+    return res.status(200).json({ message: "Плейлист успешно удален" });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

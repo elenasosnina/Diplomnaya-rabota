@@ -47,3 +47,25 @@ html {
     font-weight: 300;
     margin-left: 50px;
 }
+.block{
+    background-color: rgb(79, 15, 255);
+    z-index: 10;
+    flex:1;
+   text-align: center;
+   align-items: center;
+   display:flex;
+   flex-direction: row;
+   justify-content: center;
+   padding-left: 50px;
+}
+.block-text p{
+    color: #ffffff;
+    font-size: 30px;
+} 
+.block-text p:last-child{
+   font-size: 20px;
+}
+.block img{
+    height:100px ;
+    width: 100px;
+}

@@ -58,12 +58,12 @@ body {
   position: absolute;
   top: 50px; 
   transform: rotate(-90deg);
-  padding-right: 50px;
+  padding-bottom: 50px;
 }
 .dropdown {
   position: relative; 
   z-index: 1000;
-  transform: translateX(50px);
+  transform: translateX(50px) translateY(40px);
 }
 
 .menu-album {

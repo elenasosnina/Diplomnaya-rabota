@@ -259,6 +259,8 @@ const ManageMusic = ({ user }) => {
     toggleSongPlay,
     searchResultsSongs,
     setSearchResultsSongs,
+    shuffledSongs,
+    setShuffledSongs,
   };
 };
 

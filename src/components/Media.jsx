@@ -3,17 +3,27 @@ import "./Media.css";
 import editSign from "../assets/edit.png";
 import deleteSign from "../assets/deletePlaylist.png";
 
-const Media = ({ item, type, onClick, showEditIcon, onClickEdit }) => {
+const Media = ({
+  item,
+  type,
+  onClick,
+  showEditIcon,
+  onClickEdit,
+  setMakePlaylists,
+}) => {
   const onClickDelete = async (e) => {
     e.stopPropagation();
     try {
-      const url = `http://localhost:5000/api/user/playlists/${item.PlaylistID}`;
+      const url = `http://localhost:5000/api/delete/playlist/${item.PlaylistID}`;
       const response = await fetch(url, {
         method: "DELETE",
       });
       if (!response.ok) {
         console.log("Ошибка" + response.status);
       }
+      setMakePlaylists((prev) =>
+        prev.filter((p) => p.PlaylistID !== item.PlaylistID)
+      );
     } catch (e) {
       console.error("Ошибка при удалении плейлиста:", e);
     }

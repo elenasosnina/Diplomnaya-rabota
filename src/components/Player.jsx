@@ -29,16 +29,16 @@ const Player = ({
   onSongSelect,
   isMaximized,
   setIsMaximized,
+  shuffledSongs,
+  setShuffledSongs,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const [showSlider, setShowSlider] = useState(false);
   const [volume, setVolume] = useState(50);
-  const [shuffledSongs, setShuffledSongs] = useState([]);
-  const [currentShuffledIndex, setCurrentShuffledIndex] = useState(0);
   const playerCardRef = useRef(null);
-  const [cardStyle, setCardStyle] = useState({});
   const [isLiked, setIsLiked] = useState(false);
+  const [currentShuffledIndex, setCurrentShuffledIndex] = useState(0);
 
   useEffect(() => {
     if (playerCardRef.current) {
@@ -100,17 +100,43 @@ const Player = ({
   };
 
   const playNextShuffledSong = useCallback(() => {
-    if (shuffledSongs && shuffledSongs.length > 0) {
-      let nextIndex = currentShuffledIndex + 1;
-      if (nextIndex >= shuffledSongs.length) {
-        const shuffled = [...songs].sort(() => Math.random() - 0.5);
-        setShuffledSongs(shuffled);
-        nextIndex = 0;
+    if (!shuffledSongs || shuffledSongs.length === 0) {
+      if (songs && songs.length > 0) {
+        const newShuffledSongs = [...songs].sort(() => Math.random() - 0.5);
+        setShuffledSongs(newShuffledSongs);
+        onSongSelect(newShuffledSongs[0]);
+        setCurrentShuffledIndex(0);
       }
-      setCurrentShuffledIndex(nextIndex);
-      onSongSelect(shuffledSongs[nextIndex]);
+      return;
     }
-  }, [shuffledSongs, currentShuffledIndex, songs, onSongSelect]);
+    const nextIndex = (currentShuffledIndex + 1) % shuffledSongs.length;
+    setCurrentShuffledIndex(nextIndex);
+    onSongSelect(shuffledSongs[nextIndex]);
+  }, [
+    shuffledSongs,
+    songs,
+    currentShuffledIndex,
+    onSongSelect,
+    setShuffledSongs,
+  ]);
+
+  useEffect(() => {
+    if (isShuffle && songs.length > 0 && shuffledSongs.length === 0) {
+      const initialShuffledSongs = [...songs].sort(() => Math.random() - 0.5);
+      setShuffledSongs(initialShuffledSongs);
+    }
+  }, [isShuffle, songs, shuffledSongs, setShuffledSongs]);
+
+  useEffect(() => {
+    if (isShuffle && currentSong) {
+      const currentIndex = shuffledSongs.findIndex(
+        (song) => song.SongID === currentSong.SongID
+      );
+      if (currentIndex !== -1) {
+        setCurrentShuffledIndex(currentIndex);
+      }
+    }
+  }, [currentSong, shuffledSongs, isShuffle]);
 
   const handleEnded = useCallback(() => {
     if (isRepeat) {
@@ -366,7 +392,6 @@ const Player = ({
   return (
     <div
       className={`player-card ${isMaximized ? "maximized" : ""}`}
-      style={cardStyle}
       ref={playerCardRef}
     >
       <>

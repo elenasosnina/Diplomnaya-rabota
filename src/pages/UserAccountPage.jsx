@@ -22,6 +22,7 @@ const UserAccountPage = ({
   const [favoriteAlbums, setFavoriteAlbums] = useState([]);
   const [favoritePlaylists, setFavoritePlaylists] = useState([]);
   const [makePlaylists, setMakePlaylists] = useState([]);
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
   useEffect(() => {
     const urlFavoriteArtists = `http://localhost:5000/api/favouriteArtists/${userData.UserID}`;
     const getDataFavoriteArtists = async () => {
@@ -84,23 +85,7 @@ const UserAccountPage = ({
     };
     getDataFavoritePlaylists();
   }, [setSongs]);
-  useEffect(() => {
-    const urlMakePlaylists = `http://localhost:5000/api/makePlaylists/${userData.UserID}`;
-    const getDataMakePlaylists = async () => {
-      try {
-        const res = await fetch(urlMakePlaylists);
-        if (res.ok) {
-          let json = await res.json();
-          setMakePlaylists(json);
-        } else {
-          console.log("Ошибка" + res.status);
-        }
-      } catch (error) {
-        console.error("Ошибка", error);
-      }
-    };
-    getDataMakePlaylists();
-  }, [makePlaylists]);
+
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("ИЗБРАННОЕ");
@@ -149,9 +134,7 @@ const UserAccountPage = ({
   const renderCreatedContent = () => {
     return (
       <div className="favourites-playlists">
-        {makePlaylists.length === 0 ? (
-          <p style={{ padding: "10px 50px" }}>У вас нет созданных плейлистов</p>
-        ) : (
+        {makePlaylists.length > 0 ? (
           makePlaylists.map((playlist) => (
             <Artist
               key={playlist.PlaylistID}
@@ -162,10 +145,13 @@ const UserAccountPage = ({
                   state: { playlist: playlist },
                 })
               }
+              setMakePlaylists={setMakePlaylists}
               showEditIcon={activeTab === "СОЗДАННОЕ"}
               onClickEdit={() => handleEditClick(playlist)}
             />
           ))
+        ) : (
+          <p style={{ padding: "10px 50px" }}>У вас нет созданных плейлистов</p>
         )}
         {createPlaylistModalOpen && (
           <AddToPlaylistModalWindow
@@ -183,7 +169,26 @@ const UserAccountPage = ({
       </div>
     );
   };
-
+  useEffect(() => {
+    if (activeTab === "СОЗДАННОЕ") {
+      const loadPlaylists = async () => {
+        setIsLoadingPlaylists(true);
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/makePlaylists/${userData.UserID}`
+          );
+          if (res.ok) {
+            const json = await res.json();
+            setMakePlaylists(json);
+          }
+          setIsLoadingPlaylists(false);
+        } catch (error) {
+          console.error("Ошибка загрузки плейлистов:", error);
+        }
+      };
+      loadPlaylists();
+    }
+  }, [activeTab]);
   return (
     <div className="userPage">
       <div className="cover-userPage">
@@ -267,7 +272,7 @@ const UserAccountPage = ({
                         })
                       }
                     />
-               ))
+                  ))
                 )}
               </div>
             )}
@@ -348,7 +353,15 @@ const UserAccountPage = ({
           className="array-favourites"
           style={{ backgroundColor: "rgb(233, 233, 233)" }}
         >
-          {renderCreatedContent()}
+          {isLoadingPlaylists ? (
+            <div className="search-process">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            renderCreatedContent()
+          )}
         </div>
       )}
     </div>
